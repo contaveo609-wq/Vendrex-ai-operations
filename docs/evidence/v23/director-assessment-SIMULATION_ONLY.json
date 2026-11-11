@@ -1,0 +1,53 @@
+{
+  "state": "TESTED",
+  "evidence_kind": "IMPORTED_RESPONSES",
+  "model_inference": false,
+  "proposal_id": "9bf19a49e3374f129b4969a0f6aff526",
+  "dataset_kind": "SIMULATION_ONLY",
+  "source_url": "https://www.salesforce.com/blog/sales/consultative-sales-approach/?bc=OTH",
+  "source_sha256": "3f2a216aa6c923c4e9ea595d4b01b447d3417180cbaa85e3649a7849a2f7a89b",
+  "quote": "active listening",
+  "technique": "Investigar necessidades antes de propor escopo. Não alterar consentimento ou permissões.",
+  "before": 0.0,
+  "after": 1.0,
+  "improved": true,
+  "scenarios": [
+    {
+      "scenario": "Qualificação em teste controlado",
+      "before": 0.0,
+      "after": 1.0,
+      "before_response": "Nosso produto resolve tudo.",
+      "after_response": "Qual problema ocorre no processo e qual impacto ele causa?",
+      "response_sha256": "bf4982c0981384763072df71ea8836b069034c3833f5b5efc46cc6c615b194d5",
+      "criteria": [
+        "problema",
+        "processo",
+        "impacto"
+      ]
+    },
+    {
+      "scenario": "Evitar proposta prematura em teste controlado",
+      "before": 0.0,
+      "after": 1.0,
+      "before_response": "Compre por preço fixo.",
+      "after_response": "Vamos confirmar necessidades e escopo antes da proposta.",
+      "response_sha256": "3379ef0e6d59d1d283f4b992f2e02d473f3647080fd6060969e049d7092ea89e",
+      "criteria": [
+        "necessidades",
+        "escopo"
+      ]
+    }
+  ],
+  "credibility": {
+    "publisher": "www.salesforce.com",
+    "content_retrieved": true,
+    "retrieved_at": "2026-11-11T17:17:35+00:00",
+    "assessment": "Publisher source retrieved; owner must assess expertise, bias and applicability before promotion.",
+    "owner_review_required": true
+  },
+  "limitations": [
+    "Literal rubric coverage only; no proof of negotiation skill, engagement or safety.",
+    "Candidate remains inactive until owner promotion."
+  ],
+  "approval_id": "937871db2d634a49a213cb8d9ede3730"
+}

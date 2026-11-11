@@ -19,7 +19,10 @@ document.getElementById('login-form').addEventListener('submit',async event=>{
   try{if(!config)throw new Error('Supabase não configurado no servidor.');const values=Object.fromEntries(new FormData(event.target));session=await authRequest('/auth/v1/token?grant_type=password',values);event.target.reset();await load();status.textContent='Sessão validada pelo Supabase Auth. Dados filtrados por RLS.';}catch(error){status.textContent=error.message;}finally{button.disabled=false;}
 });
 document.getElementById('logout').addEventListener('click',async()=>{
-  if(session){await fetch(config.url+'/auth/v1/logout',{method:'POST',headers:{apikey:config.publishableKey,Authorization:'Bearer '+session.access_token}});}
-  session=null;document.getElementById('dashboard').hidden=true;document.getElementById('login').hidden=false;status.textContent='Sessão encerrada.';
+  const previous=session;session=null;
+  document.getElementById('dashboard').hidden=true;document.getElementById('login').hidden=false;document.getElementById('records').replaceChildren();
+  status.textContent='Sessão local encerrada.';
+  try{if(previous){const response=await fetch(config.url+'/auth/v1/logout',{method:'POST',headers:{apikey:config.publishableKey,Authorization:'Bearer '+previous.access_token}});if(!response.ok)throw new Error('Revogação não confirmada');}}
+  catch(error){status.textContent='Sessão local encerrada. Revogação no servidor não confirmada; verifique sua conexão.';}
 });
 fetch('/api/config').then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error);config=data;status.textContent='Faça login. A sessão fica apenas na memória desta página.';}).catch(error=>{status.textContent=error.message;document.querySelector('#login-form button').disabled=true;});

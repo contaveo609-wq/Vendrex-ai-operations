@@ -1,13 +1,29 @@
-# Arquitetura V2.2
+# Arquitetura V2.3
 
-A V1 é reaproveitada com fila SQLite e executor exclusivo. Migração 002 acrescenta missões, mensagens entre agentes, conversas, recebimentos e outbox. A inicialização migra Social para Growth, corrige pilares e preserva backup. VENDREX_COMPANY_CONTEXT.json entra nos quatro perfis.
+O executor Python preserva a fila transacional SQLite, locks de processo, prioridades, dependências, logs e checkpoints da V2.2. Não há quatro processos concorrentes nem inferência generativa conectada. Há quatro perfis e ferramentas locais coordenadas.
 
-Missions executa ferramentas reais: HTTP público limitado para Sales; geração de fonte, Git e Node para Builder; Pillow/FFmpeg/ffprobe para Growth; transcrição pública, mensagem interna e experimento versionado para Director. Não invoca modelos disfarçadamente. Cada resultado inclui manifestos, hashes e evidências. Falha em ferramenta deixa tarefa BLOCKED/FAILED em vez de gerar métrica fictícia.
+```mermaid
+flowchart LR
+  D[Dashboard local] --> S[Service]
+  S --> Q[Fila SQLite e executor único]
+  Q --> B[Builder: scaffold e testes]
+  Q --> G[Growth: conteúdo e vídeo]
+  Q --> R[Sales: fontes e CRM]
+  Q --> T[Director: relatório e experimentos]
+  S --> E[Elegibilidade, debounce e outbox]
+  E --> X[Envio real bloqueado]
+  S --> C[Campanhas importadas e competências]
+  Q --> A[Adaptador Codex: login necessário]
+  S -.-> U[Supabase: vaga indisponível]
+  V[Control plane Vercel preparado] -.-> U
+```
 
-ReplyEngine separa elegibilidade, agrupamento, geração, revalidação e envio. IDs únicos evitam duplicatas. Nova revisão cancela resposta antiga. Humano, opt-out e contato fora de escopo bloqueiam. Tentativa com efeito externo ambíguo exige reconciliação. Transporte real não existe por padrão; o transporte bloqueado nunca envia.
+WhatsApp: o proprietário escolheu login manual por QR/código, sem API. O painel abre o WhatsApp Web oficial em outra aba. Não há ponte entre a sessão do navegador e o Sales. Status da sessão externa não é verificado, QR não é copiado e conversas não são capturadas. O histórico local tem eventos somente quando inseridos por ferramentas autorizadas de teste; o app não os apresenta como sincronização WhatsApp.
 
-SupabaseStore é sincronização autenticada via JWT de usuário, com upsert por proprietário/entidade/id. Migração SQL habilita RLS e ownership; fila usa claim SECURITY INVOKER com SKIP LOCKED e índice de um trabalho RUNNING por usuário. A conexão não foi ativada por limitação de plano gratuito.
+A máquina de respostas agrupa mensagens de uma conversa por janela 3–10s. Revisões invalidam gerações anteriores, a outbox tem chave única e leases de geração. Takeover incrementa a revisão e cancela pendências. Falhas de geração têm limite; efeitos externos ambíguos exigem reconciliação. Nenhum resultado local comprova a corrida de cancelamento de um provedor real; mensagens já aceitas por uma plataforma não podem ser recolhidas por esse mecanismo.
 
-Control plane Vercel contém apenas apresentação, login Auth e leitura de registros autorizados. Não recebe chave service_role e não é executor permanente. O banco local continua funcional enquanto não existe projeto cloud dedicado.
+O ramo de envio com fixture só funciona quando a instância é explicitamente marcada simulation_only. A API não expõe esse ajuste e o processo de produção bloqueia todos os envios sem transporte. Há uma implantação pendente, não um conector genérico declarado conectado.
 
-Arquivos de mídia são servidos por rota limitada com HTTP Range; artefatos ativos não são executados como scripts do painel. Exportações de contato, bancos e credenciais ficam fora do GitHub público. A entrega privada contém provas e os arquivos produzidos.
+Banco cloud: migração preparada com owner_id, Auth, RLS e claim SECURITY INVOKER. `SupabaseStore.sync` envia todos os registros por upsert com JWT do usuário. Não faz sincronização bidirecional, não propaga exclusões e não liga automaticamente a fila cloud à fila local.
+
+Execução com notebook desligado requer host persistente. As units em `deploy/` são um plano executável de instalação para Linux, ainda sem host/teste real. Vercel hospeda o control plane preparado; não substitui esse worker. Nenhum servidor foi contratado ou publicado nesta evolução.

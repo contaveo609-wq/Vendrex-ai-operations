@@ -63,7 +63,7 @@ class CommunicationsTests(unittest.TestCase):
             state='CONNECTED';validated=True
             def __init__(self):self.calls=[]
             def send(self,*args):self.calls.append(args);return {'test_receipt':'fixture-only'}
-        fixture=FixtureTransport();self.engine.transport=fixture
+        fixture=FixtureTransport();self.engine.transport=fixture;self.engine.simulation_only=True
         config=self.service.config;config['sales'].update(autonomous_enabled=True,connector_validated=True);self.service.db.set('config',config)
         self.receive();self.clock[0]+=3;prepared=self.engine.prepare('c1',lambda *_:'Teste isolado.')
         self.assertEqual(self.engine.send(prepared['id'])['state'],'SENT')
@@ -74,7 +74,7 @@ class CommunicationsTests(unittest.TestCase):
         class FixtureTransport:
             state='CONNECTED';validated=True
             def send(self,*_):raise ConnectionError('Falha simulada, efeito externo desconhecido')
-        self.engine.transport=FixtureTransport()
+        self.engine.transport=FixtureTransport();self.engine.simulation_only=True
         config=self.service.config;config['sales'].update(autonomous_enabled=True,connector_validated=True);self.service.db.set('config',config)
         self.receive();self.clock[0]+=3;prepared=self.engine.prepare('c1',lambda *_:'Teste isolado.')
         with self.assertRaises(ConnectionError):self.engine.send(prepared['id'])

@@ -101,6 +101,27 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(status,206);self.assertEqual(body,b'2345')
         self.assertEqual(self.request('GET','/media/../vendrex.sqlite3')[0],404)
 
+    def test_whatsapp_status_and_controls_are_honest(self):
+        status,body=self.request('GET','/api/whatsapp');self.assertEqual(status,200)
+        data=json.loads(body);self.assertFalse(data['connected']);self.assertEqual(data['manual_login_url'],'https://web.whatsapp.com/')
+        self.assertEqual(self.post('/api/whatsapp-control',{'action':'activate','confirmation':True})[0],400)
+        self.assertEqual(self.post('/api/whatsapp-control',{'action':'delay','delay':8})[0],200)
+        self.assertEqual(self.service.config['sales']['min_reply_delay_seconds'],8)
+        self.assertEqual(self.post('/api/whatsapp-control',{'action':'delay','delay':11})[0],400)
+
+    def test_local_fixture_history_and_human_control(self):
+        lead=self.service.db.record('leads',{'name':'SIMULATION_ONLY'})
+        self.service.replies.receive('fixture-message','fixture-conversation',lead,'+5581999999999','SIMULATION_ONLY')
+        status,body=self.request('GET','/api/conversation/fixture-conversation');self.assertEqual(status,200);self.assertEqual(len(json.loads(body)['inbound']),1)
+        self.assertEqual(self.post('/api/conversation-takeover',{'id':'fixture-conversation'})[0],200)
+        self.assertEqual(self.post('/api/conversation-takeover',{'id':'missing'})[0],400)
+
+    def test_campaign_http_import_keeps_simulation_label(self):
+        data={'source':'fixture://http-test','period':'2026-11-11','currency':'BRL','dataset_kind':'SIMULATION_ONLY','campaigns':[{'campaign_id':'test','spend':10,'clicks':2}]}
+        status,_=self.post('/api/campaign-import',data);self.assertEqual(status,200)
+        _,body=self.request('GET','/api/snapshot');campaign=json.loads(body)['campaigns']['campaigns'][0]
+        self.assertEqual(campaign['dataset_kind'],'SIMULATION_ONLY');self.assertEqual(campaign['calculated_metrics']['CPC'],5)
+
     def test_source_export_omits_nested_secrets_and_build_caches(self):
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as directory:

@@ -39,6 +39,9 @@ def server_for(service, port=8766):
             path = unquote(urlparse(self.path).path)
             try:
                 if path=='/api/snapshot': return self.send(200,{**service.snapshot(),'csrf':csrf})
+                if path=='/api/whatsapp':return self.send(200,service.whatsapp.status())
+                if path.startswith('/api/conversation/'):
+                    return self.send(200,service.replies.history(path.rsplit('/',1)[1]))
                 if path.startswith('/api/task/'):
                     task_id = path.rsplit('/',1)[1]
                     task = service.queue.get(task_id)
@@ -47,7 +50,7 @@ def server_for(service, port=8766):
                     rows = service.db.rows('SELECT * FROM reports WHERE id=?',(path.rsplit('/',1)[1],))
                     if not rows: return self.send(404,{'error':'Relatório não encontrado.'})
                     return self.send(200,rows[0])
-                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V2.2.zip')
+                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V2.3.zip')
                 if path=='/download/data.json': return self.send(200,json.dumps(service.snapshot(),ensure_ascii=False,indent=2).encode(),'application/json','vendrex-dados.json')
                 if path.startswith('/media/'):
                     target=(service.db.data/path.removeprefix('/media/')).resolve()
@@ -95,6 +98,11 @@ def server_for(service, port=8766):
                 result = None
                 if path=='/api/control': result = service.control(body['action'])
                 elif path=='/api/tasks': result = {'id':service.create_task(**body)}
+                elif path=='/api/whatsapp-control':result=service.whatsapp.control(**body)
+                elif path=='/api/conversation-takeover':
+                    service.replies.takeover(body['id']);result={'state':'HUMAN_TAKEOVER'}
+                elif path=='/api/campaign-import':result=service.campaigns.ingest(body)
+                elif path=='/api/competency-assessment':result=service.competencies.assess(body)
                 elif path=='/api/missions': result = service.queue_missions()
                 elif path=='/api/sale': result = {'task_id':service.confirm_sale(body)}
                 elif path=='/api/record': result = {'id':service.add_record(body['entity'],body['data'])}

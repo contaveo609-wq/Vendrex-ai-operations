@@ -1,0 +1,22 @@
+{
+  "state": "TESTED",
+  "browser": "Real Chromium",
+  "checks": [
+    "board_input_rendered_as_text",
+    "board_stage_persists_after_reload",
+    "board_export_real_json",
+    "board_mobile_no_overflow",
+    "board_storage_failure_preserves_prior_state",
+    "board_delete_persists",
+    "board_corrupt_storage_not_overwritten",
+    "whatsapp_activation_blocked_without_provider",
+    "whatsapp_manual_login_link_points_to_official_site_only",
+    "whatsapp_debounce_saved_to_database",
+    "whatsapp_mobile_no_overflow",
+    "campaign_fixture_and_missing_metrics_identified"
+  ],
+  "javascript_errors": [],
+  "whatsapp_live_tests": "BLOCKED",
+  "generative_tests": "AUTH_REQUIRED",
+  "cloud_tests": "BLOCKED"
+}

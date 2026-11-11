@@ -10,7 +10,7 @@ import subprocess
 from .db import ROOT, dumps, fingerprint, now, uid
 from .public_web import fetch_public
 
-MISSION_KINDS={'SALES_PROSPECT':'sales','BUILDER_CALCULATOR':'builder','GROWTH_VIDEO32':'growth','DIRECTOR_VIDEO_TRAINING':'director'}
+MISSION_KINDS={'BUILDER_BOARD':'builder','SALES_PROSPECT':'sales','BUILDER_CALCULATOR':'builder','GROWTH_VIDEO32':'growth','DIRECTOR_VIDEO_TRAINING':'director'}
 
 
 class Missions:
@@ -24,7 +24,7 @@ class Missions:
             conn.execute('INSERT INTO mission_runs VALUES(?,?,?,?,?,?,?,?,?)',(mission_id,task['id'],task['agent'],kind,'RUNNING','deterministic_tools',dumps({}),now(),None))
         self.db.audit('MISSION_STARTED',{'mission_id':mission_id,'kind':kind,'engine':'real local tools; no model inference claimed'},task['id'],task['agent'])
         try:
-            result={'SALES_PROSPECT':self.prospect,'BUILDER_CALCULATOR':self.calculator,'GROWTH_VIDEO32':self.video,'DIRECTOR_VIDEO_TRAINING':self.teach}[kind](task,workspace)
+            result={'BUILDER_BOARD':self.board,'SALES_PROSPECT':self.prospect,'BUILDER_CALCULATOR':self.calculator,'GROWTH_VIDEO32':self.video,'DIRECTOR_VIDEO_TRAINING':self.teach}[kind](task,workspace)
             manifest={**result,'mission_id':mission_id,'task_id':task['id'],'agent':task['agent'],'mission':kind,'executed_at':now(),'execution_engine':'deterministic_tools','model_inference':False,
                       'files':[{ 'path':str(p.relative_to(workspace)),'bytes':p.stat().st_size} for p in workspace.rglob('*') if p.is_file() and '.git' not in p.parts]}
             # Use the hash of raw bytes, not a textual hash, for portable artifact verification.
@@ -146,3 +146,21 @@ class Missions:
         (workspace/'video-educacional.url').write_text('[InternetShortcut]\nURL='+source+'\n',encoding='utf-8')
         (workspace/'LICAO.md').write_text('# Aula enviada ao Growth\n\nVídeo original: '+source+'\n\nFonte: W3C WAI. Transcrição textual disponível na página. O vídeo de terceiros não foi baixado nem republicado.\n\n'+ '\n'.join('- '+s for s in lesson['paraphrased_lessons'])+'\n\nMudança em versão experimental; promoção de produção exige avaliação e aprovação.\n',encoding='utf-8')
         return {'summary':'Director leu a transcrição pública, enviou o vídeo ao Growth e criou experimento versionado.','lesson':lesson,'training_id':proposal,'message_id':message_id,'followup_task':followup}
+
+    def board(self,task,workspace):
+        if not shutil.which('node') or not shutil.which('git'):raise ValueError('Node e Git necessários.')
+        app=workspace/'quadro';shutil.copytree(ROOT/'templates/board',app,dirs_exist_ok=True)
+        phases={
+            'REQUIREMENTS.md':'Quadro com criação, transição de etapa, exclusão, exportação e persistência local. Sem backend ou publicação.',
+            'PLAN.md':'Validar contrato dos dados; criar DOM via textContent; salvar atomicamente em localStorage; tratar falhas; verificar em navegador.',
+            'REVIEW.md':'Sem eval, HTML importado ou rede. Dados validados no carregamento. Erro de armazenamento preserva estado anterior. Teste de navegador é separado.',
+            'DELIVERY.md':'Abra index.html por servidor local. Persistência por navegador/origem. Exporte JSON para backup. Método: scaffold determinístico, não inferência generativa.'}
+        for name,body in phases.items():(workspace/name).write_text(body+'\n',encoding='utf-8')
+        check=subprocess.run(['node','test.cjs'],cwd=app,capture_output=True,text=True,timeout=30)
+        (workspace/'unit-tests.txt').write_text(check.stdout+check.stderr)
+        if check.returncode:raise RuntimeError('Contrato do quadro falhou.')
+        def git(*args):return subprocess.run(['git',*args],cwd=app,capture_output=True,text=True,timeout=20,check=True)
+        if not (app/'.git').exists():git('init','-b','mission/'+task['id'][:12])
+        git('add','.')
+        git('-c','user.name=Vendrex Builder','-c','user.email=builder@vendrex.local','commit','--allow-empty','-m','Build persistent local project board')
+        return {'summary':'Quadro persistente construído com requisitos, plano, código, contrato, revisão e entrega.','app_path':'quadro/index.html','node_tests':check.stdout.strip(),'commit':git('rev-parse','HEAD').stdout.strip(),'generation_method':'deterministic scaffold; model inference not available','public_deploy':False}
