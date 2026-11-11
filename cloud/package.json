@@ -1,6 +1,6 @@
 {
-  "name": "vendrex-v22-control-plane",
-  "version": "2.3.0",
+  "name": "vendrex-v24-control-plane",
+  "version": "2.4.0",
   "private": true,
   "type": "module",
   "scripts": {"build": "node build.mjs"},

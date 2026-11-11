@@ -61,5 +61,19 @@ class AdapterTests(unittest.TestCase):
             self.assertNotIn('CODEX_API_KEY',result)
             self.assertNotIn('OPENAI_BASE_URL',result)
 
+    def test_nonexistent_file_is_not_accepted_as_delivery(self):
+        with tempfile.TemporaryDirectory() as path:
+            adapter=CodexAdapter(binary='test-codex')
+            def launch(command,**_):
+                process=FakeProcess(command)
+                output=Path(command[command.index('--output-last-message')+1])
+                result=json.loads(output.read_text(encoding='utf-8'))
+                result['files']=['imaginary-delivery.html']
+                output.write_text(json.dumps(result),encoding='utf-8')
+                return process
+            with patch.object(adapter,'availability',return_value={'state':'CONNECTED'}),patch('vendrex.codex.subprocess.run',return_value=subprocess.CompletedProcess([],0,'--ignore-user-config --output-schema --ephemeral --sandbox','')),patch('vendrex.codex.subprocess.Popen',side_effect=launch):
+                with self.assertRaisesRegex(ValueError,'inexistente'):
+                    adapter.run(Path(path),'test','gpt-6-luna','medium')
+
 
 if __name__=='__main__': unittest.main()

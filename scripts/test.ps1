@@ -11,5 +11,14 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Sintaxe JavaScript invalida.' }
         & node tests/test_dashboard.cjs
         if ($LASTEXITCODE -ne 0) { throw 'Verificacao de renderizacao falhou.' }
+        & node tests/test_cloud_config.cjs
+        if ($LASTEXITCODE -ne 0) { throw 'Configuracao publica insegura.' }
+        & node --test tests/test_growth.mjs tests/test_meta_proxy.mjs
+        if ($LASTEXITCODE -ne 0) { throw 'Integracao Meta falhou nos testes controlados.' }
+        Push-Location cloud
+        try {
+            & node build.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'Build cloud falhou.' }
+        } finally { Pop-Location }
     }
 } finally { Pop-Location }

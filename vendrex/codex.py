@@ -172,6 +172,7 @@ class CodexAdapter:
                 for name in result['files']:
                     resolved = (workspace/name).resolve()
                     if not resolved.is_relative_to(workspace.resolve()): raise ValueError('Arquivo fora do projeto isolado.')
+                    if not resolved.is_file(): raise ValueError('Modelo citou arquivo inexistente como entrega.')
                 return result,usage
             finally:
                 if process.poll() is None:

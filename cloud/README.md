@@ -1,15 +1,19 @@
-# Control plane V2.3 — preparado, não conectado
+# Painel V2.4 e backend Growth
 
-Este código pode ser implantado na Vercel após autorização de produção e verificação de plano adequado para uso comercial. Não foi implantado como se estivesse conectado.
+O backend Growth está implantado no Supabase dedicado `ryxxpbxbjzijcuxgfgja`, região `sa-east-1`. Edge Function, Cron, fila, Vault, RLS e armazenamento foram configurados. O worker já respondeu HTTP 200 remotamente. Não há conta Meta conectada nem publicação real confirmada.
 
-1. Crie um projeto Supabase dedicado elegível sem custo autorizado. A tentativa real nesta sessão foi bloqueada pelo limite de dois projetos gratuitos ativos. O proprietário autorizou excluir o açaí, mas essa ação segue bloqueada por ausência de ferramenta de exclusão e de autenticação CLI. Não altere outros projetos.
-2. Aplique a migração em `../supabase/migrations` ao projeto dedicado. Ela habilita RLS de propriedade em todas as tabelas e usa função SECURITY INVOKER para claim de fila. Nenhuma política usa user_metadata.
-3. Configure um usuário no Supabase Auth. O painel faz login diretamente no endpoint oficial Auth e mantém a sessão somente em memória.
-4. Variáveis do servidor Vercel: `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`. Nenhuma chave service_role é necessária no frontend ou na sincronização.
-5. Build: `npm run build`. Publicação em Vercel exige plano compatível com uso comercial e autorização de produção. Projeto raiz da aplicação: `cloud/`.
+O painel está implementado em `public/`, com proxy seguro em `api/meta/[action].js`. Build: `npm run build`. O plano da conta Vercel autenticada é Hobby, conforme API oficial; seu uso é restrito a projetos pessoais não comerciais. **Não houve deploy comercial, upgrade, compra ou alteração no projeto CRM existente.**
 
-Sincronização local: `SupabaseStore` em `vendrex/cloud_sync.py` envia registros reais com JWT do usuário. Configure `VENDREX_SUPABASE_URL`, `VENDREX_SUPABASE_PUBLISHABLE_KEY` e `VENDREX_SUPABASE_ACCESS_TOKEN` por mecanismo seguro do ambiente. Tokens não entram no ZIP. O módulo valida a sessão no servidor, faz upserts idempotentes e não imprime segredos.
+Quando houver ambiente Vercel comercial já autorizado e elegível, use raiz `cloud/` e configure:
 
-A fila cloud é durável, mas não executa o modelo sozinha. Nenhum cron Vercel é anunciado como executor permanente do Codex. Um notebook desligado impede o executor local; um worker remoto oficialmente autenticado ainda precisa ser provisionado e validado. Não há garantia de reserva percentual de plano sem telemetria oficial.
+- `SUPABASE_URL=https://ryxxpbxbjzijcuxgfgja.supabase.co`
+- `SUPABASE_PUBLISHABLE_KEY`: chave pública do projeto, pelo mecanismo da plataforma.
+- `PUBLIC_BASE_URL`: origem HTTPS canônica do painel, sem barra final.
 
-Status: código IMPLEMENTED; conexão e testes RLS em servidor real BLOCKED pelo limite do plano gratuito. Os testes SQL e de acesso entre usuários só podem ser declarados TESTED após migração e autenticação no projeto dedicado.
+Nenhuma chave service_role, token Meta ou segredo do app Meta deve ir à Vercel ou ao frontend. A função Supabase obtém credenciais sensíveis pelo runtime e pelo Vault. Configure os valores Meta conforme [guia](../docs/INTEGRACAO-META-V2.4.md).
+
+O painel usa Supabase Auth. A sessão e a renovação ficam apenas na memória da página. Nenhum operador de produção foi criado sem identidade confirmada. Dados visíveis usam RLS; os endpoints Growth também conferem propriedade após validar o JWT no servidor. O callback OAuth usa estado único e cookie de vínculo ao navegador; o worker exige um segredo distinto.
+
+Cron: uma chamada/minuto, aproximadamente 43.200 chamadas em 30 dias. Os horários de publicação são 12h e 18h America/Recife. Apenas conteúdo enfileirado é publicado. Pausa é por conta; uma operação já em envio pode concluir. A ativação exige publicação real previamente confirmada. O estado autenticado `/api/meta/status` depende de heartbeat recente e prova; `/api/meta/health` nunca anuncia operação por mera existência de código.
+
+O executor Python dos demais bots continua local. Inferência local validada não é execução remota contínua nem autorização para expor a assinatura ChatGPT como backend público. Não há BSP, serviço pago de IA ou anúncio contratado.

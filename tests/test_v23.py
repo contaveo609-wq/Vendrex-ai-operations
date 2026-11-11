@@ -123,7 +123,7 @@ class BusinessV23Tests(unittest.TestCase):
  def test_upgrade_preserves_data(self):
   lead=self.s.db.record('leads',{'name':'keep'})
   config=self.s.config;config['version']='2.2.0';self.s.db.set('config',config)
-  restored=Service(Path(self.tmp.name));self.assertEqual(restored.config['version'],'2.3.0');self.assertEqual(restored.db.records('leads')[0]['id'],lead)
+  restored=Service(Path(self.tmp.name));self.assertEqual(restored.config['version'],'2.4.0');self.assertEqual(restored.db.records('leads')[0]['id'],lead)
   self.assertTrue(list((restored.db.data/'backups').glob('*.sqlite3')))
  def test_builder_board_real_node_and_git(self):
   task=self.s.create_task(agent='builder',kind='BUILDER_BOARD',description='Test board');self.s.control('start');self.s.run_next();r=self.s.queue.get(task)

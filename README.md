@@ -1,6 +1,8 @@
-# VENDREX AI OPERATIONS V2.3
+# VENDREX AI OPERATIONS V2.4
 
-Evolução da V2.2 existente (base `0f47d48e41b6a37df6469f0432a7e1ee9fc92fc8`). Quatro perfis, fila persistente e um executor sequencial. O sistema executa ferramentas locais; a inteligência generativa e o atendimento WhatsApp real continuam bloqueados pelas dependências descritas abaixo. Nenhuma integração foi simulada como conectada.
+Evolução da V2.3, base `267a610044e3688054a3baac83d3bc11500ba1ff`, branch `upgrade/v2.4`. Quatro perfis locais e backend Growth remoto no Supabase. OAuth Meta, publicação oficial, fila durável, tokens cifrados e painel de integrações implementados. **Growth ainda não operacional: nenhuma publicação real confirmada.**
+
+Consulte [entrega V2.4](docs/ENTREGA-V2.4.md), [integração Meta](docs/INTEGRACAO-META-V2.4.md) e [testes](docs/TESTES-V2.4.md). Supabase dedicado criado sem custo contratado; Cron e Edge Function verificados. O plano Vercel atual é Hobby e não permite uso comercial: não houve deploy ou contratação. Os quatro bots foram testados com inferência real local e entradas controladas; isso não valida um backend comercial contínuo baseado em assinatura ChatGPT. Os detalhes históricos abaixo da V2.3 não substituem a entrega V2.4.
 
 ## Instalar e abrir
 
@@ -21,16 +23,17 @@ Node.js e Git são necessários para as missões Builder. FFmpeg, ffprobe e Pill
 | Quatro perfis, fila, CRM, agendas | TESTED | Persistência SQLite e testes locais; agendas precisam de executor ativo |
 | WhatsApp: controles e histórico local | TESTED | Painel, elegibilidade, cancelamento, recuperação; sem eventos WhatsApp reais |
 | WhatsApp: transporte e autonomia verificável | BLOCKED / NOT_IMPLEMENTED | Proprietário escolheu QR/código sem API; link manual externo não integra o Sales |
-| Codex CLI | IMPLEMENTED / AUTH_REQUIRED | Chamada real retornou 401; catálogo não comprova inferência |
+| Codex CLI local | TESTED / CONNECTED | Inferência real dos quatro perfis com entradas controladas; sem API paga ou implantação como backend público |
 | Builder: calculadora e quadro persistente | TESTED | Node, Git e Chromium; geração por scaffold local |
 | Growth: vídeo 32s | TESTED | MP4 V2.2 preservado, verificação de duração/reprodução na V2.3 |
 | Growth: importação/análise de campanhas | TESTED | Fonte, moeda, período, hash e deduplicação; dataset de aceitação SIMULATION_ONLY |
 | Meta Ads/Google Ads | NOT_IMPLEMENTED | Sem conta publicitária conectada ou dados reais recebidos |
 | Director: fonte e avaliação estruturada | TESTED | Fonte Salesforce acessada; respostas importadas e rubrica literal; promoção pendente |
-| Treinamento/negociação generativa | AUTH_REQUIRED | Sem execução de modelo comprovada |
-| Supabase | BLOCKED | Dois projetos gratuitos ativos; nenhuma migração remota aplicada |
-| Vercel | IMPLEMENTED / BLOCKED | Control plane compila; plano comercial e publicação não autorizados/validados |
-| Worker remoto | IMPLEMENTED / BLOCKED | Units systemd preparadas, sem servidor provisionado ou teste remoto |
+| Inferência dos perfis | TESTED | Entradas controladas; não constitui validação de vendas, treinamento ou negociação em produção |
+| Supabase | CONNECTED / TESTED | Projeto dedicado, migrações aplicadas e testes reais de RLS/fila |
+| Vercel | IMPLEMENTED / BLOCKED | Painel compila; conta Hobby não permite uso comercial; nenhum upgrade contratado |
+| Worker remoto Growth | CONNECTED / TESTED | Edge Function e Cron executam; sem OAuth Meta ou publicação real |
+| Publicação Instagram/Facebook | IMPLEMENTED / TESTED / AUTH_REQUIRED | Integração oficial validada com fixtures; contas da Vendrex ainda não autorizadas no app |
 
 Estados são descritos em [ENTREGA](docs/ENTREGA.md). `CONNECTED` exige uma conexão real validada; configuração, catálogo e teste com fixture não bastam.
 

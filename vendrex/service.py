@@ -11,6 +11,7 @@ import time
 import zipfile
 
 from .codex import CodexAdapter, CodexRPC
+from . import __version__ as VERSION
 from .db import Database, ROOT, dumps, fingerprint, now, uid, safe_error
 from .policy import UsageGuard, OfficialUsageProvider, route_model, EXTERNAL
 from .scheduler import Scheduler, validate_schedules, recife
@@ -39,7 +40,7 @@ class Service:
         self.execution_mutex = threading.Lock()
         self.diagnostic_mutex = threading.Lock()
         old_config=self.db.setting('config')
-        if old_config and old_config.get('version')!='2.3.0': self.db.backup()
+        if old_config and old_config.get('version')!=VERSION: self.db.backup()
         with self.db.transaction() as conn:
             for agent_id,name,mission,color in AGENTS:
                 conn.execute('INSERT OR IGNORE INTO agents VALUES(?,?,?,?,1)',(agent_id,name,mission,color))
@@ -53,11 +54,11 @@ class Service:
             for name in ['codex','tinyfish','firecrawl','github','vercel','supabase','communications','whatsapp','social_platforms']:
                 conn.execute('INSERT OR IGNORE INTO integrations VALUES(?,?,?,?,?)',(name,'NOT_CONFIGURED','Não validado neste computador. Importação manual disponível.','[]',now()))
         self.upgrade_v22()
-        if self.config.get('version')!='2.3.0':
-            config=self.config;config['version']='2.3.0'
+        if self.config.get('version')!=VERSION:
+            config=self.config;config['version']=VERSION
             config['sales'].update(autonomous_enabled=False,connector_validated=False)
             self.db.set('config',config)
-            self.db.audit('V23_UPGRADE',{'protected_flags_reset':True,'records_preserved':True})
+            self.db.audit('V24_UPGRADE',{'protected_flags_reset':True,'records_preserved':True})
         from .communications import ReplyEngine
         from .whatsapp import WhatsAppControl
         from .intelligence import Campaigns
@@ -69,7 +70,7 @@ class Service:
 
     def upgrade_v22(self):
         current=self.config
-        if current.get('version') in {'2.2.0','2.3.0'}:return
+        if current.get('version') in {'2.2.0','2.3.0',VERSION}:return
         defaults=json.loads((ROOT/'config/defaults.json').read_text(encoding='utf-8'))
         with self.db.transaction() as conn:
             self.db.set('config_before_v22',current,conn)
@@ -410,6 +411,7 @@ class Service:
         agent = task['agent']
         base = (ROOT/'agents'/agent/'PLAYBOOK.md').read_text(encoding='utf-8')
         base+='\n\nVENDREX_COMPANY_CONTEXT versionado:\n'+(ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text(encoding='utf-8')
+        base+='\nO contexto da empresa acima já foi fornecido integralmente. Não tente abrir config/VENDREX_COMPANY_CONTEXT.json no workspace isolado. Liste em files somente arquivos reais existentes nesse workspace; se nenhum arquivo foi criado, use files=[].'
         skill_path = Path.home()/'.agents/skills/caveman/SKILL.md'
         skill = (skill_path if skill_path.is_file() else ROOT/'skills/caveman/SKILL.md').read_text(encoding='utf-8')
         addenda = self.db.rows("SELECT body FROM instructions WHERE agent=? AND status='APPROVED_ADDENDUM' ORDER BY version DESC LIMIT 2",(agent,))
@@ -575,7 +577,7 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
 
     def snapshot(self):
         tasks = [self.queue.decode(row) for row in self.db.rows('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 250')]
-        return {'version':'2.3.0','mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
+        return {'version':VERSION,'mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
                 'agents':self.db.rows('SELECT * FROM agents'),'tasks':tasks,'metrics':self.metrics(),'usage':self.guard.status(),
                 'config':self.config,'integrations':self.db.rows('SELECT * FROM integrations'),
                 'records':{e:self.db.records(e)[:200] for e in ['leads','projects','deals','payments','content_items','publications','research']},

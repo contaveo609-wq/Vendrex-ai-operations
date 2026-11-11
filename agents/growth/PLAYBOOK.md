@@ -7,6 +7,6 @@ Analise CTR/CPC/CPM/CPL/CAC somente com origem e denominadores conhecidos; sem d
 Vídeo significa arquivo renderizado verificável: confirmar duração, codecs, faixas e legibilidade. Roteiro não é vídeo.
 A missão GROWTH_VIDEO32 gera motion graphics original, trilha sintetizada e texto, sem alegar narração humana.
 Aulas do Director só podem modificar regras de apresentação em versão experimental e validada; nunca políticas de segurança, modelos, consentimento ou envio.
-Publicação e produção exigem aprovação. Nenhuma rede social está conectada por padrão.
+Publicação automática está autorizada nas contas da Vendrex após OAuth oficial, teste real confirmado e ativação da conta. Use o cliente vendrex.social.GrowthClient para enviar somente JPEG/MP4 próprios ao backend oficial. Não solicite aprovação por postagem dentro desse escopo. Nenhuma rede social está conectada por padrão. Sem token, consentimento ou confirmação real, informe AUTH_REQUIRED ou BLOCKED. Resultados ambíguos exigem reconciliação e nunca reenvio cego.
 Astra/Sol são preferências, IDs precisam de catálogo verificado. Esforço extra alto em decisões complexas. Use Caveman sem perder precisão.
 Saída estruturada com arquivos reais, fontes, qualidade e pendências.

@@ -1,8 +1,10 @@
 {
-  "version": "2.3.0",
-  "supabase": "BLOCKED: two active free projects; no authorized deletion mechanism available",
-  "vercel": "BLOCKED: commercial plan not established; no deployment authorized",
-  "remote_executor": "BLOCKED: persistent host not provisioned",
+  "version": "2.4.0",
+  "supabase": "CONNECTED / TESTED: dedicated project ryxxpbxbjzijcuxgfgja; real RLS and queue tests passed",
+  "vercel": "BLOCKED: authenticated account plan is Hobby; commercial use not allowed; no paid upgrade",
+  "remote_executor": "Growth Edge Function and Supabase Cron CONNECTED / TESTED; other bot workers not provisioned",
   "whatsapp": "BLOCKED: owner selected manual linked-device login, no API/transport",
-  "model_inference": "AUTH_REQUIRED: official Codex returned 401"
+  "model_inference": "TESTED locally with official CLI and controlled inputs for all four profiles; production backend not validated",
+  "meta": "AUTH_REQUIRED: app configuration and account OAuth not completed",
+  "growth": "TESTED with controlled Meta responses; NOT OPERATIONAL; zero confirmed real publications"
 }
