@@ -1,0 +1,9 @@
+[project]
+name = "vendrex-ai-operations"
+version = "1.0.0"
+description = "Operação local supervisionada com quatro agentes e Codex CLI"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.vendrex]
+start = "python run.py serve"

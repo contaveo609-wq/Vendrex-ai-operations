@@ -1,0 +1,4 @@
+Caveman, de Julius Brussee. Fonte original preservada sem alterações.
+https://github.com/JuliusBrussee/caveman
+Commit 2178ed6495c3c0ecd7d037e60acf3b1d0c554b97. Licença Apache-2.0 incluída.
+A VENDREX usa a skill nos quatro perfis; não declara autoria da skill.
