@@ -1,8 +1,15 @@
 {
   "timezone": "America/Recife",
-  "schedules": {"SOCIAL_MIDDAY": "12:00", "SOCIAL_EVENING": "18:00", "DIRECTOR_DAILY_REVIEW": "20:00"},
+  "schedules": {
+    "GROWTH_MIDDAY": "12:00",
+    "GROWTH_EVENING": "18:00",
+    "DIRECTOR_DAILY_REVIEW": "20:00"
+  },
   "catch_up_hours": 3,
-  "business_hours": ["09:00", "19:30"],
+  "business_hours": [
+    "09:00",
+    "19:30"
+  ],
   "usage_reserve": 10,
   "usage_headroom": 5,
   "usage_fresh_minutes": 15,
@@ -10,13 +17,94 @@
   "input_max_chars": 24000,
   "attempt_limit": 2,
   "retention_days": 180,
-  "sales_pillars": ["Diagnóstico", "Valor", "Credibilidade", "Negociação e fechamento"],
-  "offers": [{"name": "Solução de referência", "reference_price": 597.90, "note": "Referência configurável. Escopo, hospedagem, domínio, manutenção e integrações são negociados separadamente."}],
+  "sales_pillars": [
+    "ENCONTRE A DOR DO CLIENTE",
+    "FAÇA-O RECONHECER E SENTIR A DOR, DESEJANDO SOLUCIONÁ-LA",
+    "MOSTRE A SOLUÇÃO",
+    "MOSTRE QUE A VENDREX É A SOLUÇÃO"
+  ],
+  "offers": [
+    {
+      "name": "Solução de referência",
+      "reference_price": 1490.9,
+      "note": "Referência configurável. Escopo, hospedagem, domínio, manutenção e integrações são negociados separadamente."
+    }
+  ],
   "models": [],
   "routing": {
-    "sales": {"model": null, "effort": "medium", "allowed_families": ["luna"], "family_ceilings": {"luna": [6, 0]}, "max_effort": "xhigh"},
-    "builder": {"model": null, "effort": "medium", "allowed_families": ["astra", "sol"], "family_ceilings": {"astra": [6, 0], "sol": [6, 1]}, "max_effort": "xhigh"},
-    "social": {"model": null, "effort": "medium", "allowed_families": ["astra", "sol"], "family_ceilings": {"astra": [6, 0], "sol": [6, 1]}, "max_effort": "xhigh"},
-    "director": {"model": null, "effort": "medium", "allowed_families": ["luna"], "family_ceilings": {"luna": [6, 0]}, "max_effort": "xhigh"}
+    "sales": {
+      "model": null,
+      "effort": "xhigh",
+      "allowed_families": [
+        "luna"
+      ],
+      "family_ceilings": {
+        "luna": [
+          6,
+          0
+        ]
+      },
+      "max_effort": "xhigh"
+    },
+    "builder": {
+      "model": null,
+      "effort": "xhigh",
+      "allowed_families": [
+        "astra",
+        "sol"
+      ],
+      "family_ceilings": {
+        "astra": [
+          6,
+          0
+        ],
+        "sol": [
+          6,
+          1
+        ]
+      },
+      "max_effort": "xhigh"
+    },
+    "growth": {
+      "model": null,
+      "effort": "xhigh",
+      "allowed_families": [
+        "astra",
+        "sol"
+      ],
+      "family_ceilings": {
+        "astra": [
+          6,
+          0
+        ],
+        "sol": [
+          6,
+          1
+        ]
+      },
+      "max_effort": "xhigh"
+    },
+    "director": {
+      "model": null,
+      "effort": "xhigh",
+      "allowed_families": [
+        "luna"
+      ],
+      "family_ceilings": {
+        "luna": [
+          6,
+          0
+        ]
+      },
+      "max_effort": "xhigh"
+    }
+  },
+  "version": "2.2.0",
+  "sales": {
+    "min_reply_delay_seconds": 3,
+    "max_reply_delay_seconds": 10,
+    "autonomous_enabled": false,
+    "connector_validated": false,
+    "test_contacts": []
   }
 }

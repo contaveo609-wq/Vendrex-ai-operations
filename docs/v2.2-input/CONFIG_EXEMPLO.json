@@ -1,0 +1,43 @@
+{
+  "timezone": "America/Recife",
+  "agents": [
+    "sales",
+    "builder",
+    "growth",
+    "director"
+  ],
+  "sales": {
+    "reply_mode": "autonomous_after_validation",
+    "eligible_prospected_leads_only": true,
+    "requires_contact_authorization": true,
+    "min_reply_delay_seconds": 3,
+    "max_reply_delay_seconds": 10,
+    "debounce_on_new_message": true,
+    "exclude_unknown_contacts": true,
+    "exclude_groups": true,
+    "opt_out_enforced": true,
+    "human_takeover": true,
+    "connection_status": "NOT_IMPLEMENTED"
+  },
+  "schedules": {
+    "growth_posts": [
+      "12:00",
+      "18:00"
+    ],
+    "director_report": "20:00"
+  },
+  "model_preferences": {
+    "sales": "Luna 6",
+    "builder": "Astra 6 / Sol 6.1",
+    "growth": "Astra 6 / Sol 6.1",
+    "director": "Luna 6"
+  },
+  "model_ids_verified": false,
+  "cloud": {
+    "dashboard": "Vercel",
+    "database": "Supabase",
+    "codex_remote_executor": "TO_VALIDATE"
+  },
+  "skills_policy": "load_only_when_needed",
+  "development_skill": "Caveman"
+}

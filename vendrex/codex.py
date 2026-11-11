@@ -13,7 +13,7 @@ from .db import dumps, safe_error, uid
 
 def environment():
     result = os.environ.copy()
-    for name in ('OPENAI_API_KEY','CODEX_API_KEY','ANTHROPIC_API_KEY','OPENAI_BASE_URL','OPENAI_API_BASE'):
+    for name in ('OPENAI_API_KEY','CODEX_API_KEY','ANTHROPIC_API_KEY','OPENAI_BASE_URL','OPENAI_API_BASE','GH_TOKEN','GITHUB_TOKEN','VERCEL_TOKEN','SUPABASE_SERVICE_ROLE_KEY'):
         result.pop(name,None)
     return result
 
@@ -101,12 +101,13 @@ class CodexAdapter:
         try:
             login = subprocess.run(codex_command(self.binary)+['login','status'],capture_output=True,text=True,encoding='utf-8',timeout=15,env=environment())
             good = login.returncode==0 and 'chatgpt' in (login.stdout+login.stderr).lower()
-            return {'state':'CONNECTED' if good else 'AUTH_REQUIRED','detail':'Login ChatGPT detectado; execução requer modelo e saldo.' if good else 'Use codex login com ChatGPT. API paga não aceita.','capabilities':['exec','sandbox','structured_output'] if good else []}
+            return {'state':'IMPLEMENTED' if good else 'AUTH_REQUIRED','local_auth_present':good,'detail':'Login local detectado; conexão real ainda exige uma chamada bem-sucedida.' if good else 'Use codex login com ChatGPT. API paga não aceita.','capabilities':['exec','sandbox','structured_output'] if good else []}
         except (OSError,RuntimeError,subprocess.TimeoutExpired) as error:
             return {'state':'ERROR','detail':safe_error(error),'capabilities':[]}
 
     def run(self, workspace: Path, prompt: str, model: str, effort: str, builder=False, timeout=600, checkpoint=None):
-        if self.availability()['state']!='CONNECTED':
+        available=self.availability()
+        if not available.get('local_auth_present') and available['state']!='CONNECTED':
             raise RuntimeError('Autenticação ChatGPT não validada.')
         help_text = subprocess.run(codex_command(self.binary)+['exec','--help'],capture_output=True,text=True,timeout=15).stdout
         for flag in ('--ignore-user-config','--output-schema','--ephemeral','--sandbox'):

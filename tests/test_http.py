@@ -41,7 +41,7 @@ class HTTPTests(unittest.TestCase):
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             self.assertIsNone(archive.testzip())
             self.assertIn('VENDREX-AI/Iniciar.cmd',archive.namelist())
-            self.assertIn('VENDREX-AI/agents/social/PLAYBOOK.md',archive.namelist())
+            self.assertIn('VENDREX-AI/agents/growth/PLAYBOOK.md',archive.namelist())
             self.assertFalse(any('runtime' in n or '.git/' in n or 'vendrex.sqlite' in n for n in archive.namelist()))
 
     def test_csrf_origin_and_host_enforced(self):
@@ -90,6 +90,27 @@ class HTTPTests(unittest.TestCase):
         self.assertFalse(self.service.guard.status()['allowed'])
         self.assertEqual(self.post('/api/config',{'usage_reserve':0})[0],400)
         self.assertEqual(self.post('/api/tasks',{'agent':'builder','kind':'BUILD_PROJECT','description':'teste'})[0],400)
+
+    def test_mission_endpoint_and_real_media_range(self):
+        status,_=self.post('/api/missions',{})
+        self.assertEqual(status,200)
+        self.assertEqual(len(self.service.db.rows('SELECT * FROM tasks')),4)
+        directory=self.service.db.data/'workspaces/test-media';directory.mkdir(parents=True)
+        (directory/'test.mp4').write_bytes(b'0123456789')
+        status,body=self.request('GET','/media/workspaces/test-media/test.mp4',headers={'Range':'bytes=2-5'})
+        self.assertEqual(status,206);self.assertEqual(body,b'2345')
+        self.assertEqual(self.request('GET','/media/../vendrex.sqlite3')[0],404)
+
+    def test_source_export_omits_nested_secrets_and_build_caches(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'cloud/node_modules').mkdir(parents=True)
+            (root/'cloud/.env').write_text('SECRET=fake-test-value')
+            (root/'cloud/node_modules/cache.js').write_text('fixture')
+            (root/'cloud/package.json').write_text('{}')
+            with patch('vendrex.service.ROOT',root):data=source_zip()
+            with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                self.assertEqual(archive.namelist(),['VENDREX-AI/cloud/package.json'])
 
 
 if __name__=='__main__': unittest.main()

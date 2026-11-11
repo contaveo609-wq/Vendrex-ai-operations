@@ -1,0 +1,12 @@
+{
+  "version": "2.2.0",
+  "company": "VENDREX",
+  "services": ["Sites e landing pages", "Pedidos e cardápios digitais", "Painéis administrativos", "Chatbots", "Automação", "Integrações"],
+  "process": ["Diagnóstico", "Escopo e proposta", "Aprovação", "Desenvolvimento", "Testes", "Entrega", "Suporte contratado"],
+  "historical_reference_brl": 1490.90,
+  "pricing_policy": "Referência histórica, não preço fixo. Hospedagem, domínio, manutenção e terceiros são custos separados quando aplicáveis.",
+  "sales_pillars": ["ENCONTRE A DOR DO CLIENTE", "FAÇA-O RECONHECER E SENTIR A DOR, DESEJANDO SOLUCIONÁ-LA", "MOSTRE A SOLUÇÃO", "MOSTRE QUE A VENDREX É A SOLUÇÃO"],
+  "proof_policy": "Não inventar portfólio, números, resultados, garantias, preço ou prazo.",
+  "communication_policy": "Prospecção não equivale a consentimento. Respostas autônomas somente a leads elegíveis após ativação e testes de conector oficial.",
+  "sources": ["docs/v2.2-input/PROMPT_MESTRE.md", "docs/v2.2-input/POLITICAS.md"]
+}

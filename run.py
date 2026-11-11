@@ -22,7 +22,7 @@ def demo_seed(service):
     service.add_record('research',{'source':'Material fictício de demonstração','text':'Exemplo editorial local. Não representa pesquisa de mercado.'})
     service.confirm_sale({'client_name':'Cliente de demonstração · FICTÍCIO','scope':'Exemplo de site institucional para teste do fluxo interno.','confirmation_evidence':'Confirmação fictícia de demonstração','deadline':'2030-12-30','amount':597.90,'idempotency_key':'demo-sale','validated_by_human':True})
     service.create_task(agent='sales',kind='QUALIFY_LEADS',description='Qualificar lead fictício')
-    service.create_task(agent='social',kind='SOCIAL_PACK',description='Criar rascunho de demonstração')
+    service.create_task(agent='growth',kind='GROWTH_PACK',description='Criar rascunho de demonstração')
     service.create_task(agent='director',kind='DIRECTOR_DAILY_REVIEW',description='Gerar relatório da demonstração')
     service.control('start')
     while service.run_next(): pass
@@ -31,7 +31,7 @@ def demo_seed(service):
 
 def main():
     parser = argparse.ArgumentParser(description='VENDREX AI Operations — execução local supervisionada')
-    parser.add_argument('command',choices=['serve','tick','diagnose','status','backup','package','test-sale'])
+    parser.add_argument('command',choices=['serve','tick','diagnose','status','backup','package','test-sale','missions'])
     parser.add_argument('--data',type=Path,default=None)
     parser.add_argument('--port',type=int,default=8766)
     parser.add_argument('--demo',action='store_true',help='Base isolada com dados explicitamente fictícios')
@@ -62,6 +62,10 @@ def main():
     try:
         with ExecutorLock(data):
             service.queue.recover()
+            if args.command=='missions':
+                report=service.execute_mission_suite()
+                print(json.dumps(report,ensure_ascii=False,indent=2),flush=True)
+                return 0 if report['all_four_missions_passed'] else 2
             if args.demo: demo_seed(service)
             if args.command=='tick':
                 service.scheduler.tick()
