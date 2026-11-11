@@ -1,0 +1,121 @@
+{
+  "version": "2.4.0",
+  "source_commit": "304c97223539768865185a3166175457e3417aa2",
+  "branch": "upgrade/v2.4",
+  "platform": "Windows",
+  "tests": {
+    "python_unit_integration": {
+      "passed": 92,
+      "failed": 0
+    },
+    "meta_and_proxy_node": {
+      "passed": 32,
+      "failed": 0,
+      "meta_backend": "CONTROLLED_RESPONSES"
+    },
+    "dashboard_rendering": {
+      "passed": 16
+    },
+    "safe_public_config": {
+      "passed": 4
+    },
+    "isolated_chromium": {
+      "passed": 8,
+      "javascript_errors": 0,
+      "backend": "CONTROLLED_FIXTURES",
+      "mobile_width": 390
+    },
+    "live_inference": {
+      "passed": 4,
+      "profiles": [
+        "sales",
+        "builder",
+        "growth",
+        "director"
+      ],
+      "inputs": "CONTROLLED",
+      "execution": "official locally authenticated Codex CLI",
+      "production_autonomy": false
+    },
+    "real_postgres": {
+      "state": "PASS",
+      "scope": [
+        "RLS",
+        "grants",
+        "OAuth single use and browser binding",
+        "deduplication",
+        "unique schedule slot",
+        "atomic confirmation fixture rolled back",
+        "queue claim",
+        "lease crash recovery"
+      ],
+      "fixtures_rolled_back": true,
+      "meta_publication": false
+    },
+    "live_http": {
+      "health": 200,
+      "invalid_jwt": 401,
+      "anonymous_worker": 401,
+      "foreign_origin": 403
+    },
+    "cloud_build": "PASS"
+  },
+  "remote": {
+    "cron": [
+      {
+        "name": "vendrex-growth-worker",
+        "active": true,
+        "schedule": "* * * * *"
+      }
+    ],
+    "last_tick": "2026-11-11T23:49:00.169999+00:00",
+    "checked_at": "2026-11-11T23:49:53.208555+00:00",
+    "project_ref": "ryxxpbxbjzijcuxgfgja",
+    "connected_accounts": 0,
+    "confirmed_real_posts": 0,
+    "last_worker_response": {
+      "body": {
+        "state": "IDLE",
+        "operational": false
+      },
+      "status": 200,
+      "timed_out": false
+    },
+    "production_auth_users": 0,
+    "meta_app_secrets_configured": 0
+  },
+  "vercel": {
+    "authenticated_plan": "hobby",
+    "commercial_deployment": "BLOCKED",
+    "production_url": null,
+    "paid_upgrade": false
+  },
+  "security": {
+    "tokens": "AES-256-GCM; key in Vault; owner/connection AAD; service-only database access",
+    "warnings": [
+      {
+        "name": "extension_in_public",
+        "extension": "pg_net",
+        "relocatable": false,
+        "actual_function_schema": "net",
+        "public_extension_functions": 0,
+        "disposition": "Documented; no destructive extension recreation"
+      }
+    ],
+    "intentional_info": "RLS enabled with no client policies on service-only tables"
+  },
+  "status": {
+    "growth": "TESTED / AUTH_REQUIRED / NOT OPERATIONAL",
+    "meta": "App setup and account consent pending; personal login reported by owner",
+    "whatsapp": "BLOCKED; no real transport",
+    "other_agents": "Local tests passed; remote production workers not provisioned"
+  },
+  "costs": {
+    "supabase_project_quoted_usd_per_month": 0,
+    "paid_resources_contracted": false,
+    "paid_intermediaries": false,
+    "paid_ai_api": false,
+    "cron_calls_per_30_days": 43200
+  },
+  "blocked_browser_control": "Could not determine current browser URL on Windows with enough confidence; no bypass used"
+}
