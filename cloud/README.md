@@ -1,8 +1,8 @@
-# Control plane V2.2 — preparado, não conectado
+# Control plane V2.3 — preparado, não conectado
 
 Este código pode ser implantado na Vercel após autorização de produção e verificação de plano adequado para uso comercial. Não foi implantado como se estivesse conectado.
 
-1. Crie um projeto Supabase dedicado elegível sem custo autorizado. A tentativa real nesta sessão foi bloqueada pelo limite de dois projetos gratuitos ativos. Não pause bancos de clientes para contornar esse limite.
+1. Crie um projeto Supabase dedicado elegível sem custo autorizado. A tentativa real nesta sessão foi bloqueada pelo limite de dois projetos gratuitos ativos. O proprietário autorizou excluir o açaí, mas essa ação segue bloqueada por ausência de ferramenta de exclusão e de autenticação CLI. Não altere outros projetos.
 2. Aplique a migração em `../supabase/migrations` ao projeto dedicado. Ela habilita RLS de propriedade em todas as tabelas e usa função SECURITY INVOKER para claim de fila. Nenhuma política usa user_metadata.
 3. Configure um usuário no Supabase Auth. O painel faz login diretamente no endpoint oficial Auth e mantém a sessão somente em memória.
 4. Variáveis do servidor Vercel: `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`. Nenhuma chave service_role é necessária no frontend ou na sincronização.

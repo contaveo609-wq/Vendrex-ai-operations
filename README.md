@@ -1,57 +1,75 @@
-# VENDREX AI Operations V2.2
+# VENDREX AI OPERATIONS V2.3
 
-Sales, Builder, Growth e Director com fila sequencial, contexto compartilhado e quatro missões locais executadas com arquivos reais. Usa o pacote V2.2 fornecido pelo proprietário, preservado em `docs/v2.2-input/`.
+Evolução da V2.2 existente (base `0f47d48e41b6a37df6469f0432a7e1ee9fc92fc8`). Quatro perfis, fila persistente e um executor sequencial. O sistema executa ferramentas locais; a inteligência generativa e o atendimento WhatsApp real continuam bloqueados pelas dependências descritas abaixo. Nenhuma integração foi simulada como conectada.
 
-## O que foi comprovado
+## Instalar e abrir
 
-- **Sales:** acessou fontes públicas e cadastrou duas empresas reais com URL, data, evidência e qualificação. Nenhuma mensagem enviada; prospecção não equivale a consentimento.
-- **Builder:** gerou uma calculadora executável, criou branch/commit e passou em 17 testes de aritmética. Chromium validou mouse, teclado, decimais, divisão por zero, recuperação e tela móvel. A aplicação gerada está em `examples/calculator/`.
-- **Growth:** renderizou dois MP4 verticais de **32,000 segundos**, H.264, 1080×1920 e trilha instrumental sintetizada original. O segundo incorporou o treinamento. Não há narração humana nem vídeo de terceiros.
-- **Director:** leu a transcrição pública de um vídeo da W3C, enviou uma aula interna ao Growth e criou versão experimental do playbook. O Growth confirmou recebimento, aplicou a técnica e passou na comparação. A promoção do adendo para produção continua sujeita à aprovação humana.
+Python 3.11+ para o painel. No Windows, extraia o ZIP, abra a pasta `VENDREX-AI` e execute `Iniciar.cmd`. No terminal:
 
-As missões usam ferramentas locais reais e rotinas determinísticas. Elas **não comprovam inferência com o Codex CLI nem autonomia generativa para qualquer tarefa**. Uma chamada real ao CLI foi tentada e retornou 401; o estado correto é AUTH_REQUIRED. Não foi usada API de IA paga.
-
-## Abrir no Windows
-
-Requisitos básicos: Python 3.11+ e Git. Para missões: Node.js, FFmpeg/ffprobe e Pillow.
-
-```powershell
-py -3 -m pip install -r .\requirements-media.txt
-py -3 .\run.py serve --open
+```sh
+python run.py serve --open
 ```
 
-Ou abra **Iniciar.cmd**. O painel é `http://127.0.0.1:8766`. Começa pausado. Na página **Missões**, execute a suíte e depois **Iniciar sistema**. Arquivos e histórico ficam disponíveis na tarefa de cada agente.
+Acesse `http://127.0.0.1:8766`. O endereço é local ao computador que executa o processo. A base fica em `runtime/`. A primeira migração da V2.2 faz backup antes de alterar o esquema e preserva os registros. Faça uma cópia adicional de sua pasta de dados antes de atualizar. Não sobrescreva `runtime/` com uma demonstração.
 
-Para executar a suíte direto e salvar em uma base isolada:
+Node.js e Git são necessários para as missões Builder. FFmpeg, ffprobe e Pillow (`python -m pip install -r requirements-media.txt`) são necessários para gerar vídeos. As quatro missões V2.2 continuam disponíveis em `Missoes.cmd`; o novo quadro persistente pode ser solicitado na página Builder. A implementação do quadro usa scaffold determinístico, sem alegar programação generativa.
 
-```powershell
-py -3 .\run.py missions --data .\runtime-missions
+## Situação real
+
+| Recurso | Estado | Evidência e limite |
+|---|---|---|
+| Quatro perfis, fila, CRM, agendas | TESTED | Persistência SQLite e testes locais; agendas precisam de executor ativo |
+| WhatsApp: controles e histórico local | TESTED | Painel, elegibilidade, cancelamento, recuperação; sem eventos WhatsApp reais |
+| WhatsApp: transporte e autonomia verificável | BLOCKED / NOT_IMPLEMENTED | Proprietário escolheu QR/código sem API; link manual externo não integra o Sales |
+| Codex CLI | IMPLEMENTED / AUTH_REQUIRED | Chamada real retornou 401; catálogo não comprova inferência |
+| Builder: calculadora e quadro persistente | TESTED | Node, Git e Chromium; geração por scaffold local |
+| Growth: vídeo 32s | TESTED | MP4 V2.2 preservado, verificação de duração/reprodução na V2.3 |
+| Growth: importação/análise de campanhas | TESTED | Fonte, moeda, período, hash e deduplicação; dataset de aceitação SIMULATION_ONLY |
+| Meta Ads/Google Ads | NOT_IMPLEMENTED | Sem conta publicitária conectada ou dados reais recebidos |
+| Director: fonte e avaliação estruturada | TESTED | Fonte Salesforce acessada; respostas importadas e rubrica literal; promoção pendente |
+| Treinamento/negociação generativa | AUTH_REQUIRED | Sem execução de modelo comprovada |
+| Supabase | BLOCKED | Dois projetos gratuitos ativos; nenhuma migração remota aplicada |
+| Vercel | IMPLEMENTED / BLOCKED | Control plane compila; plano comercial e publicação não autorizados/validados |
+| Worker remoto | IMPLEMENTED / BLOCKED | Units systemd preparadas, sem servidor provisionado ou teste remoto |
+
+Estados são descritos em [ENTREGA](docs/ENTREGA.md). `CONNECTED` exige uma conexão real validada; configuração, catálogo e teste com fixture não bastam.
+
+## WhatsApp
+
+Página **WhatsApp Sales**: status, motivo do bloqueio, janela de 3–10s, desligamento e conversas/transferência humana. O link de vinculação abre o WhatsApp Web oficial em outra aba; a sessão externa não é observada pelo Sales. Ativar fica indisponível enquanto faltar um transporte suportado e testado. Não existe endpoint de importação que transforme mensagens fictícias em mensagens WhatsApp.
+
+O proprietário escolheu QR/código sem API. O acesso manual ao WhatsApp Web respeita essa preferência, mas não fornece mensagens nem uma sessão verificável ao Sales. A autonomia permanece indisponível. A alternativa documentada com coexistência de provedor não foi aceita nem contratada. Não foram instalados clientes que automatizam WhatsApp Web.
+
+## Autenticação oficial do Codex
+
+Execute `Autenticar-Codex.cmd` no Windows, ou faça `codex login` no executor autorizado. Se o fluxo de navegador não funcionar, consulte a documentação oficial e `codex login --help` antes de usar `codex login --device-auth`.
+
+```sh
+python scripts/verify_codex.py --execute --out runtime/codex-verification.json
+python run.py diagnose
 ```
 
-Ou abra **Missoes.cmd**. O processo retorna código zero somente se as quatro missões e o experimento de aplicação forem concluídos. Confirme `ffmpeg -version`, `ffprobe -version`, `git --version` e `node --version` antes de executar.
+O teste só informa CONNECTED após inferência estruturada bem-sucedida. Não copie `auth.json`, cookies ou sessões. Não envie tokens no chat. Assinatura ChatGPT não equivale a créditos da API. Não há fallback para API paga. Os IDs retornados pelo catálogo foram `gpt-6-luna`, `gpt-6-astra` e `gpt-6.1-sol`, com `xhigh`; o próprio catálogo pode estar em cache e não comprova autorização de uso.
 
-**Demonstracao.cmd** continua usando dados explicitamente fictícios em `runtime-demo`; não os confunda com o resultado real da prospecção. Para inspecionar a suíte executada localmente: `py -3 .\run.py serve --data .\runtime-missions --open`.
+## Verificar
 
-## Testes
-
-```powershell
-py -3 -m unittest discover -s tests -v
-node .\tests\test_dashboard.cjs
-node .\examples\calculator\test.cjs
+```sh
+python -m unittest discover -s tests -v
+node tests/test_dashboard.cjs
+node tests/test_cloud_config.cjs
+node templates/board/test.cjs
+node examples/calculator/test.cjs
+node --check dashboard/app.js
+npm --prefix cloud run build
 ```
 
-Resultado desta entrega: **55 testes Python**, **17 testes da calculadora**, **16 checks de renderização** e **19 verificações reais em Chromium**. A evidência do navegador está em `docs/evidence/browser-verification.json`. Windows ainda precisa ser validado no computador do proprietário; estes resultados foram obtidos em Linux.
+Testes Chromium opcionais exigem Playwright e Chromium já instalados, uma base de missões executadas e os caminhos corretos:
 
-## Nuvem e integrações: estado real
+```sh
+python scripts/verify_mission_browser.py --data runtime-missions --out runtime-verification
+python scripts/verify_v23_browser.py --data runtime-missions --out runtime-v23-verification
+```
 
-O Supabase informou US$0/mês, mas recusou criar o projeto dedicado porque a conta já tem dois projetos gratuitos ativos. Nenhum banco de cliente foi alterado. Há migração com RLS, sincronização autenticada e control plane em `cloud/`, mas não são apresentados como conexão testada. Vercel não foi implantado em produção: ainda exige projeto de dados, plano comercial elegível e aprovação de produção. Nenhum executor remoto permanente foi inventado.
+O segundo script exige uma missão BUILDER_BOARD concluída e a campanha de teste identificada. Os artefatos e cenários desta entrega estão documentados em [TESTES-V2.3](docs/TESTES-V2.3.md). Windows e host systemd não foram executados nesta sessão.
 
-O motor de atendimento implementa elegibilidade, consentimento, debounce de 3–10s, revisão por nova mensagem, opt-out, transferência humana e idempotência. Seus testes são isolados. **WhatsApp continua bloqueado** sem conector permitido, contatos controlados e ativação validada. Não há QR fictício, automação não oficial anunciada como oficial ou resposta a contatos pessoais.
-
-## Segurança e operação
-
-Um executor por pasta de dados; fila persistente; backups; aprovações com escopo; pastas por trabalho; Caveman original; contexto VENDREX versionado; fontes externas não alteram permissões. Os quatro pilares e a referência histórica de R$1.490,90 foram corrigidos. O ticket é referência, não preço fixo.
-
-Pausar impede novas tarefas. Parada registra bloqueio; a tarefa atual termina em ponto seguro. Ctrl+C encerra o servidor depois do trabalho atual. Trabalhos interrompidos pedem revisão. O agendador Windows só é registrado após autorização no script.
-
-Relatório: [docs/ENTREGA.md](docs/ENTREGA.md). Limitações: [docs/LIMITACOES.md](docs/LIMITACOES.md). Resultados: [docs/MISSOES-VERIFICADAS.json](docs/MISSOES-VERIFICADAS.json). A documentação V1 está identificada em `docs/history-v1/`.
+Leia [falhas corrigidas](docs/CORRECOES-V2.3.md), [pendências e integrações](docs/INTEGRACOES-V2.3.md), [formato das importações](docs/IMPORTACOES-V2.3.md) e [arquitetura](docs/ARQUITETURA.md). Os documentos `history-v1`, `history-v2.2` e a evidência V2.2 são históricos.

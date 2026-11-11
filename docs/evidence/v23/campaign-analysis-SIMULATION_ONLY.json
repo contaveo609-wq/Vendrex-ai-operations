@@ -1,0 +1,40 @@
+{
+  "state": "TESTED",
+  "ad_platform_connection": "NOT_IMPLEMENTED",
+  "campaigns": [
+    {
+      "campaign_id": "CENARIO-CONTROLADO",
+      "period": "2026-11-10",
+      "currency": "BRL",
+      "dataset_kind": "SIMULATION_ONLY",
+      "source": "fixture://v23-acceptance-controlled-dataset",
+      "source_sha256": "3f8ee17db2fa3bf7907e9914ac7257efface2fae0465ffe69efdb8f86505ca8d",
+      "observed_metrics": {
+        "acquisitions": 2.0,
+        "campaign_id": "CENARIO-CONTROLADO",
+        "clicks": 200.0,
+        "conversions": [
+          {
+            "id": "fixture-conversion"
+          }
+        ],
+        "impressions": 10000.0,
+        "leads": 10.0,
+        "qualified_leads": 4.0,
+        "spend": 100.0
+      },
+      "calculated_metrics": {
+        "CPM": 10.0,
+        "CTR": 2.0,
+        "CPC": 0.5,
+        "CPL": 10.0,
+        "CAC": 50.0,
+        "ROAS": null
+      },
+      "confirmed_attributed_conversions": 0,
+      "confirmed_attributed_revenue": null,
+      "unverified_conversions": 1
+    }
+  ],
+  "note": "Métricas calculadas sobre exportações identificadas. Autoria/atribuição dependem da fonte; nenhum anúncio publicado."
+}

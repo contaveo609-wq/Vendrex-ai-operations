@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--open',action='store_true',help='Abre o navegador local')
     args = parser.parse_args()
     if args.command=='package':
-        target = ROOT/'dist/VENDREX-AI-OPERATIONS-V2.2.zip'
+        target = ROOT/'dist/VENDREX-AI-OPERATIONS-V2.3.zip'
         target.parent.mkdir(exist_ok=True)
         target.write_bytes(source_zip())
         print(target)
@@ -62,6 +62,7 @@ def main():
     try:
         with ExecutorLock(data):
             service.queue.recover()
+            service.replies.recover()
             if args.command=='missions':
                 report=service.execute_mission_suite()
                 print(json.dumps(report,ensure_ascii=False,indent=2),flush=True)
@@ -76,6 +77,7 @@ def main():
             def worker():
                 while not service.stop_event.is_set():
                     try:
+                        service.replies.recover(startup=False)
                         service.scheduler.tick()
                         service.run_next()
                         service.db.write_journal()

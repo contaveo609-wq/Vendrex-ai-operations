@@ -99,7 +99,7 @@
       "max_effort": "xhigh"
     }
   },
-  "version": "2.2.0",
+  "version": "2.3.0",
   "sales": {
     "min_reply_delay_seconds": 3,
     "max_reply_delay_seconds": 10,

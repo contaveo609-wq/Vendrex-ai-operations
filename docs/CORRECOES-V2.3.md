@@ -1,0 +1,22 @@
+# Auditoria e correções V2.3
+
+A V2.2 foi inspecionada e os 55 testes originais passaram antes das mudanças. A versão evolui o código existente; nenhuma reconstrução do zero.
+
+1. **Geração de resposta travada:** uma exceção deixava a outbox em GENERATING indefinidamente. Agora há lease, registro de erro, espera de três segundos, no máximo duas tentativas e WAITING_HUMAN ao esgotar. Reinício e passagem do tempo recuperam leases expirados; cada erro é auditado.
+2. **Envio com efeito desconhecido:** DISPATCHING recupera para RECONCILIATION_REQUIRED no startup. Nenhuma tentativa externa ambígua é reenviada automaticamente. Envio real está indisponível; a validação desse mecanismo usa transporte controlado de teste.
+3. **Perda de mensagem nova:** a conclusão de um envio anterior zerava due_at e status da revisão seguinte. Agora atualiza apenas a revisão enviada e preserva revisão nova. Teste injeta nova mensagem durante um envio fictício, sem WhatsApp.
+4. **Atendimento humano inconsistente:** novas mensagens depois do takeover voltavam a mostrar PENDING. Agora permanecem HUMAN_TAKEOVER. Transferência para conversa inexistente gera erro. Uma ação externa já enviada não pode ser desfeita; ainda falta validar essa janela no provedor real.
+5. **Opt-out:** pedidos em frases como “Por favor, pare!” são reconhecidos. Identificador exato, consentimento com fuso e prazo, grupo, exclusão e takeover são reavaliados antes da preparação/envio. Não se adivinha DDI/DDD.
+6. **Compromissos comerciais gerados:** além da entrada, a resposta proposta é verificada para preço, desconto, prazo e compromissos. Detecção por regras é conservadora, não uma análise semântica completa. Casos detectados vão ao humano.
+7. **Flags sem comprovação:** alterar autonomous_enabled/connector_validated não permite envio de produção. O transporte oficial permanece NOT_IMPLEMENTED. O ramo de teste exige uma instância explicitamente marcada simulation_only e não é exposto pela API.
+8. **Painel WhatsApp:** adicionados status real, limites de conexão, controle 3–10s, desligamento, histórico local e takeover. Não foi fabricado QR, código, sessão ou recibo.
+9. **Sincronização truncada:** antes exportava o snapshot do painel, limitado a 200 registros. Agora lê todos os registros em lotes, incluindo avaliações e conversas. É upsert unilateral; exclusões locais não são sincronizadas como exclusões remotas.
+10. **Configuração cloud insegura:** a rota pública rejeita chaves privilegiadas, URLs não oficiais e configuração incorreta. O cliente Python rejeita redirecionamentos para não encaminhar credenciais a outra origem. Logout limpa a sessão local mesmo quando a rede falha; revogação remota não é presumida.
+11. **Migração sem backup anterior:** cópia SQLite passa a ser criada antes de cada alteração de esquema em uma base existente. Nenhum registro de clientes foi removido na evolução.
+12. **Campanhas:** importações com fonte, período, moeda e hash; snapshots substituem o mesmo período em vez de duplicar gasto. Conversões são deduplicadas por ID e venda. Receita/ROAS exigem venda confirmada, moeda correspondente e evidência de atribuição. Métricas ausentes ou denominador zero retornam null.
+13. **Director:** fluxo genérico de fonte acessível, trecho literal, deficiência, técnica, cenários, rubrica, comparação e proposta versionada. A ferramenta não afirma ter compreendido um vídeo por título. A demonstração V2.3 usa material textual Salesforce e respostas importadas; a demonstração anterior W3C por transcrição permanece histórica.
+14. **Builder:** adicionado quadro com requisitos, plano, código, testes, revisão, entrega e commit Git local. Chromium encontrou um defeito real de CSS que expunha formulário sobre base corrompida. Corrigido hidden, bloqueio de gravação e exportação dos dados preservados. Falha de quota preserva estado anterior. Método continua determinístico.
+15. **Operação remota:** timer/serviço systemd preparados para servidor autorizado. Não foi anunciado um processo permanente dentro da Vercel.
+16. **Autenticação:** probe oficial reproduz o 401 “Could not parse your authentication token”. Evidência distingue login detectado, catálogo em cache e inferência real. Credenciais de outras integrações são removidas do ambiente do subprocesso.
+
+Limites deliberados: não foi adicionado envio promocional, publicação de campanha, contratação, desconto automático, produção Vercel ou acesso aos projetos de clientes.

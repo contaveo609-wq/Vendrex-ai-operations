@@ -1,0 +1,18 @@
+[Unit]
+Description=VENDREX scheduled sequential worker
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=vendrex
+Group=vendrex
+WorkingDirectory=/opt/vendrex
+EnvironmentFile=/etc/vendrex/worker.env
+ExecStart=/usr/bin/python3 /opt/vendrex/run.py tick --data /var/lib/vendrex
+TimeoutStartSec=900
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vendrex
+UMask=0077

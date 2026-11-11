@@ -13,7 +13,7 @@ import zipfile
 from .codex import CodexAdapter, CodexRPC
 from .db import Database, ROOT, dumps, fingerprint, now, uid, safe_error
 from .policy import UsageGuard, OfficialUsageProvider, route_model, EXTERNAL
-from .scheduler import Scheduler, validate_schedules
+from .scheduler import Scheduler, validate_schedules, recife
 from .task_queue import TaskQueue
 
 AGENTS = [
@@ -24,7 +24,7 @@ AGENTS = [
 ]
 KINDS = {'sales':{'QUALIFY_LEADS','SALES_DRAFT'},'builder':{'BUILD_BRIEF','BUILD_PROJECT','PROJECT_ERROR','PROJECT_REVIEW_REQUESTED'},
          'growth':{'GROWTH_MIDDAY','GROWTH_EVENING','GROWTH_PACK'},'director':{'DIRECTOR_DAILY_REVIEW','TRAINING_REVIEW'}}
-for _kind,_agent in {'SALES_PROSPECT':'sales','BUILDER_CALCULATOR':'builder','GROWTH_VIDEO32':'growth','DIRECTOR_VIDEO_TRAINING':'director'}.items():
+for _kind,_agent in {'SALES_PROSPECT':'sales','BUILDER_BOARD':'builder','BUILDER_CALCULATOR':'builder','GROWTH_VIDEO32':'growth','DIRECTOR_VIDEO_TRAINING':'director'}.items():
     KINDS[_agent].add(_kind)
 
 
@@ -39,7 +39,7 @@ class Service:
         self.execution_mutex = threading.Lock()
         self.diagnostic_mutex = threading.Lock()
         old_config=self.db.setting('config')
-        if old_config and old_config.get('version')!='2.2.0': self.db.backup()
+        if old_config and old_config.get('version')!='2.3.0': self.db.backup()
         with self.db.transaction() as conn:
             for agent_id,name,mission,color in AGENTS:
                 conn.execute('INSERT OR IGNORE INTO agents VALUES(?,?,?,?,1)',(agent_id,name,mission,color))
@@ -53,10 +53,23 @@ class Service:
             for name in ['codex','tinyfish','firecrawl','github','vercel','supabase','communications','whatsapp','social_platforms']:
                 conn.execute('INSERT OR IGNORE INTO integrations VALUES(?,?,?,?,?)',(name,'NOT_CONFIGURED','Não validado neste computador. Importação manual disponível.','[]',now()))
         self.upgrade_v22()
+        if self.config.get('version')!='2.3.0':
+            config=self.config;config['version']='2.3.0'
+            config['sales'].update(autonomous_enabled=False,connector_validated=False)
+            self.db.set('config',config)
+            self.db.audit('V23_UPGRADE',{'protected_flags_reset':True,'records_preserved':True})
+        from .communications import ReplyEngine
+        from .whatsapp import WhatsAppControl
+        from .intelligence import Campaigns
+        from .competencies import Competencies
+        self.replies=ReplyEngine(self)
+        self.whatsapp=WhatsAppControl(self)
+        self.campaigns=Campaigns(self)
+        self.competencies=Competencies(self)
 
     def upgrade_v22(self):
         current=self.config
-        if current.get('version')=='2.2.0':return
+        if current.get('version') in {'2.2.0','2.3.0'}:return
         defaults=json.loads((ROOT/'config/defaults.json').read_text())
         with self.db.transaction() as conn:
             self.db.set('config_before_v22',current,conn)
@@ -173,7 +186,7 @@ class Service:
             client = self.db.record('clients',{'name':data['client_name']},conn=conn)
             project = uid()
             self.db.record('projects',{'name':data.get('project_name') or data['client_name'],'client_id':client,'scope':data['scope'],'deadline':data['deadline'],'status':'BRIEFING','deployment':'Não publicado','tests':'Ainda não executados'},project_id=project,record_id=project,conn=conn)
-            self.db.record('deals',{'client_id':client,'amount':amount,'status':'CONFIRMED','evidence':data['confirmation_evidence'],'project_id':project},project_id=project,conn=conn)
+            self.db.record('deals',{'client_id':client,'amount':amount,'currency':'BRL','status':'CONFIRMED','evidence':data['confirmation_evidence'],'project_id':project},project_id=project,conn=conn)
             self.db.record('requirements',{'confirmed':data['scope'],'inferred':[],'suggested':[],'pending':data.get('pending',''),'materials':data.get('materials','')},project_id=project,conn=conn)
             task = self.event('SALE_CONFIRMED',{**data,'client_id':client,'project_id':project},key,conn)
             self.db.notify('Venda confirmada','Briefing do Builder entrou na fila. Recebimento financeiro não presumido.',conn)
@@ -284,7 +297,7 @@ class Service:
                         if not model_id: continue
                         family = next((f for f in ['luna','sol','astra'] if f in model_id.lower()),None)
                         efforts = [e.get('reasoningEffort') for e in model.get('supportedReasoningEfforts',[]) if e.get('reasoningEffort')]
-                        catalog.append({'id':model_id,'name':model.get('displayName',model_id),'family':family,'efforts':efforts,'verified':True,'source':'codex model/list','observed_at':now()})
+                        catalog.append({'id':model_id,'name':model.get('displayName',model_id),'family':family,'efforts':efforts,'verified':True,'inference_verified':False,'source':'codex model/list (may be cached; auth probe required)','observed_at':now()})
                     config = self.config
                     config['models'] = catalog
                     self.db.set('config',config)
@@ -514,7 +527,7 @@ class Service:
         metrics = self.metrics()
         states = self.db.rows('SELECT state,COUNT(*) AS count FROM tasks GROUP BY state')
         pending = self.db.rows("SELECT COUNT(*) AS count FROM approvals WHERE status='PENDING'")[0]['count']
-        body = f'''# Relatório VENDREX — {now()[:10]}
+        body = f'''# Relatório VENDREX — {datetime.now(timezone.utc).astimezone(recife()).date()}
 
 ## A. Resumo executivo
 Fonte: SQLite local no instante {now()}. Valores ausentes não são estimados.
@@ -543,9 +556,10 @@ Verificar tarefas BLOCKED e FAILED e integrações não configuradas. Sem evidê
 3. Importar fontes de pesquisa e revisar qualidade dos rascunhos.
 
 ## H. Plano do dia seguinte
-Social: {self.config['schedules']['GROWTH_MIDDAY']} e {self.config['schedules']['GROWTH_EVENING']}. Director: {self.config['schedules']['DIRECTOR_DAILY_REVIEW']}, America/Recife.
+Growth: {self.config['schedules']['GROWTH_MIDDAY']} e {self.config['schedules']['GROWTH_EVENING']}. Director: {self.config['schedules']['DIRECTOR_DAILY_REVIEW']}, America/Recife.
 Prioridades operacionais precisam ser confirmadas pelo proprietário.
 '''
+        body+='\n## I. Campanhas e treinamento V2.3\nMétricas acumuladas, não apenas do dia. Exportações: '+dumps(self.campaigns.summary())+'\nAvaliações de competências: '+dumps(self.db.rows('SELECT id,proposal_id,assessment FROM competency_runs ORDER BY created_at DESC LIMIT 10'))+'\nWhatsApp: '+dumps(self.whatsapp.status())+'\n'
         report_id = uid()
         (workspace/'relatorio.md').write_text(body,encoding='utf-8')
         with self.db.transaction() as conn:
@@ -561,7 +575,7 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
 
     def snapshot(self):
         tasks = [self.queue.decode(row) for row in self.db.rows('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 250')]
-        return {'version':'2.2.0','mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
+        return {'version':'2.3.0','mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
                 'agents':self.db.rows('SELECT * FROM agents'),'tasks':tasks,'metrics':self.metrics(),'usage':self.guard.status(),
                 'config':self.config,'integrations':self.db.rows('SELECT * FROM integrations'),
                 'records':{e:self.db.records(e)[:200] for e in ['leads','projects','deals','payments','content_items','publications','research']},
@@ -576,6 +590,10 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
                 'diagnostic':self.db.setting('diagnostic',None),'server_time':now(),
                 'missions':self.db.rows('SELECT * FROM mission_runs ORDER BY created_at DESC LIMIT 50'),
                 'agent_messages':self.db.rows('SELECT * FROM agent_messages ORDER BY created_at DESC LIMIT 50'),
+                'whatsapp':self.whatsapp.status(),
+                'conversations':self.db.rows('SELECT * FROM conversations ORDER BY last_inbound DESC LIMIT 100'),
+                'campaigns':self.campaigns.summary(),
+                'competency_runs':self.db.rows('SELECT * FROM competency_runs ORDER BY created_at DESC LIMIT 50'),
                 'company_context':json.loads((ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text())}
 
     def queue_missions(self):
@@ -592,8 +610,8 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
 def source_zip():
     """Whitelist source directories. Runtime databases, credentials and symlinks are never exported."""
     buffer = io.BytesIO()
-    directories = {'vendrex','agents','config','dashboard','docs','scripts','skills','tests','memory','templates','supabase','cloud','examples'}
-    top_files = {'README.md','AGENTS.md','.gitignore','.env.example','pyproject.toml','requirements-media.txt','run.py','Iniciar.cmd','Testar.cmd','Demonstracao.cmd','Missoes.cmd'}
+    directories = {'vendrex','agents','config','dashboard','docs','scripts','skills','tests','memory','templates','supabase','cloud','examples','deploy'}
+    top_files = {'README.md','AGENTS.md','.gitignore','.env.example','pyproject.toml','requirements-media.txt','run.py','Iniciar.cmd','Testar.cmd','Demonstracao.cmd','Missoes.cmd','Autenticar-Codex.cmd'}
     with zipfile.ZipFile(buffer,'w',zipfile.ZIP_DEFLATED) as archive:
         for file in sorted(ROOT.rglob('*')):
             relative = file.relative_to(ROOT)

@@ -15,6 +15,9 @@ def environment():
     result = os.environ.copy()
     for name in ('OPENAI_API_KEY','CODEX_API_KEY','ANTHROPIC_API_KEY','OPENAI_BASE_URL','OPENAI_API_BASE','GH_TOKEN','GITHUB_TOKEN','VERCEL_TOKEN','SUPABASE_SERVICE_ROLE_KEY'):
         result.pop(name,None)
+    for name in list(result):
+        if name.upper().endswith(('_TOKEN','_SECRET','_PASSWORD','_API_KEY','_PUBLISHABLE_KEY')) and not name.startswith('CODEX_'):
+            result.pop(name,None)
     return result
 
 
