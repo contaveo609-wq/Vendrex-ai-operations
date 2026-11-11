@@ -1,51 +1,31 @@
-# Relatório de entrega — VENDREX AI Operations V1
+# Entrega V2.2 — missões verificadas
 
-Reconstrução em pasta nova, preservando a implementação anterior. O prompt original fornecido pelo proprietário está incluído integralmente. Código versionado em Git. Página privada de entrega separada do dashboard operacional local.
+## Execução real
 
-## A. Construído
+As cinco tarefas da suíte terminaram COMPLETED: um vídeo-base Growth, calculadora Builder, prospecção Sales, aula Director e vídeo Growth aplicando a aula. Os manifestos têm hashes dos arquivos. Fonte completa e histórico de versões estão no repositório autorizado pelo proprietário. Exportações de contatos e bancos operacionais não entram no repositório público.
 
-Quatro perfis e quatro interfaces próprias; orquestrador Python; banco SQLite com migrações; fila com os 12 estados solicitados; eventos; dependências; deduplicação; executor exclusivo; recuperação; aprovações com escopo e validade; scheduler 12h/18h/20h America/Recife; Model Router com catálogo oficial e tetos; provedores de uso; Caveman original; logs JSONL com rotação e auditoria SQLite; notificações locais no painel; backups; exportação de código e dados; retenção supervisionada com backup; treinamento versionado; scripts Windows e suíte de testes.
+**Sales:** 2 empresas verificadas, Parraxaxá e Bargaço Recife. Sites públicos: https://www.parraxaxa.com.br/ e https://linklist.bio/bargacorecife . A fonte do Chica Pitanga não confirmou o contexto na leitura HTML e foi registrada como erro, sem inventar um terceiro lead. Dados e contatos públicos ficam na entrega privada de evidências. Não houve envio, autorização presumida ou alegação de dor confirmada.
 
-## B. Verificado
+**Builder:** calculadora real, testes Node, branch e commit próprios. Teclado e mouse operam a interface. Divisão por zero tem erro legível e a calculadora se recupera. A tarefa gera o aplicativo a partir de um scaffold parametrizado; não é prova de programação generativa irrestrita. O PR do projeto reúne a evolução V2.2 e o exemplo gerado.
 
-37 testes Python aprovados: núcleo, 14 cenários obrigatórios cobertos por testes de fluxo e isolamento, controles HTTP, downloads reais, CSRF/Host/Origin, travessia de caminhos, backup, retenção, modelo acima do teto, subprocesso do adaptador e timeout. São testes com dados fictícios e sem mensagens externas.
+**Growth:** MP4 final de 32,000s, 1080×1920, H.264/yuv420p, áudio AAC e faixa de legendas em português. Motion graphics e trilha instrumental originais, sem fala. Arquivo de legendas, roteiro, ffprobe e frames estão na evidência privada. Não houve publicação em rede social.
 
-16 verificações JavaScript aprovadas: renderização das nove páginas, cinco formulários, escape de conteúdo malicioso e estado vazio. Sintaxe JavaScript e compilação Python verificadas. Esses checks não substituem QA visual em navegador.
+**Director:** fonte https://www.w3.org/WAI/perspective-videos/captions/ . Leu a transcrição textual publicada, guardou referência e uma breve evidência literal, enviou mensagem VIDEO_LESSON ao Growth e criou tarefa dependente. O receptor registrou APPLIED_IN_EXPERIMENT. A versão de teste aumentou fonte de 36 para 64 px e incluiu faixa de legendas; duração permaneceu 32s. A comparação passou nesses critérios técnicos. Não foram medidas conversão, CTR ou engajamento. Adendo de produção fica WAITING_APPROVAL; guardrails não foram alterados. O vídeo de terceiros não foi baixado ou republicado.
 
-Catálogo `model/list` e login ChatGPT verificados no ambiente disponível. O diagnóstico completo está em `diagnostico-ambiente.json`. O ZIP é validado por integridade e por extração em pasta temporária; o processo extraído responde HTTP e permite baixar seu próprio código.
+## Verificações
 
-## C. Configuração pendente
+55 testes Python do núcleo, HTTP, permissões, migração V1, atendimento elegível e filas. 17 testes da calculadora. 16 checks de renderização/escape. 19 verificações em Chromium, incluindo as dez páginas do painel, uso da calculadora, telas móveis, duração e seek de vídeo por HTTP Range. Sem erros JavaScript observados. Build estático do control plane aprovado; não significa deploy ou teste RLS em servidor.
 
-No computador Windows do proprietário: Python 3.11+, Git, Codex oficial com login ChatGPT; diagnóstico local; seleção de modelos; saldo oficial ou observação manual recente. Registro no Agendador Windows só após autorização explícita do usuário no script. TinyFish/Firecrawl e canais externos exigem integração independente da conexão do chat.
+## Bloqueios reais
 
-## D. Não verificado ou indisponível
+Codex CLI: uma inferência mínima foi tentada e retornou 401. Login local e catálogo em cache não bastam para declarar CONNECTED. As missões concluídas usam execução determinística com ferramentas reais, não inferência externa.
 
-Windows 11 não foi executado neste ambiente Linux. Não há ferramenta de controle de navegador oferecida ao agente; QA visual permanece pendente. Uma inferência real via Codex não foi iniciada porque `account/rateLimits/read` retornou HTTP 401. Sem saldo verificável, o software bloqueia IA por padrão. Não afirmar operação comercial autônoma, vídeo final, publicação ou envio externo.
+Supabase: orçamento retornou US$0/mês; criação recusada por limite de dois projetos gratuitos. Não foram pausados projetos, alterados bancos de clientes ou contratados recursos. Migração preparada, não aplicada. RLS multiusuário precisa de teste no projeto dedicado antes de TESTED/CONNECTED.
 
-## E. Iniciar no Windows
+Vercel: control plane com login, config server-side, leitura RLS e health preparados. Produção não publicada; plano comercial e dados ainda pendentes. O app não anuncia execução quando o notebook está desligado. WhatsApp: elegibilidade/debounce testados com transportes de teste identificados; envio real permanece BLOCKED.
 
-Extraia o ZIP e abra `Iniciar.cmd` ou, dentro da pasta VENDREX-AI:
+## Operar
 
-```powershell
-py -3 .\run.py serve --open
-```
+Extraia o ZIP. Abra Iniciar.cmd ou execute `py -3 .\run.py serve --open`. Endereço local: http://127.0.0.1:8766 . Para repetir missões, instale dependências de mídia e abra Missoes.cmd. Cada repetição cria um novo conjunto de trabalhos; nenhuma mensagem comercial é enviada. Os arquivos de evidência da execução desta entrega são distribuídos separadamente, sem banco ou segredos.
 
-## F. Acessar
-
-`http://127.0.0.1:8766`. Esse endereço é local no computador que executa o comando. O painel não foi publicado na internet. A página privada de entrega hospeda somente pacote e instruções.
-
-## G. Testar venda
-
-Abra `Demonstracao.cmd` ou rode `py -3 .\run.py serve --demo --open`. Use a base fictícia para confirmar outra venda, iniciar o sistema e inspecionar briefing, evento e histórico no Builder. A chave do formulário evita repetir o mesmo envio. Contrato não vira recebimento automaticamente.
-
-## H. Interromper
-
-Pausar impede novas execuções. Parada registra bloqueio de novas tarefas, respeitando ponto seguro do trabalho atual. Ctrl+C fecha o servidor depois de finalizar o executor. Reinício durante trabalho exige aprovação de recuperação. Nenhum processo é encerrado abruptamente apenas para abrir espaço ao Social.
-
-## I. Consumo
-
-Consulte Configurações. Há janelas separadas de cinco horas e semanal. Uso oficial ou manual vencido é bloqueado. Saldo de 10% ou menos nunca libera chamada; margem extra restringe saldos próximos. Tokens de execução não equivalem a percentual do plano. Não há garantia exata de reserva durante uma inferência já iniciada.
-
-## J. Próximos passos
-
-Validar Windows e aparência no computador; com saldo confirmado, testar uma chamada curta real; conectar pesquisa e canais oficiais aprovados; ampliar importação de materiais e continuidade segura de projetos Builder. Consulte LIMITACOES.md para detalhes.
+Para o Director estudar outra categoria de vídeo, ampliar o analisador com transcrição permitida e critérios próprios. A missão atual valida especificamente o ensino de legendas/acessibilidade, não interpretação universal de vídeos.

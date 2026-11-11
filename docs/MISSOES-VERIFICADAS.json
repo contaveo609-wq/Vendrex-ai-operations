@@ -1,0 +1,131 @@
+{
+  "all_four_missions_passed": true,
+  "generated_at": "2026-11-11T16:18:33+00:00",
+  "engine": "deterministic local tools; real outputs and validations, not LLM inference",
+  "model_inference": false,
+  "external_messages_sent": 0,
+  "tasks": [
+    {
+      "agent": "growth",
+      "kind": "GROWTH_VIDEO32",
+      "state": "COMPLETED",
+      "task_id": "0c7ec395a4814f63bc9e5afd161d628c",
+      "summary": "Growth renderizou um MP4 real de 32 segundos com trilha original e texto editorial.",
+      "mission_id": "7524e59c8e79491f8d7403989f13a947",
+      "video": {
+        "codec": "h264",
+        "duration_seconds": 32.0,
+        "file": "vendrex-32s.mp4",
+        "height": 1920,
+        "quality": {
+          "audio_type": "Original synthesized instrumental, no speech",
+          "caption_coverage_seconds": 32,
+          "caption_font_px": 36,
+          "caption_track": false,
+          "contrast": "light_on_101722",
+          "cta_seconds": 4,
+          "scenes": 8,
+          "third_party_assets": false
+        },
+        "width": 1080
+      }
+    },
+    {
+      "agent": "builder",
+      "kind": "BUILDER_CALCULATOR",
+      "state": "COMPLETED",
+      "task_id": "2adafe567b344d3780b4dac814fa83f5",
+      "summary": "Builder construiu calculadora executável, criou branch/commit e passou nos testes de aritmética.",
+      "mission_id": "239fdb93880949e1a072c9cdb2d80719",
+      "unit_tests": "17 testes de aritmética e entradas passaram.",
+      "branch": "mission/2adafe567b34",
+      "commit": "13d9698cadb53cb4d5c0ea06a59bf493aab82e97"
+    },
+    {
+      "agent": "growth",
+      "kind": "GROWTH_VIDEO32",
+      "state": "COMPLETED",
+      "task_id": "165dc4375d314904b3b413ae25ceafc0",
+      "summary": "Growth renderizou um MP4 real de 32 segundos com trilha original e texto editorial.",
+      "mission_id": "f012f352fec24508b7e17c4ac001cdc2",
+      "video": {
+        "codec": "h264",
+        "duration_seconds": 32.0,
+        "file": "vendrex-32s.mp4",
+        "height": 1920,
+        "quality": {
+          "audio_type": "Original synthesized instrumental, no speech",
+          "caption_coverage_seconds": 32,
+          "caption_font_px": 64,
+          "caption_track": true,
+          "contrast": "white_on_080c12",
+          "cta_seconds": 4,
+          "scenes": 8,
+          "third_party_assets": false
+        },
+        "training": {
+          "comparison": {
+            "after": {
+              "audio_type": "Original synthesized instrumental, no speech",
+              "caption_coverage_seconds": 32,
+              "caption_font_px": 64,
+              "caption_track": true,
+              "contrast": "white_on_080c12",
+              "cta_seconds": 4,
+              "scenes": 8,
+              "third_party_assets": false
+            },
+            "before": {
+              "audio_type": "Original synthesized instrumental, no speech",
+              "caption_coverage_seconds": 32,
+              "caption_font_px": 36,
+              "caption_track": false,
+              "contrast": "light_on_101722",
+              "cta_seconds": 4,
+              "scenes": 8,
+              "third_party_assets": false
+            },
+            "checks": {
+              "caption_track": true,
+              "duration_32": true,
+              "larger_captions": true
+            },
+            "not_measured": [
+              "engagement",
+              "CTR",
+              "conversion"
+            ]
+          },
+          "experimental_version_used": true,
+          "production_promotion_approval": "f1683a5afd0d4c9dbac0f6c3cfa1ab82",
+          "proposal_id": "51001a1f869c42b5a7c2eee4a248aaea"
+        },
+        "width": 1080
+      }
+    },
+    {
+      "agent": "director",
+      "kind": "DIRECTOR_VIDEO_TRAINING",
+      "state": "COMPLETED",
+      "task_id": "520c54ad374c418da0dd447b55187333",
+      "summary": "Director leu a transcrição pública, enviou o vídeo ao Growth e criou experimento versionado.",
+      "mission_id": "22d45c2f4888428da74bd2078ac0fa19",
+      "training_id": "51001a1f869c42b5a7c2eee4a248aaea",
+      "message_id": "1f544b43c71a4327b388343cf3fe25d1",
+      "followup_task": "165dc4375d314904b3b413ae25ceafc0"
+    },
+    {
+      "agent": "sales",
+      "kind": "SALES_PROSPECT",
+      "state": "COMPLETED",
+      "task_id": "a4532f23278c40d28c9ee953ef6c9329",
+      "summary": "2 empresa(s) reais verificadas; nenhuma mensagem enviada.",
+      "mission_id": "d41d153a0fdf4faf82f15763e13f91e7",
+      "verified_businesses": 2,
+      "sources": [
+        "https://www.parraxaxa.com.br/",
+        "https://linklist.bio/bargacorecife"
+      ]
+    }
+  ]
+}

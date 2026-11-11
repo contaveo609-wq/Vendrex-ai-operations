@@ -1,6 +1,6 @@
 [project]
 name = "vendrex-ai-operations"
-version = "1.0.0"
+version = "2.2.0"
 description = "Operação local supervisionada com quatro agentes e Codex CLI"
 requires-python = ">=3.11"
 dependencies = []

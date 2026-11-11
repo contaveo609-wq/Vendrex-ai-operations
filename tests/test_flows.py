@@ -28,7 +28,7 @@ class FlowTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.s.confirm_sale({'validated_by_human':True})
 
     def test_schedules_noon_evening_director_independent_and_dedup(self):
-        for hour,event in [(12,'SOCIAL_MIDDAY'),(18,'SOCIAL_EVENING'),(20,'DIRECTOR_DAILY_REVIEW')]:
+        for hour,event in [(12,'GROWTH_MIDDAY'),(18,'GROWTH_EVENING'),(20,'DIRECTOR_DAILY_REVIEW')]:
             self.s.scheduler.tick(datetime(2030,1,2,hour,0,tzinfo=recife()))
             rows = self.s.db.rows('SELECT * FROM events WHERE type=?',(event,))
             self.assertEqual(len(rows),1)
@@ -53,12 +53,13 @@ class FlowTests(unittest.TestCase):
         with self.s.db.transaction() as conn: self.assertIsNone(self.s.queue.claim(conn))
         self.assertTrue((directory/'checkpoint.json').exists())
         self.s.queue.transition(task,'COMPLETED','Fim seguro')
-        self.assertEqual(self.s.run_next()['agent'],'social')
+        self.assertEqual(self.s.run_next()['agent'],'growth')
 
     def test_offline_and_codex_timeout_retries_limited(self):
         config = self.s.config
         config['models'] = [{'id':'gpt-6-luna','family':'luna','efforts':['medium'],'verified':True}]
         config['routing']['sales']['model'] = 'gpt-6-luna'
+        config['routing']['sales']['effort'] = 'medium'
         self.s.db.set('config',config)
         self.s.db.set('test_mode',True)
         from vendrex.policy import MockUsageProvider
@@ -83,7 +84,7 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(self.s.queue.get(task)['state'],'BLOCKED')
 
     def test_training_test_evaluation_and_human_promotion(self):
-        proposal = self.s.train({'agent':'social','problem':'Gancho fraco','source':'Análise manual com exemplo','technique':'Explicitar a dor nos primeiros 3 segundos.'})
+        proposal = self.s.train({'agent':'growth','problem':'Gancho fraco','source':'Análise manual com exemplo','technique':'Explicitar a dor nos primeiros 3 segundos.'})
         self.assertEqual(self.s.db.rows('SELECT * FROM training_proposals')[0]['status'],'TESTING')
         approval = self.s.evaluate_training(proposal,{'tests':'Comparação manual de dois roteiros','result':'Melhoria de clareza observada, sem métricas externas','passed':True})
         self.s.decide_approval(approval,True)

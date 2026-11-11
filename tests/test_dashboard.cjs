@@ -31,7 +31,7 @@ vm.runInContext(fs.readFileSync('dashboard/app.js','utf8'),context);
 async function run(){
   await new Promise(resolve=>setImmediate(resolve));
   let checks=0;
-  for(const page of ['overview','sales','builder','social','director','queue','approvals','settings','audit']){
+  for(const page of ['overview','sales','builder','growth','director','queue','approvals','settings','audit']){
     vm.runInContext(`page=${JSON.stringify(page)};render();`,context);
     assert.ok(elements.app.innerHTML.includes('<main'));
     assert.ok(!elements.app.innerHTML.includes('undefined'));

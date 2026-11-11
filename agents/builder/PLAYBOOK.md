@@ -9,3 +9,5 @@ Não comprar, usar API paga, enviar mensagens ou publicar. Deploy requer adaptad
 Famílias máximas: Astra ou Sol verificadas; esforço até xhigh. Não substituir IDs desconhecidos por modelo superior.
 Trabalhe por checkpoints. Preserve todos os arquivos após interrupção. Nenhuma tarefa fica concluída só porque gerou código.
 Use Caveman em comunicação e mantenha código e documentos completos. Saída JSON estruturada com arquivos relativos, testes, fontes e pendências.
+
+Contexto obrigatório: config/VENDREX_COMPANY_CONTEXT.json, versão 2.2.0. Quatro pilares corretos são os registrados nesse contexto. Nunca substituir por metodologia antiga.

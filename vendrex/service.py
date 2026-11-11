@@ -19,11 +19,13 @@ from .task_queue import TaskQueue
 AGENTS = [
     ('sales','VENDREX Sales','Diagnosticar necessidades, qualificar leads e preparar propostas.','#84d9a6'),
     ('builder','VENDREX Builder','Transformar briefings aprovados em projetos testados.','#9aa9ff'),
-    ('social','VENDREX Social','Criar conteúdo relevante com fontes e aprovação.','#e6b2f5'),
+    ('growth','VENDREX Growth','Criar conteúdo relevante com fontes e aprovação.','#e6b2f5'),
     ('director','VENDREX Director','Consolidar resultados e propor melhorias supervisionadas.','#efc785')
 ]
 KINDS = {'sales':{'QUALIFY_LEADS','SALES_DRAFT'},'builder':{'BUILD_BRIEF','BUILD_PROJECT','PROJECT_ERROR','PROJECT_REVIEW_REQUESTED'},
-         'social':{'SOCIAL_MIDDAY','SOCIAL_EVENING','SOCIAL_PACK'},'director':{'DIRECTOR_DAILY_REVIEW','TRAINING_REVIEW'}}
+         'growth':{'GROWTH_MIDDAY','GROWTH_EVENING','GROWTH_PACK'},'director':{'DIRECTOR_DAILY_REVIEW','TRAINING_REVIEW'}}
+for _kind,_agent in {'SALES_PROSPECT':'sales','BUILDER_CALCULATOR':'builder','GROWTH_VIDEO32':'growth','DIRECTOR_VIDEO_TRAINING':'director'}.items():
+    KINDS[_agent].add(_kind)
 
 
 class Service:
@@ -36,17 +38,41 @@ class Service:
         self.stop_event = threading.Event()
         self.execution_mutex = threading.Lock()
         self.diagnostic_mutex = threading.Lock()
+        old_config=self.db.setting('config')
+        if old_config and old_config.get('version')!='2.2.0': self.db.backup()
         with self.db.transaction() as conn:
             for agent_id,name,mission,color in AGENTS:
                 conn.execute('INSERT OR IGNORE INTO agents VALUES(?,?,?,?,1)',(agent_id,name,mission,color))
-                if not conn.execute('SELECT 1 FROM instructions WHERE agent=?',(agent_id,)).fetchone():
+                legacy_growth=agent_id=='growth' and conn.execute("SELECT 1 FROM instructions WHERE agent='social'").fetchone()
+                if not legacy_growth and not conn.execute('SELECT 1 FROM instructions WHERE agent=?',(agent_id,)).fetchone():
                     body = (ROOT/'agents'/agent_id/'PLAYBOOK.md').read_text(encoding='utf-8')
                     conn.execute('INSERT INTO instructions VALUES(?,?,?,?,?,?)',(uid(),agent_id,1,body,'ACTIVE',now()))
             if self.db.setting('config',None,conn) is None:
                 self.db.set('config',json.loads((ROOT/'config/defaults.json').read_text()),conn)
                 self.db.set('mode','PAUSED',conn)
-            for name in ['codex','tinyfish','firecrawl','github','vercel','communications','social_platforms']:
+            for name in ['codex','tinyfish','firecrawl','github','vercel','supabase','communications','whatsapp','social_platforms']:
                 conn.execute('INSERT OR IGNORE INTO integrations VALUES(?,?,?,?,?)',(name,'NOT_CONFIGURED','Não validado neste computador. Importação manual disponível.','[]',now()))
+        self.upgrade_v22()
+
+    def upgrade_v22(self):
+        current=self.config
+        if current.get('version')=='2.2.0':return
+        defaults=json.loads((ROOT/'config/defaults.json').read_text())
+        with self.db.transaction() as conn:
+            self.db.set('config_before_v22',current,conn)
+            for table in ['tasks','instructions','training_proposals']:
+                conn.execute(f"UPDATE {table} SET agent='growth' WHERE agent='social'")
+            conn.execute("UPDATE tasks SET kind=replace(kind,'SOCIAL_','GROWTH_'),origin=replace(origin,'SOCIAL_','GROWTH_') WHERE kind LIKE 'SOCIAL_%' OR origin LIKE 'SOCIAL_%'")
+            conn.execute("INSERT OR IGNORE INTO schedule_runs SELECT replace(key,'SOCIAL_','GROWTH_'),replace(event,'SOCIAL_','GROWTH_'),status,created_at FROM schedule_runs WHERE event LIKE 'SOCIAL_%'")
+            conn.execute("DELETE FROM schedule_runs WHERE event LIKE 'SOCIAL_%'")
+            conn.execute("DELETE FROM agents WHERE id='social'")
+            if 'social' in current.get('routing',{}):current['routing']['growth']=current['routing'].pop('social')
+            if 'schedules' in current:
+                current['schedules']={k.replace('SOCIAL_','GROWTH_'):v for k,v in current['schedules'].items()}
+            config={**defaults,**current,'version':'2.2.0','sales_pillars':defaults['sales_pillars'],'sales':defaults['sales']}
+            if not current.get('offers') or current['offers'][0].get('reference_price')==597.90: config['offers']=defaults['offers']
+            self.db.set('config',config,conn)
+            self.db.audit('V22_UPGRADE',{'social_renamed_to':'growth','pillars_corrected':True,'backup_created':True},conn=conn)
 
     @property
     def config(self): return self.db.setting('config')
@@ -91,6 +117,9 @@ class Service:
         return config
 
     def create_task(self, **payload):
+        if 'input' in payload:
+            if 'data' in payload: raise ValueError('Use input ou data, não ambos.')
+            payload['data']=payload.pop('input')
         agent = payload.get('agent')
         kind = payload.get('kind','USER_TASK')
         if kind=='USER_TASK' and not payload.get('requires_ai'):
@@ -121,7 +150,7 @@ class Service:
             return task_id
         mapping = {'SALE_CONFIRMED':('builder','BUILD_BRIEF',20),'PROJECT_ERROR':('builder','PROJECT_ERROR',15),
                    'PROJECT_REVIEW_REQUESTED':('builder','PROJECT_REVIEW_REQUESTED',30),
-                   'SOCIAL_MIDDAY':('social','SOCIAL_MIDDAY',60),'SOCIAL_EVENING':('social','SOCIAL_EVENING',60),
+                   'GROWTH_MIDDAY':('growth','GROWTH_MIDDAY',60),'GROWTH_EVENING':('growth','GROWTH_EVENING',60),
                    'DIRECTOR_DAILY_REVIEW':('director','DIRECTOR_DAILY_REVIEW',25)}
         if event_type not in mapping: raise ValueError('Evento não suportado nesta interface.')
         agent,kind,priority = mapping[event_type]
@@ -267,6 +296,9 @@ class Service:
                     except Exception as error:
                         result['usage_error'] = safe_error(error)
                         self.guard.record('conservative',{},'Leitura oficial indisponível: '+safe_error(error))
+                        if '401' in str(error) or 'Unauthorized' in str(error):
+                            with self.db.transaction() as conn:
+                                conn.execute("UPDATE integrations SET state='AUTH_REQUIRED',detail=?,checked_at=? WHERE id='codex'",('Autenticação real rejeitada (401). Login local presente não comprova conexão.',now()))
             except Exception as error: result['rpc_error'] = safe_error(error)
             self.db.set('diagnostic',result)
             self.db.audit('DIAGNOSTIC',result)
@@ -311,7 +343,7 @@ class Service:
                 self.checkpoint(task,workspace,'COMPLETED')
                 with self.db.transaction() as conn:
                     self.queue.transition(task['id'],'CHECKPOINTING','Gravando resultado e referências',conn)
-                    conn.execute('UPDATE tasks SET result=?,files=? WHERE id=?',(dumps(result),dumps([str(p.relative_to(self.db.data)) for p in workspace.rglob('*') if p.is_file() and not p.name.startswith('.')]),task['id']))
+                    conn.execute('UPDATE tasks SET result=?,files=? WHERE id=?',(dumps(result),dumps([str(p.relative_to(self.db.data)) for p in workspace.rglob('*') if p.is_file() and not p.name.startswith('.') and '.git' not in p.parts]),task['id']))
                     self.queue.transition(task['id'],'COMPLETED','Rotina concluída; efeitos externos não executados',conn)
                     self.db.notify('Tarefa concluída',task['description'],conn)
                     self.db.audit('EXECUTION',{'duration_seconds':round(time.monotonic()-started,2),'result':result},task['id'],task['agent'],conn)
@@ -334,12 +366,37 @@ class Service:
             return self.queue.get(task['id'])
         finally: self.execution_mutex.release()
 
+    def execute_mission_suite(self):
+        task_ids=self.queue_missions()
+        self.control('start')
+        processed=[]
+        for _ in range(20):
+            item=self.run_next()
+            if not item:break
+            processed.append(item)
+            self.db.write_journal()
+        self.control('pause')
+        scoped=set(task_ids.values())
+        director=self.queue.get(task_ids['director'])
+        if director.get('result'):
+            follow=director['result'].get('verification',{}).get('followup_task')
+            if follow:scoped.add(follow)
+        tasks=[self.queue.get(task_id) for task_id in scoped]
+        expected={'SALES_PROSPECT','BUILDER_CALCULATOR','GROWTH_VIDEO32','DIRECTOR_VIDEO_TRAINING'}
+        passed={t['kind'] for t in tasks if t['state']=='COMPLETED'}
+        ready=expected.issubset(passed) and len(tasks)==5 and all(t['state']=='COMPLETED' for t in tasks)
+        report={'all_four_missions_passed':ready,'task_ids':task_ids,'tasks':[{'id':t['id'],'agent':t['agent'],'kind':t['kind'],'state':t['state'],'reason':t['reason'],'result':t['result']} for t in tasks],
+                'generated_at':now(),'model_inference':False,'external_messages_sent':0,'engine':'deterministic local tools; real outputs and validations, not LLM inference','cloud_status':'Configuration and authorization tracked separately'}
+        (self.db.data/'mission-suite-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+        return report
+
     def run_ai(self, task, workspace):
         config = self.config
         if self.db.setting('ai_paused',False): raise ValueError('IA pausada por evento de limite. Atualize o saldo observado antes de retomar.')
         route = route_model(config,task['agent'],task['input'].get('complexity','medium'))
         agent = task['agent']
         base = (ROOT/'agents'/agent/'PLAYBOOK.md').read_text(encoding='utf-8')
+        base+='\n\nVENDREX_COMPANY_CONTEXT versionado:\n'+(ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text(encoding='utf-8')
         skill_path = Path.home()/'.agents/skills/caveman/SKILL.md'
         skill = (skill_path if skill_path.is_file() else ROOT/'skills/caveman/SKILL.md').read_text(encoding='utf-8')
         addenda = self.db.rows("SELECT body FROM instructions WHERE agent=? AND status='APPROVED_ADDENDUM' ORDER BY version DESC LIMIT 2",(agent,))
@@ -382,6 +439,8 @@ class Service:
 
     def run_local(self, task, workspace):
         kind = task['kind']
+        from .missions import Missions, MISSION_KINDS
+        if kind in MISSION_KINDS:return Missions(self).run(task,workspace)
         if kind=='QUALIFY_LEADS':
             leads = self.db.records('leads')
             for lead in leads:
@@ -404,8 +463,8 @@ class Service:
             (workspace/'BRIEFING.md').write_text(body,encoding='utf-8')
             subprocess.run(['git','init',str(workspace)],capture_output=True,check=True,timeout=10)
             return {'summary':'Briefing e pasta Git criados. Desenvolvimento do produto ainda pendente.','execution':'deterministic','project_id':project_id}
-        if kind in {'SOCIAL_MIDDAY','SOCIAL_EVENING','SOCIAL_PACK'}:
-            return self.social_pack(task,workspace)
+        if kind in {'GROWTH_MIDDAY','GROWTH_EVENING','GROWTH_PACK'}:
+            return self.growth_pack(task,workspace)
         if kind=='DIRECTOR_DAILY_REVIEW': return self.daily_report(task,workspace)
         if kind=='TRAINING_REVIEW':
             data = task['input']
@@ -413,7 +472,7 @@ class Service:
             return {'summary':'Proposta de treinamento criada em versão de teste.','proposal_id':proposal_id,'execution':'deterministic'}
         raise ValueError('Esta rotina precisa de IA ou de um adaptador configurado. Nenhum resultado foi inventado.')
 
-    def social_pack(self, task, workspace):
+    def growth_pack(self, task, workspace):
         research = self.db.records('research')[:3]
         existing = self.db.records('content_items')
         choices = ['Seu negócio tem um canal próprio de pedidos?','Quanto tempo sua equipe perde organizando pedidos?','Seu site ajuda o cliente a encontrar o que precisa?','Seu atendimento pode ser mais claro?']
@@ -484,7 +543,7 @@ Verificar tarefas BLOCKED e FAILED e integrações não configuradas. Sem evidê
 3. Importar fontes de pesquisa e revisar qualidade dos rascunhos.
 
 ## H. Plano do dia seguinte
-Social: {self.config['schedules']['SOCIAL_MIDDAY']} e {self.config['schedules']['SOCIAL_EVENING']}. Director: {self.config['schedules']['DIRECTOR_DAILY_REVIEW']}, America/Recife.
+Social: {self.config['schedules']['GROWTH_MIDDAY']} e {self.config['schedules']['GROWTH_EVENING']}. Director: {self.config['schedules']['DIRECTOR_DAILY_REVIEW']}, America/Recife.
 Prioridades operacionais precisam ser confirmadas pelo proprietário.
 '''
         report_id = uid()
@@ -502,7 +561,7 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
 
     def snapshot(self):
         tasks = [self.queue.decode(row) for row in self.db.rows('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 250')]
-        return {'version':'1.0.0-reconstruida','mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
+        return {'version':'2.2.0','mode':self.db.setting('mode'),'demo':self.db.setting('demo',False),
                 'agents':self.db.rows('SELECT * FROM agents'),'tasks':tasks,'metrics':self.metrics(),'usage':self.guard.status(),
                 'config':self.config,'integrations':self.db.rows('SELECT * FROM integrations'),
                 'records':{e:self.db.records(e)[:200] for e in ['leads','projects','deals','payments','content_items','publications','research']},
@@ -514,18 +573,34 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
                 'notifications':self.db.rows('SELECT * FROM notifications ORDER BY created_at DESC LIMIT 15'),
                 'audit':self.db.rows('SELECT * FROM audit_logs ORDER BY id DESC LIMIT 100'),
                 'schedules':self.db.rows('SELECT * FROM schedule_runs ORDER BY created_at DESC LIMIT 15'),
-                'diagnostic':self.db.setting('diagnostic',None),'server_time':now()}
+                'diagnostic':self.db.setting('diagnostic',None),'server_time':now(),
+                'missions':self.db.rows('SELECT * FROM mission_runs ORDER BY created_at DESC LIMIT 50'),
+                'agent_messages':self.db.rows('SELECT * FROM agent_messages ORDER BY created_at DESC LIMIT 50'),
+                'company_context':json.loads((ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text())}
+
+    def queue_missions(self):
+        baseline=self.create_task(agent='growth',kind='GROWTH_VIDEO32',description='Growth: produzir vídeo-base real de 32s',data={'title':'Seus pedidos estão organizados?'},priority=20)
+        builder=self.create_task(agent='builder',kind='BUILDER_CALCULATOR',description='Builder: construir e testar calculadora',priority=25)
+        sales=self.create_task(agent='sales',kind='SALES_PROSPECT',description='Sales: prospectar empresas com fontes públicas',data={'companies':[
+            {'name':'Restaurante Parraxaxá','url':'https://www.parraxaxa.com.br/','city':'Recife'},
+            {'name':'Chica Pitanga','url':'https://www.chicapitanga.com.br/','city':'Recife'},
+            {'name':'Bargaço Recife','url':'https://linklist.bio/bargacorecife','city':'Recife'}]},priority=30)
+        director=self.create_task(agent='director',kind='DIRECTOR_VIDEO_TRAINING',description='Director: enviar vídeo educacional e ensinar Growth',data={'video_url':'https://www.w3.org/WAI/perspective-videos/captions/','baseline_task':baseline},dependencies=[baseline],priority=40)
+        return {'baseline':baseline,'builder':builder,'sales':sales,'director':director}
 
 
 def source_zip():
     """Whitelist source directories. Runtime databases, credentials and symlinks are never exported."""
     buffer = io.BytesIO()
-    directories = {'vendrex','agents','config','dashboard','docs','scripts','skills','tests','memory'}
-    top_files = {'README.md','AGENTS.md','.gitignore','.env.example','pyproject.toml','run.py','Iniciar.cmd','Testar.cmd','Demonstracao.cmd'}
+    directories = {'vendrex','agents','config','dashboard','docs','scripts','skills','tests','memory','templates','supabase','cloud','examples'}
+    top_files = {'README.md','AGENTS.md','.gitignore','.env.example','pyproject.toml','requirements-media.txt','run.py','Iniciar.cmd','Testar.cmd','Demonstracao.cmd','Missoes.cmd'}
     with zipfile.ZipFile(buffer,'w',zipfile.ZIP_DEFLATED) as archive:
         for file in sorted(ROOT.rglob('*')):
             relative = file.relative_to(ROOT)
             if file.is_symlink() or not file.is_file() or '__pycache__' in relative.parts or file.suffix=='.pyc': continue
+            if any(part in {'node_modules','.venv','.temp','.vercel','dist','.git'} for part in relative.parts):continue
+            if file.name.startswith('.env') and file.name!='.env.example':continue
+            if file.suffix.lower() in {'.sqlite','.sqlite3','.db','.pem','.key'}:continue
             if (len(relative.parts)==1 and file.name in top_files) or relative.parts[0] in directories:
                 archive.write(file,'VENDREX-AI/'+relative.as_posix())
     return buffer.getvalue()

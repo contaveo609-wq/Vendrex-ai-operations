@@ -1,19 +1,13 @@
-# Arquitetura
+# Arquitetura V2.2
 
-O processo Python serve o painel e mantém um worker determinístico. Ele verifica os horários e processa uma tarefa por vez. O Codex só é iniciado para tarefas marcadas como IA. Não há quatro processos de modelo nem chamadas ociosas.
+A V1 é reaproveitada com fila SQLite e executor exclusivo. Migração 002 acrescenta missões, mensagens entre agentes, conversas, recebimentos e outbox. A inicialização migra Social para Growth, corrige pilares e preserva backup. VENDREX_COMPANY_CONTEXT.json entra nos quatro perfis.
 
-`vendrex/db.py` aplica migrações transacionais, WAL, timeout de bloqueio, backups consistentes e logs estruturados em SQLite. A tabela flexível `records` armazena entidades de negócio com `entity`, `project_id` e JSON. Views nomeadas facilitam leitura de Leads, Clients, Deals, Payments, Projects, Requirements, ContentItems e Publications. Há tabelas relacionais próprias para agentes, tarefas, transições, eventos, instruções, treinamento, avaliações, uso, relatórios, auditoria e integrações.
+Missions executa ferramentas reais: HTTP público limitado para Sales; geração de fonte, Git e Node para Builder; Pillow/FFmpeg/ffprobe para Growth; transcrição pública, mensagem interna e experimento versionado para Director. Não invoca modelos disfarçadamente. Cada resultado inclui manifestos, hashes e evidências. Falha em ferramenta deixa tarefa BLOCKED/FAILED em vez de gerar métrica fictícia.
 
-`task_queue.py` valida transições e mantém fila persistente, dependências, prioridades com envelhecimento, histórico, tentativas e deduplicação. Um índice parcial impede duas tarefas RUNNING/CHECKPOINTING. A trava do sistema operacional impede dois processos executores na mesma pasta de dados. Um mutex adicional protege chamadas no processo atual. O relógio persistido usa UTC e os horários comerciais usam America/Recife.
+ReplyEngine separa elegibilidade, agrupamento, geração, revalidação e envio. IDs únicos evitam duplicatas. Nova revisão cancela resposta antiga. Humano, opt-out e contato fora de escopo bloqueiam. Tentativa com efeito externo ambíguo exige reconciliação. Transporte real não existe por padrão; o transporte bloqueado nunca envia.
 
-`scheduler.py` calcula as rotinas 12h, 18h e 20h em America/Recife. No Windows sem base IANA, Recife usa UTC−03 fixo. Cada ciclo tem chave única por data e evento. Rotinas recentes podem ser recuperadas por até três horas; as demais são registradas como perdidas. Dias inteiros sem execução não geram tarefas em massa.
+SupabaseStore é sincronização autenticada via JWT de usuário, com upsert por proprietário/entidade/id. Migração SQL habilita RLS e ownership; fila usa claim SECURITY INVOKER com SKIP LOCKED e índice de um trabalho RUNNING por usuário. A conexão não foi ativada por limitação de plano gratuito.
 
-`service.py` implementa workflows e separa regras locais de IA. Venda validada gera cliente, contrato, projeto, requisitos, evento e tarefa Builder numa única transação. Pagamentos exigem evidência e não são presumidos a partir de contratos. Social produz roteiro, storyboard e SVG reais, com status de rascunho. Director consolida registros em oito seções Markdown.
+Control plane Vercel contém apenas apresentação, login Auth e leitura de registros autorizados. Não recebe chave service_role e não é executor permanente. O banco local continua funcional enquanto não existe projeto cloud dedicado.
 
-`codex.py` usa app-server stdio oficial para catálogo e telemetria e `codex exec` para trabalhos. As respostas seguem schema JSON. `policy.py` aplica modelos, famílias, tetos de versão e esforço, saldo recente e reserva. Falhas de catálogo, saldo ou login bloqueiam a tarefa. Não existe fallback de API paga.
-
-Cada tarefa tem pasta `runtime/workspaces/<task_id>`. Builder usa sandbox workspace-write nessa pasta; outros agentes usam read-only. Requisitos de projeto são filtrados por `project_id`. Os arquivos gerados ficam referenciados na tarefa e disponíveis para download local. Texto externo nunca controla configuração ou permissões.
-
-`web.py` oferece HTTP loopback, valida Host/Origin e exige token CSRF para mutações. Não aceita shell ou comandos arbitrários via HTTP. O frontend usa JavaScript simples, sem bundler e sem chamadas externas.
-
-Os quatro agentes são registros de perfis e playbooks. O quinto pode ser cadastrado no banco e receber tarefas sem reescrever a fila; sua interface, política e playbook precisam ser acrescentados antes de habilitar IA.
+Arquivos de mídia são servidos por rota limitada com HTTP Range; artefatos ativos não são executados como scripts do painel. Exportações de contato, bancos e credenciais ficam fora do GitHub público. A entrega privada contém provas e os arquivos produzidos.

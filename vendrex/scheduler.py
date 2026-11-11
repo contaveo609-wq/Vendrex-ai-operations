@@ -13,7 +13,7 @@ def recife():
 
 
 def validate_schedules(schedules):
-    expected = {'SOCIAL_MIDDAY','SOCIAL_EVENING','DIRECTOR_DAILY_REVIEW'}
+    expected = {'GROWTH_MIDDAY','GROWTH_EVENING','DIRECTOR_DAILY_REVIEW'}
     if set(schedules)!=expected or any(not re.fullmatch(r'(?:[01]\d|2[0-3]):[0-5]\d',v) for v in schedules.values()):
         raise ValueError('Horários inválidos. Use HH:MM para as três rotinas.')
 

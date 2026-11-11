@@ -1,14 +1,12 @@
-# Limitações reais e próximos passos
+# Limitações e estados V2.2
 
-1. Ambiente de desenvolvimento Linux. Scripts preparados para PowerShell/Windows 11, mas ainda não executados em Windows. A validação no computador i3 do proprietário é necessária antes de declarar operação inicial validada.
-2. Sem ferramenta `cua_repl.js` oferecida nesta conversa. A capacidade de desktop existe no ambiente, mas não há controle de navegador acessível ao agente. Portanto não há afirmação de QA visual, teste real de viewport ou screenshot. Renderização das páginas, escape e controles HTTP foram testados separadamente.
-3. Codex instalado e login ChatGPT detectado. Catálogo oficial consultado com sucesso. Endpoint oficial de uso retornou 401. Nenhuma inferência real foi feita para não violar a política de reserva. Adaptador de subprocesso e falhas têm testes isolados.
-4. TinyFish/Firecrawl disponíveis no chat não se transferem ao Codex. O CLI local diagnosticado não tinha MCPs. Seus adaptadores do aplicativo oferecem verificação de estado e importação manual; execução remota permanece indisponível. Nenhum endpoint ou credencial foi inventado.
-5. Não há comunicação comercial, redes sociais, GitHub remoto ou deploy automático configurados. Preparação local de conteúdo e links de publicação manual funcionam. Mensagens, propostas definitivas, vídeos finais e publicações externas não são realizados automaticamente.
-6. Arte SVG e roteiro não são vídeo. Áudios, documentos binários e imagens não são automaticamente interpretados pelo pipeline de texto desta V1. Transcreva ou importe informações autorizadas; registre pendências.
-7. Reserva exata de 10% não pode ser garantida no meio de uma inferência. Saldo recente, fail-closed, margem e observação manual limitada reduzem risco, sem alegação de medição que não existe.
-8. Relatórios são consolidações determinísticas. Métricas externas, taxas de resposta, resultados de campanha e autenticidade de comprovantes exigem integração ou validação humana. Os exemplos sociais não são pesquisa de tendências automática.
-9. Cada tarefa tem pasta separada. Um novo trabalho de correção ainda precisa receber os arquivos de referência. Checkpoints da mesma tarefa são preservados na retomada. O núcleo permite quinto agente; sua UI e configuração devem ser adicionadas.
-10. Retenção supervisionada cobre pesquisas e memórias antigas com aprovação e backup; não apaga contratos, projetos ou auditoria. JSONL rotaciona mantendo três arquivos anteriores; o histórico completo continua no banco. Busca avançada no histórico e políticas por cliente podem ser ampliadas.
-
-Prioridades após validar Windows: testar uma chamada curta com saldo confiável; conectar ferramentas oficiais sob política autorizada; disponibilizar importação de materiais binários; melhorar reutilização segura de projetos Builder; ampliar políticas de retenção por cliente; avaliar renderização de vídeo e métricas sociais quando houver ferramenta autorizada.
+- Quatro missões locais TESTED com artefatos reais. Execução é determinística e limitada aos cenários implementados. Não apresentar como quatro modelos generativos conectados.
+- Codex CLI AUTH_REQUIRED após erro 401 em execução real. A conexão precisa de login oficial válido no executor que fará o trabalho. Não copiar cookies/tokens de sessão ou usar API paga como fallback.
+- Supabase BLOCKED por limite de projetos gratuitos ativos. Migração e adaptador preparados; sem persistência remota ou RLS multiusuário testado no servidor nesta sessão.
+- Vercel não implantado. Código de control plane compilado. Plano comercial, banco, usuário de acesso e aprovação de produção ainda são necessários.
+- Executor persistente remoto NOT_IMPLEMENTED. Um cron serverless não mantém o Codex ligado nem funciona como assinatura ChatGPT de servidor. Notebook desligado implica executor local desligado.
+- WhatsApp BLOCKED. Testes de elegibilidade/debounce não conectam um número real. Sem contatos consentidos e conector permitido validado, envio não é liberado.
+- Growth entrega motion graphics e trilha sintetizada, sem narração. Métricas de campanha externas continuam indisponíveis se não importadas com origem. Publicação e orçamento dependem de autorização.
+- Director comprovou aula de legendas com transcrição publicada pela W3C. Só aplica regras de apresentação em experimento; não modifica pesos e não aprende qualquer assunto automaticamente. Promoção de produção continua sujeita à aprovação.
+- Windows 11 não executado nesta máquina Linux. Scripts e compatibilidade foram preparados; a validação final no computador do proprietário permanece necessária.
+- Reserva percentual só pode ser afirmada com telemetria oficial. O modo conservador bloqueia IA quando saldo é desconhecido; nenhuma garantia de consumo exato foi inventada.

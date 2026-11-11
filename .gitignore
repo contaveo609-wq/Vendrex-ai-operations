@@ -7,3 +7,8 @@ dist/
 *.sqlite*
 .env
 .vendrex-*
+
+# Secrets and private mission exports never go to the public repository.
+private-evidence/
+node_modules/
+supabase/.temp/

@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "checks": [
+    "calculator_mouse_7x8=56",
+    "calculator_keyboard_decimal=0.3",
+    "calculator_division_by_zero_handled",
+    "calculator_recovers_after_error",
+    "calculator_mobile_no_horizontal_overflow",
+    "dashboard_overview",
+    "dashboard_sales",
+    "dashboard_builder",
+    "dashboard_growth",
+    "dashboard_director",
+    "dashboard_missions",
+    "dashboard_queue",
+    "dashboard_approvals",
+    "dashboard_settings",
+    "dashboard_audit",
+    "dashboard_video_metadata_duration32",
+    "dashboard_video_range_seek",
+    "dashboard_video_survives_polling_refresh",
+    "dashboard_mobile_no_horizontal_overflow"
+  ],
+  "browser": "Real headless Chromium via Playwright",
+  "javascript_errors": [],
+  "screenshots": [
+    "calculator-desktop.png",
+    "calculator-mobile.png",
+    "missions-dashboard.png"
+  ]
+}

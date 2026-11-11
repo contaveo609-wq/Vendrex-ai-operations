@@ -17,7 +17,7 @@ def server_for(service, port=8766):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_): pass
 
-        def send(self, status, body, content_type='application/json; charset=utf-8', filename=None):
+        def send(self, status, body, content_type='application/json; charset=utf-8', filename=None, extra_headers=None):
             if not isinstance(body,bytes): body = (dumps(body) if content_type.startswith('application/json') else str(body)).encode('utf-8')
             self.send_response(status)
             self.send_header('Content-Type',content_type)
@@ -27,6 +27,7 @@ def server_for(service, port=8766):
             self.send_header('Referrer-Policy','no-referrer')
             self.send_header('Content-Security-Policy',"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'")
             if filename: self.send_header('Content-Disposition','attachment; filename="'+filename+'"')
+            for key,value in (extra_headers or {}).items():self.send_header(key,value)
             self.end_headers()
             self.wfile.write(body)
 
@@ -46,12 +47,28 @@ def server_for(service, port=8766):
                     rows = service.db.rows('SELECT * FROM reports WHERE id=?',(path.rsplit('/',1)[1],))
                     if not rows: return self.send(404,{'error':'Relatório não encontrado.'})
                     return self.send(200,rows[0])
-                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V1.zip')
+                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V2.2.zip')
                 if path=='/download/data.json': return self.send(200,json.dumps(service.snapshot(),ensure_ascii=False,indent=2).encode(),'application/json','vendrex-dados.json')
+                if path.startswith('/media/'):
+                    target=(service.db.data/path.removeprefix('/media/')).resolve()
+                    if not target.is_relative_to(service.db.data/'workspaces') or target.suffix.lower() not in {'.mp4','.png','.jpg'} or not target.is_file():return self.send(404,{'error':'Mídia indisponível.'})
+                    size=target.stat().st_size;start=0;end=size-1;status=200
+                    import re
+                    requested=self.headers.get('Range')
+                    if requested:
+                        match=re.fullmatch(r'bytes=(\d+)-(\d*)',requested)
+                        if not match:return self.send(416,b'','application/octet-stream',extra_headers={'Content-Range':f'bytes */{size}'})
+                        start=int(match[1]);end=min(size-1,int(match[2]) if match[2] else size-1);status=206
+                        if start>end:return self.send(416,b'','application/octet-stream',extra_headers={'Content-Range':f'bytes */{size}'})
+                    headers={'Accept-Ranges':'bytes'}
+                    if status==206:headers['Content-Range']=f'bytes {start}-{end}/{size}'
+                    with target.open('rb') as stream:stream.seek(start);body=stream.read(end-start+1)
+                    return self.send(status,body,mimetypes.guess_type(target)[0],extra_headers=headers)
                 if path.startswith('/files/'):
                     relative = path.removeprefix('/files/')
                     target = (service.db.data/relative).resolve()
                     allowed = target.is_relative_to(service.db.data/'workspaces') or target.is_relative_to(service.db.data/'backups')
+                    if '.git' in Path(relative).parts or any(part.startswith('.env') and part!='.env.example' for part in Path(relative).parts):allowed=False
                     if not allowed or not target.is_file() or target.is_symlink(): return self.send(404,{'error':'Arquivo indisponível.'})
                     return self.send(200,target.read_bytes(),'application/octet-stream',target.name)
                 file = ROOT/'dashboard'/('index.html' if path=='/' else path.lstrip('/'))
@@ -78,6 +95,7 @@ def server_for(service, port=8766):
                 result = None
                 if path=='/api/control': result = service.control(body['action'])
                 elif path=='/api/tasks': result = {'id':service.create_task(**body)}
+                elif path=='/api/missions': result = service.queue_missions()
                 elif path=='/api/sale': result = {'task_id':service.confirm_sale(body)}
                 elif path=='/api/record': result = {'id':service.add_record(body['entity'],body['data'])}
                 elif path=='/api/lead-update': result = {'id':service.update_lead(body['id'],body['data'])}

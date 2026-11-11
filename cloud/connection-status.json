@@ -1,0 +1,11 @@
+{
+  "supabase": "BLOCKED",
+  "supabase_reason": "FREE_PROJECT_LIMIT_REACHED (2 active projects); zero-dollar quote did not permit a third free project. No existing project changed.",
+  "vercel": "NOT_DEPLOYED",
+  "vercel_reason": "No production authorization or eligible commercial plan verified.",
+  "codex_cli": "AUTH_REQUIRED",
+  "codex_reason": "Real exec returned HTTP 401. Local login/catalog cache does not prove authenticated inference.",
+  "whatsapp": "BLOCKED",
+  "whatsapp_reason": "No supported connector activated or consented test numbers supplied.",
+  "mission_local_engine": "TESTED"
+}
