@@ -52,7 +52,11 @@ class Database:
                     conn.executescript(script)
 
     def connect(self):
-        conn = sqlite3.connect(self.path, timeout=15)
+        class ClosingConnection(sqlite3.Connection):
+            def __exit__(self, *args):
+                try: return super().__exit__(*args)
+                finally: self.close()
+        conn = sqlite3.connect(self.path, timeout=15, factory=ClosingConnection)
         conn.row_factory = sqlite3.Row
         conn.execute('PRAGMA foreign_keys=ON')
         conn.execute('PRAGMA busy_timeout=15000')
