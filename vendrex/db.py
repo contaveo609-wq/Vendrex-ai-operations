@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -50,10 +50,10 @@ class Database:
                     if self.path.exists() and conn.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]:
                         directory=self.data/'backups';directory.mkdir(exist_ok=True)
                         # Read-only backup precedes each upgrade, including schema alterations.
-                        with sqlite3.connect(self.path) as source, sqlite3.connect(directory/('pre-migration-'+str(version)+'-'+uid()[:8]+'.sqlite3')) as target:
+                        with closing(sqlite3.connect(self.path)) as source, closing(sqlite3.connect(directory/('pre-migration-'+str(version)+'-'+uid()[:8]+'.sqlite3'))) as target:
                             source.backup(target)
                     # The entire migration and version marker are committed together.
-                    script = 'BEGIN IMMEDIATE;\n' + file.read_text() + f"\nINSERT INTO schema_migrations VALUES({version},'{now()}');\nCOMMIT;"
+                    script = 'BEGIN IMMEDIATE;\n' + file.read_text(encoding='utf-8') + f"\nINSERT INTO schema_migrations VALUES({version},'{now()}');\nCOMMIT;"
                     conn.executescript(script)
 
     def connect(self):
@@ -138,7 +138,7 @@ class Database:
         directory = self.data / 'backups'
         directory.mkdir(exist_ok=True)
         target = directory / ('vendrex-' + datetime.now().strftime('%Y%m%d-%H%M%S-') + uid()[:6] + '.sqlite3')
-        with self.connect() as source, sqlite3.connect(target) as destination:
+        with self.connect() as source, closing(sqlite3.connect(target)) as destination:
             source.backup(destination)
         self.audit('BACKUP_CREATED', {'file': target.name})
         return target

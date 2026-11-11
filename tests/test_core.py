@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from contextlib import closing
 import json
 from pathlib import Path
 import tempfile
@@ -105,7 +106,7 @@ class CoreTests(unittest.TestCase):
     def test_backup_consistent(self):
         self.service.queue.create('sales','QUALIFY_LEADS','Backup')
         import sqlite3
-        with sqlite3.connect(self.db.backup()) as conn:
+        with closing(sqlite3.connect(self.db.backup())) as conn:
             self.assertEqual(conn.execute('PRAGMA integrity_check').fetchone()[0],'ok')
             self.assertEqual(conn.execute('SELECT count(*) FROM tasks').fetchone()[0],1)
 

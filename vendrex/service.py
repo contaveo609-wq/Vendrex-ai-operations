@@ -48,7 +48,7 @@ class Service:
                     body = (ROOT/'agents'/agent_id/'PLAYBOOK.md').read_text(encoding='utf-8')
                     conn.execute('INSERT INTO instructions VALUES(?,?,?,?,?,?)',(uid(),agent_id,1,body,'ACTIVE',now()))
             if self.db.setting('config',None,conn) is None:
-                self.db.set('config',json.loads((ROOT/'config/defaults.json').read_text()),conn)
+                self.db.set('config',json.loads((ROOT/'config/defaults.json').read_text(encoding='utf-8')),conn)
                 self.db.set('mode','PAUSED',conn)
             for name in ['codex','tinyfish','firecrawl','github','vercel','supabase','communications','whatsapp','social_platforms']:
                 conn.execute('INSERT OR IGNORE INTO integrations VALUES(?,?,?,?,?)',(name,'NOT_CONFIGURED','Não validado neste computador. Importação manual disponível.','[]',now()))
@@ -70,7 +70,7 @@ class Service:
     def upgrade_v22(self):
         current=self.config
         if current.get('version') in {'2.2.0','2.3.0'}:return
-        defaults=json.loads((ROOT/'config/defaults.json').read_text())
+        defaults=json.loads((ROOT/'config/defaults.json').read_text(encoding='utf-8'))
         with self.db.transaction() as conn:
             self.db.set('config_before_v22',current,conn)
             for table in ['tasks','instructions','training_proposals']:
@@ -594,7 +594,7 @@ Prioridades operacionais precisam ser confirmadas pelo proprietário.
                 'conversations':self.db.rows('SELECT * FROM conversations ORDER BY last_inbound DESC LIMIT 100'),
                 'campaigns':self.campaigns.summary(),
                 'competency_runs':self.db.rows('SELECT * FROM competency_runs ORDER BY created_at DESC LIMIT 50'),
-                'company_context':json.loads((ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text())}
+                'company_context':json.loads((ROOT/'config/VENDREX_COMPANY_CONTEXT.json').read_text(encoding='utf-8'))}
 
     def queue_missions(self):
         baseline=self.create_task(agent='growth',kind='GROWTH_VIDEO32',description='Growth: produzir vídeo-base real de 32s',data={'title':'Seus pedidos estão organizados?'},priority=20)
