@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--open',action='store_true',help='Abre o navegador local')
     args = parser.parse_args()
     if args.command=='package':
-        target = ROOT/'dist/VENDREX-AI-OPERATIONS-V1.zip'
+        target = ROOT/'dist/VENDREX-AI-OPERATIONS-V2.2.zip'
         target.parent.mkdir(exist_ok=True)
         target.write_bytes(source_zip())
         print(target)

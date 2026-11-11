@@ -46,9 +46,10 @@ def main():
                 page.goto(base+'/#'+route);page.locator('#main').wait_for();page.wait_for_timeout(80)
                 assert page.locator('h1').count()>0;checks.append('dashboard_'+route)
             page.goto(base+'/#missions');page.get_by_text('Missões com provas.',exact=True).wait_for();video=page.locator('video').first
-            video.evaluate('(video)=>video.load()');page.wait_for_function('document.querySelector("video")?.readyState >= 1',timeout=15000)
+            video.evaluate('(video)=>video.load()');page.wait_for_function('() => document.querySelector("video")?.readyState >= 1',timeout=15000)
             assert abs(video.evaluate('(v)=>v.duration')-32)<.05;checks.append('dashboard_video_metadata_duration32')
-            video.evaluate('(v)=>{v.muted=true;v.currentTime=12;}');page.wait_for_function('document.querySelector("video")?.currentTime >= 11.9');checks.append('dashboard_video_range_seek')
+            video.evaluate('(v)=>{v.muted=true;v.currentTime=12;}');page.wait_for_function('() => document.querySelector("video")?.currentTime >= 11.9');checks.append('dashboard_video_range_seek')
+            video.evaluate('(v)=>v.play()');page.wait_for_timeout(5500);assert video.evaluate('(v)=>v.currentTime')>17;checks.append('dashboard_video_survives_polling_refresh');video.evaluate('(v)=>v.pause()')
             page.screenshot(path=str(args.out/'missions-dashboard.png'),full_page=True)
             page.set_viewport_size({'width':390,'height':844});page.wait_for_timeout(100);assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth');checks.append('dashboard_mobile_no_horizontal_overflow')
             assert not errors,errors

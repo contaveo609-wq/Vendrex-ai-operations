@@ -18,6 +18,7 @@
     "dashboard_audit",
     "dashboard_video_metadata_duration32",
     "dashboard_video_range_seek",
+    "dashboard_video_survives_polling_refresh",
     "dashboard_mobile_no_horizontal_overflow"
   ],
   "browser": "Real headless Chromium via Playwright",

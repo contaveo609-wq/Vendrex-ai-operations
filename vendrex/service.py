@@ -343,7 +343,7 @@ class Service:
                 self.checkpoint(task,workspace,'COMPLETED')
                 with self.db.transaction() as conn:
                     self.queue.transition(task['id'],'CHECKPOINTING','Gravando resultado e referências',conn)
-                    conn.execute('UPDATE tasks SET result=?,files=? WHERE id=?',(dumps(result),dumps([str(p.relative_to(self.db.data)) for p in workspace.rglob('*') if p.is_file() and not p.name.startswith('.')]),task['id']))
+                    conn.execute('UPDATE tasks SET result=?,files=? WHERE id=?',(dumps(result),dumps([str(p.relative_to(self.db.data)) for p in workspace.rglob('*') if p.is_file() and not p.name.startswith('.') and '.git' not in p.parts]),task['id']))
                     self.queue.transition(task['id'],'COMPLETED','Rotina concluída; efeitos externos não executados',conn)
                     self.db.notify('Tarefa concluída',task['description'],conn)
                     self.db.audit('EXECUTION',{'duration_seconds':round(time.monotonic()-started,2),'result':result},task['id'],task['agent'],conn)

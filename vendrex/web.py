@@ -47,7 +47,7 @@ def server_for(service, port=8766):
                     rows = service.db.rows('SELECT * FROM reports WHERE id=?',(path.rsplit('/',1)[1],))
                     if not rows: return self.send(404,{'error':'Relatório não encontrado.'})
                     return self.send(200,rows[0])
-                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V1.zip')
+                if path=='/download/source.zip': return self.send(200,source_zip(),'application/zip','VENDREX-AI-OPERATIONS-V2.2.zip')
                 if path=='/download/data.json': return self.send(200,json.dumps(service.snapshot(),ensure_ascii=False,indent=2).encode(),'application/json','vendrex-dados.json')
                 if path.startswith('/media/'):
                     target=(service.db.data/path.removeprefix('/media/')).resolve()
@@ -68,6 +68,7 @@ def server_for(service, port=8766):
                     relative = path.removeprefix('/files/')
                     target = (service.db.data/relative).resolve()
                     allowed = target.is_relative_to(service.db.data/'workspaces') or target.is_relative_to(service.db.data/'backups')
+                    if '.git' in Path(relative).parts or any(part.startswith('.env') and part!='.env.example' for part in Path(relative).parts):allowed=False
                     if not allowed or not target.is_file() or target.is_symlink(): return self.send(404,{'error':'Arquivo indisponível.'})
                     return self.send(200,target.read_bytes(),'application/octet-stream',target.name)
                 file = ROOT/'dashboard'/('index.html' if path=='/' else path.lstrip('/'))

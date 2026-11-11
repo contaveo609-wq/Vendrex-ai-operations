@@ -14,7 +14,7 @@ As cinco tarefas da suíte terminaram COMPLETED: um vídeo-base Growth, calculad
 
 ## Verificações
 
-55 testes Python do núcleo, HTTP, permissões, migração V1, atendimento elegível e filas. 17 testes da calculadora. 16 checks de renderização/escape. 18 verificações em Chromium, incluindo as dez páginas do painel, uso da calculadora, telas móveis, duração e seek de vídeo por HTTP Range. Sem erros JavaScript observados. Build estático do control plane aprovado; não significa deploy ou teste RLS em servidor.
+55 testes Python do núcleo, HTTP, permissões, migração V1, atendimento elegível e filas. 17 testes da calculadora. 16 checks de renderização/escape. 19 verificações em Chromium, incluindo as dez páginas do painel, uso da calculadora, telas móveis, duração e seek de vídeo por HTTP Range. Sem erros JavaScript observados. Build estático do control plane aprovado; não significa deploy ou teste RLS em servidor.
 
 ## Bloqueios reais
 

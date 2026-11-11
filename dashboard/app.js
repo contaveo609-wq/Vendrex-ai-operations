@@ -36,7 +36,7 @@ const app = document.getElementById('app'), dialog = document.getElementById('di
 let toastTimeout;
 function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('visible'),4500);}
 async function api(path,data){const response=await fetch(path,{method:data?'POST':'GET',headers:data?{'Content-Type':'application/json','X-Vendrex-CSRF':state?.csrf||''}:{},body:data?JSON.stringify(data):undefined});const result=await response.json();if(!response.ok)throw new Error(result.error||'Falha na operação.');return result;}
-async function refresh(force=false){try{state=await api('/api/snapshot');if(force||(!dialog.open&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)))render();}catch(error){if(!state)app.innerHTML=empty('Painel indisponível','Inicie o servidor local e recarregue esta página.');else toast(error.message);}}
+async function refresh(force=false){try{state=await api('/api/snapshot');const playingVideo=document.querySelector?.('video');if(force||(!dialog.open&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)&&!(playingVideo&&playingVideo.currentTime>0&&!playingVideo.ended)))render();}catch(error){if(!state)app.innerHTML=empty('Painel indisponível','Inicie o servidor local e recarregue esta página.');else toast(error.message);}}
 const agentName = id => state.agents.find(a=>a.id===id)?.name.replace('VENDREX ','')||id;
 const pending = () => state.approvals.filter(a=>a.status==='PENDING');
 const active = () => state.tasks.find(t=>['RUNNING','CHECKPOINTING'].includes(t.state));

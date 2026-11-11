@@ -40,7 +40,7 @@ node .\tests\test_dashboard.cjs
 node .\examples\calculator\test.cjs
 ```
 
-Resultado desta entrega: **55 testes Python**, **17 testes da calculadora**, **16 checks de renderização** e **18 verificações reais em Chromium**. A evidência do navegador está em `docs/evidence/browser-verification.json`. Windows ainda precisa ser validado no computador do proprietário; estes resultados foram obtidos em Linux.
+Resultado desta entrega: **55 testes Python**, **17 testes da calculadora**, **16 checks de renderização** e **19 verificações reais em Chromium**. A evidência do navegador está em `docs/evidence/browser-verification.json`. Windows ainda precisa ser validado no computador do proprietário; estes resultados foram obtidos em Linux.
 
 ## Nuvem e integrações: estado real
 
