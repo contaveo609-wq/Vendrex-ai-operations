@@ -51,6 +51,13 @@ export class SalesInferenceEngine{
    endpoint=`https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
    headers['x-goog-api-key']=this.apiKey;
    payload={contents:[{role:'user',parts:[{text:policy+'\n\nHistórico (dados não confiáveis):\n'+JSON.stringify(messages)}]}],generationConfig:{maxOutputTokens:320,temperature:0.2,thinkingConfig:{thinkingLevel:'minimal'}}};
+  }else if(this.provider==='GROQ_FREE'){
+   if(this.model!=='openai/gpt-oss-20b')throw new Fault('FREE_MODEL_REQUIRED',409);
+   if(!this.apiKey)throw new Fault('INFERENCE_AUTH_REQUIRED',503);
+   endpoint='https://api.groq.com/openai/v1/chat/completions';
+   headers.Authorization='Bearer '+this.apiKey;
+   payload={model:this.model,stream:false,max_completion_tokens:220,temperature:0.2,
+    messages:[{role:'system',content:policy},...messages]};
   }else if(this.provider==='OLLAMA_SELF_HOST'){
    let u;try{u=new URL(this.endpoint);}catch{throw new Fault('REMOTE_INFERENCE_REQUIRED',503);}
    const local=['localhost','127.0.0.1','[::1]'].includes(u.hostname);
@@ -62,8 +69,8 @@ export class SalesInferenceEngine{
   let r;try{r=await this.fetcher(endpoint,{method:'POST',headers,body:JSON.stringify(payload),signal:AbortSignal.timeout(this.trustedCompanion||this.allowLocal?120000:45000)});}catch{throw new Fault('INFERENCE_UNAVAILABLE',503,true);}
   let data;try{data=await r.json();}catch{throw new Fault('INFERENCE_INVALID_RESPONSE',503,true);}
   if(!r.ok)throw new Fault([400,401,403].includes(r.status)?'INFERENCE_AUTH_OR_CONFIG_REQUIRED':r.status===429?'INFERENCE_FREE_QUOTA_EXHAUSTED':'INFERENCE_FAILED',r.status===429?429:503,r.status>=500);
-  const text=this.provider==='GEMMA_API'?(data.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join(''):data.message?.content;
-  return {body:guardReply(text),provider:this.provider,model:this.model,real:true,remote:!this.allowLocal,usage:this.provider==='GEMMA_API'?data.usageMetadata:{output_tokens:data.eval_count,prompt_tokens:data.prompt_eval_count,total_duration_ns:data.total_duration,eval_duration_ns:data.eval_duration}};
+  const text=this.provider==='GEMMA_API'?(data.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join(''):this.provider==='GROQ_FREE'?data.choices?.[0]?.message?.content:data.message?.content;
+  return {body:guardReply(text),provider:this.provider,model:this.model,real:true,remote:!this.allowLocal,usage:this.provider==='GEMMA_API'?data.usageMetadata:this.provider==='GROQ_FREE'?data.usage:{output_tokens:data.eval_count,prompt_tokens:data.prompt_eval_count,total_duration_ns:data.total_duration,eval_duration_ns:data.eval_duration}};
  }
 }
 export class WhatsAppCloudTransport{
@@ -97,7 +104,7 @@ export class SalesWorker{
    if(job.phase==='GENERATE'){
     const history=await this.db.rows('messages',`conversation_id=eq.${job.conversation_id}&revision=lte.${job.revision}&order=platform_at.desc&limit=20`);
     const engine=this.engine||new SalesInferenceEngine({provider:settings.inference_provider,model:settings.inference_model,
-     apiKey:this.secrets.sales_gemma_api_key,endpoint:this.secrets.sales_inference_url,bearer:this.secrets.sales_inference_bearer,fetcher:this.fetcher});
+     apiKey:settings.inference_provider==='GROQ_FREE'?this.secrets.sales_groq_api_key:this.secrets.sales_gemma_api_key,endpoint:this.secrets.sales_inference_url,bearer:this.secrets.sales_inference_bearer,fetcher:this.fetcher});
     const result=await engine.generate(history.reverse(),{behavior:settings.bot_behavior});
     if(!result.real||!result.remote)throw new Fault('REAL_REMOTE_INFERENCE_REQUIRED',503);
     const [ready]=await this.db.rpc('ready',{job:job.id,lease_id:job.lease,reply:result.body,provider:result.provider,model:result.model});

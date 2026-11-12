@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {createOperatorHandler} from '../netlify-site/lib/operator.mjs';
 import {createHandler} from '../supabase/functions/sales/api.mjs';
 import {renderPairing} from '../netlify-site/public/pairing.mjs';
+import {renderConversations,renderHistory} from '../netlify-site/public/inbox.mjs';
 const owner='OWNER_FIXTURE',shared='a'.repeat(64),origin='https://private.example.invalid';
 const values={NETLIFY_OWNER_ID:owner,SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_'+'x'.repeat(24),SALES_DASHBOARD_SECRET:shared};
 const context={user:{id:owner,email:'owner@example.invalid',expiresAt:new Date('2100-01-01')}};
@@ -59,6 +60,34 @@ test('private pairing proxy is read-only and never invents a QR for an absent se
  const {handler,calls}=fixture();assert.equal((await handler(request('sales/pairing'),context)).status,200);assert(calls[0].url.endsWith('/sales/pairing'));
  assert.equal((await handler(request('sales/pairing',{}),context)).status,405);
  const absent=renderPairing({state:'HOST_REQUIRED'});assert(!absent.includes('<img'));assert(absent.includes('não há QR disponível'));
+});
+test('private inbox proxy exposes only owner-scoped read actions',async()=>{
+ const {handler,calls}=fixture();assert.equal((await handler(request('sales/conversations'),context)).status,200);
+ assert(calls[0].url.endsWith('/sales/conversations'));
+ assert.equal((await handler(request('sales/conversations',{}),context)).status,405);
+ assert.equal((await handler(request('sales/conversations'),{})).status,401);
+});
+test('Groq key endpoint is owner-only and forwards only the credential to Supabase',async()=>{
+ const key='gsk_'+'A'.repeat(40),{handler,calls}=fixture();
+ assert.equal((await handler(request('sales/inference-key',{api_key:key,extra:'NEVER_FORWARD'}),{})).status,401);
+ assert.equal((await handler(request('sales/inference-key',{api_key:'invalid'}),context)).status,422);
+ const response=await handler(request('sales/inference-key',{api_key:key,extra:'NEVER_FORWARD'}),context);
+ assert.equal(response.status,200);assert.deepEqual(JSON.parse(calls[0].options.body),{api_key:key});
+ assert(!JSON.stringify(calls[0]).includes('NEVER_FORWARD'));
+ assert(!JSON.stringify(await response.json()).includes(key));
+});
+test('Edge rejects an invalid Groq key before writing to Vault',async()=>{
+ const {handler,calls}=edgeFixture();
+ const req=new Request('https://fixture.supabase.co/functions/v1/sales/inference-key',{method:'POST',headers:{'x-sales-dashboard-secret':shared,'x-sales-operator-id':owner,'Content-Type':'application/json'},body:JSON.stringify({api_key:'bad'})});
+ assert.equal((await handler(req)).status,422);assert(!calls.includes('groq_key_set'));
+});
+test('inbox lists real rows and escapes contact and message content',async()=>{
+ const id='00000000-0000-4000-8000-000000000001';
+ const row={id,status:'PENDING',last_inbound_at:'2026-11-12T12:00:00Z',contact:{identity:'5581999999999',display_name:'<img src=x onerror=alert(1)>',human_takeover:false}};
+ const list=renderConversations({conversations:[row]},id),history=renderHistory([{direction:'IN',body:'<script>alert(1)</script>',platform_at:'2026-11-12T12:00:00Z',delivery_state:null}],row);
+ assert(list.includes('data-conversation="'+id+'"'));assert(!list.includes('<img src=x'));
+ assert(history.includes('&lt;script&gt;'));assert(!history.includes('<script>'));
+ assert(renderConversations({conversations:[]}).includes('Nenhuma conversa real'));
 });
 test('pairing renderer removes expired images and rejects injected or non-PNG URLs',()=>{
  const live={state:'QR_READY',qr_data_url:'data:image/png;base64,iVBORw0KGgoCONTROLLED=',expires_at:new Date(Date.now()+10000).toISOString()};

@@ -32,7 +32,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     }
     return json({component:'VENDREX_SALES',version:'2.4.0',state,
       transport_policy:s.transport_policy,remote_worker_deployed:true,remote_worker_enabled:s.transport_policy==='META_CLOUD_API'&&!s.paused,
-      inference_configured:Boolean(secrets.sales_gemma_api_key||secrets.sales_inference_url),
+      inference_configured:Boolean(secrets.sales_groq_api_key||secrets.sales_gemma_api_key||secrets.sales_inference_url),
       inference_verified:Boolean(s.inference_verified_at),SALES_WHATSAPP_OPERATIONAL:operational,debounce_seconds:5});
    }
    if(action==='worker'&&req.method==='POST'){
@@ -42,7 +42,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     const worker=workerFactory?workerFactory(db,secrets):new SalesWorker({store:db,secrets,fetcher,bootId});
     return json(await worker.tick());
    }
-   if(!['status','control','history','behavior','test-contacts','pairing'].includes(action))throw new Fault('NOT_FOUND',404);
+   if(!['status','control','history','conversations','behavior','test-contacts','inference-key','pairing'].includes(action))throw new Fault('NOT_FOUND',404);
    // A private Netlify Function verifies context.user before adding these server-only headers.
    // This scoped bridge cannot invoke the worker or expose database credentials.
    const dashboardSecret=req.headers.get('x-sales-dashboard-secret');
@@ -64,8 +64,9 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
      const [i]=await db.rows('instances','id=eq.'+encodeURIComponent(s.qr_instance));
      state=!i?.lease_until||Date.parse(i.lease_until)<Date.now()?'HOST_REQUIRED':i.state;
     }
+    const inferenceConfigured=s.inference_provider==='GROQ_FREE'?Boolean(secrets.sales_groq_api_key):s.inference_provider==='GEMMA_API'?Boolean(secrets.sales_gemma_api_key):Boolean(secrets.sales_inference_url||secrets.sales_companion_bearer);
     return json({...proof,paused:s.paused,transport_policy:s.transport_policy,mode:s.mode,last_heartbeat:s.last_heartbeat,last_error:s.last_error,
-     state,inference_daily_limit:s.inference_daily_limit,inference_calls:s.inference_calls,inference_model:s.inference_model,test_recipients:s.test_recipients,
+     state,inference_configured:inferenceConfigured,inference_daily_limit:s.inference_daily_limit,inference_calls:s.inference_calls,inference_provider:s.inference_provider,inference_model:s.inference_model,test_recipients:s.test_recipients,
      SALES_WHATSAPP_OPERATIONAL:proof.SALES_WHATSAPP_OPERATIONAL&&['META_CLOUD_API','BAILEYS_QR'].includes(s.transport_policy)&&!s.paused&&Date.now()-Date.parse(s.last_heartbeat)<120000});
    }
    if(action==='behavior'&&req.method==='GET'){
@@ -73,6 +74,10 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
    }
    if(action==='behavior'&&req.method==='POST'){
     const body=await req.json();return json(await db.rpc('behavior_set',{behavior:body.behavior}));
+   }
+   if(action==='inference-key'&&req.method==='POST'){
+    const body=await req.json();if(typeof body.api_key!=='string'||!/^gsk_[A-Za-z0-9_-]{32,200}$/.test(body.api_key))throw new Fault('GROQ_KEY_INVALID',422);
+    return json(await db.rpc('groq_key_set',{api_key:body.api_key}));
    }
    if(action==='test-contacts'&&req.method==='POST'){
     const body=await req.json(),values=body.recipients;
@@ -87,6 +92,14 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
    if(action==='history'&&req.method==='GET'){
     const id=u.searchParams.get('conversation_id');if(!/^[a-f0-9-]{36}$/i.test(id||''))throw new Fault('INVALID_CONVERSATION');
     return json(await db.rows('messages',`conversation_id=eq.${id}&order=platform_at.asc&limit=100`));
+   }
+   if(action==='conversations'&&req.method==='GET'){
+    const conversations=await db.rows('conversations','select=id,contact_id,status,last_inbound_at,revision,processed_revision&order=last_inbound_at.desc.nullslast&limit=50');
+    if(!conversations.length)return json({conversations:[]});
+    const ids=conversations.map(c=>c.contact_id).filter(id=>/^[a-f0-9-]{36}$/i.test(id));
+    const contacts=ids.length?await db.rows('contacts',`select=id,identity,display_name,opted_out,blocked,human_takeover,lead_stage&id=in.(${ids.join(',')})`):[];
+    const byId=new Map(contacts.map(contact=>[contact.id,contact]));
+    return json({conversations:conversations.map(c=>({...c,contact:byId.get(c.contact_id)||null}))});
    }
    throw new Fault('METHOD_NOT_ALLOWED',405);
   }catch(e){const code=e instanceof Fault?e.code:'INTERNAL_ERROR';console.error(JSON.stringify({component:'sales',code}));return json({error:code,SALES_WHATSAPP_OPERATIONAL:false},e instanceof Fault?e.status:500);}

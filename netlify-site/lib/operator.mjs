@@ -1,5 +1,5 @@
 const reply=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
-const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST',history:'GET',pairing:'GET'};
+const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST','inference-key':'POST',history:'GET',conversations:'GET',pairing:'GET'};
 export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
  return async(request,context)=>{
   try{
@@ -24,6 +24,10 @@ export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
     if(action==='behavior')body={behavior:data.behavior};
     if(action==='test-contacts')body={recipients:data.recipients};
     if(action==='control')body={action:data.action,conversation_id:data.conversation_id};
+    if(action==='inference-key'){
+     if(typeof data.api_key!=='string'||!/^gsk_[A-Za-z0-9_-]{32,200}$/.test(data.api_key))return reply({error:'GROQ_KEY_INVALID'},422);
+     body={api_key:data.api_key};
+    }
    }
    const target=new URL(url+'/functions/v1/sales/'+action);
    if(action==='history'){

@@ -6,5 +6,4 @@ COPY sales-gateway/src ./src
 COPY supabase/functions/sales/core.mjs /app/supabase/functions/sales/core.mjs
 COPY supabase/functions/sales/behavior.mjs /app/supabase/functions/sales/behavior.mjs
 USER node
-EXPOSE 8787
 CMD ["node","src/main.mjs"]

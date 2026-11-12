@@ -9,8 +9,10 @@ try{
  if(!SUPABASE_URL?.startsWith('https://')||!SUPABASE_SERVICE_ROLE_KEY)throw Error('BACKEND_CREDENTIALS_REQUIRED');
  const db=new Store(SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY);
  gateway=new SalesGateway({db,instance:process.env.SALES_INSTANCE||'vendrex-sales',hostKind:process.env.SALES_HOST_KIND||'LOCAL_TEST',ollama:process.env.OLLAMA_INTERNAL_URL||'http://ollama:11434'});
- server=adminServer({gateway,db,token:SALES_ADMIN_TOKEN});
- server.listen(Number(process.env.PORT||8787),process.env.SALES_HOST||'127.0.0.1');
+ if(SALES_ADMIN_TOKEN){
+  server=adminServer({gateway,db,token:SALES_ADMIN_TOKEN});
+  server.listen(Number(process.env.PORT||8787),process.env.SALES_HOST||'127.0.0.1');
+ }
  gateway.onFatal=()=>stop(1);await gateway.start();
  process.on('SIGINT',()=>stop());process.on('SIGTERM',()=>stop());
  console.log(JSON.stringify({component:'sales-qr',state:'STARTED',host_kind:gateway.hostKind,SALES_WHATSAPP_OPERATIONAL:false}));

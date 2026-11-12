@@ -1,6 +1,6 @@
 # Vendrex Sales por QR
 
-O gateway usa Baileys, Supabase e inferência própria com Ollama. Não usa a WhatsApp Business Platform, o agente nativo da Meta, BSP ou API de IA paga. Baileys é um conector não oficial, autorizado pelo proprietário nesta missão; sua disponibilidade não é garantida pela Meta.
+O gateway usa Baileys, Supabase e um provedor de IA configurado no backend. O caminho de hospedagem gratuita usa Groq Free; o caminho Docker Compose local mantém Ollama. Não usa a WhatsApp Business Platform, o agente nativo da Meta, BSP ou API de IA paga. Baileys é um conector não oficial, autorizado pelo proprietário nesta missão; sua disponibilidade não é garantida pela Meta.
 
 ## Estado comprovado
 
@@ -19,6 +19,18 @@ A geração local com Gemma 3 1B produziu respostas curtas, mas o cenário comer
 - Edição de personalidade, instruções, abertura, pedido de permissão e texto-base da proposta. A edição persiste no Supabase e invalida gerações que ainda não iniciaram o envio.
 
 ## Instalação em servidor
+
+### Northflank Sandbox Free
+
+O proprietário criou a conta Northflank Sandbox Free e conectou somente `contaveo609-wq/Vendrex-ai-operations`. A documentação oficial informa dois serviços, US$ 20/mês em recursos Northflank Cloud, sem cartão e sem hibernação por inatividade. Um serviço de 0,5 vCPU/1 GB custa cerca de US$ 12/mês dentro da franquia, antes de rede e armazenamento. Não escolher BYOC, upgrade, GPU ou recursos que excedam a franquia. [Preço oficial](https://northflank.com/pricing).
+
+Crie um serviço combinado no projeto `default`, região US Central, repositório acima, branch `upgrade/v2.4`, Dockerfile `sales-gateway/Dockerfile`, contexto de build na raiz. Um único container Node basta, pois a inferência usa o Groq Free. Não exponha porta pública: o QR, os controles e as mensagens já passam pelo painel privado Netlify e pelo Supabase. Defina apenas `SUPABASE_URL=https://ryxxpbxbjzijcuxgfgja.supabase.co`, `SUPABASE_SERVICE_ROLE_KEY` como segredo de runtime e `SALES_HOST_KIND=PERMANENT_SERVER`. A chave de serviço precisa ser inserida pelo titular na Northflank; não a envie por chat ou Git. O administrador HTTP é opcional e fica desativado quando `SALES_ADMIN_TOKEN` não é definido.
+
+No painel privado, o titular cria a chave no Groq Free e cola em **Sales > Chave da IA gratuita**. O valor é gravado no Vault do Supabase e não volta ao navegador. O Sales permanece pausado em TEST; a chave precisa passar por geração real e avaliação comercial antes de qualquer atendimento geral. O plano Groq deve continuar Free; ao esgotar a cota, o worker bloqueia o envio e não alterna para uma API paga. A cota da conta precisa ser medida para 40–50 contatos/dia. [Documentação Groq](https://console.groq.com/docs/billing-faqs).
+
+Depois de verificar o container Northflank em execução, marque a hospedagem permanente no Supabase apenas com evidência da implantação e heartbeat. Vincule o QR pelo painel, use um contato de teste autorizado, confirme recebimento, resposta, entrega e uma segunda conversa após reinício do serviço. Só então a prova pode retornar `SALES_WHATSAPP_OPERATIONAL = true`.
+
+### Docker Compose com Ollama
 
 É necessário um servidor que continue ligado sem o notebook. O pacote foi preparado para Linux com Docker Compose, aproximadamente 2 vCPUs e pelo menos 6 GB de RAM para gateway, modelo e sistema. O desempenho deve ser medido no servidor escolhido. Nenhum servidor foi contratado ou criado.
 

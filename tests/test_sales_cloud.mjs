@@ -36,6 +36,20 @@ test('Gemma uses supported persistent API authentication and includes redacted h
  assert.equal(r.real,true);assert.equal(r.remote,true);assert.equal(captured.options.headers['x-goog-api-key'],'API_KEY_FIXTURE');
  const prompt=JSON.parse(captured.options.body).contents[0].parts[0].text;assert(!prompt.includes('lead@example.invalid'));assert(prompt.includes('30 por dia'));assert(prompt.includes('Quantos pedidos chegam?'));assert(!captured.url.includes('API_KEY_FIXTURE'));
 });
+test('Groq Free uses a fixed endpoint and model without leaking its key or customer contact',async()=>{
+ let request;const engine=new SalesInferenceEngine({provider:'GROQ_FREE',model:'openai/gpt-oss-20b',apiKey:'GROQ_KEY_FIXTURE',fetcher:async(url,options)=>{request={url,options};return Response.json({choices:[{message:{content:'Qual etapa dos pedidos mais toma tempo da equipe?'}}],usage:{total_tokens:100}});}});
+ const result=await engine.generate([{direction:'IN',body:'Contato lead@example.invalid: perdemos pedidos no sistema.'}]);
+ assert.equal(result.body,'Qual etapa dos pedidos mais toma tempo da equipe?');assert.equal(result.real,true);assert.equal(result.remote,true);
+ assert.equal(request.url,'https://api.groq.com/openai/v1/chat/completions');assert.equal(request.options.headers.Authorization,'Bearer GROQ_KEY_FIXTURE');
+ assert(!request.url.includes('GROQ_KEY_FIXTURE'));assert(!request.options.body.includes('lead@example.invalid'));
+ assert.equal(JSON.parse(request.options.body).model,'openai/gpt-oss-20b');
+});
+test('Groq Free rejects an unapproved model and missing key before network use',async()=>{
+ let called=false;for(const [model,apiKey,code] of [['paid-fixture','FIXTURE','FREE_MODEL_REQUIRED'],['openai/gpt-oss-20b',null,'INFERENCE_AUTH_REQUIRED']]){
+  const engine=new SalesInferenceEngine({provider:'GROQ_FREE',model,apiKey,fetcher:async()=>{called=true;}});
+  await assert.rejects(engine.generate([]),e=>e.code===code);
+ }assert.equal(called,false);
+});
 test('API quota exhaustion is explicit and never silently invokes a paid fallback',async()=>{
  const engine=new SalesInferenceEngine({apiKey:'FIXTURE',fetcher:async()=>Response.json({error:{message:'DO NOT LOG FIXTURE'}},{status:429})});await assert.rejects(engine.generate([]),e=>e.code==='INFERENCE_FREE_QUOTA_EXHAUSTED'&&!e.message.includes('DO NOT LOG'));
 });

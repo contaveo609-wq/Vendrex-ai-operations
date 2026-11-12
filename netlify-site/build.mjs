@@ -3,7 +3,7 @@ import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const out=root+'netlify-site/dist/';
 await mkdir(out,{recursive:true});
-for(const f of ['index.html','app.js','pairing.mjs'])await copyFile(root+'netlify-site/public/'+f,out+f);
+for(const f of ['index.html','app.js','pairing.mjs','inbox.mjs'])await copyFile(root+'netlify-site/public/'+f,out+f);
 for(const f of ['style.css','integrations.mjs','sales.mjs'])await copyFile(root+'cloud/public/'+f,out+f);
 await copyFile(root+'docs/TESTES-AGENTES-SALES-V2.4.md',out+'relatorio-agentes.md');
 await cp(root+'netlify-site/artifacts/agent-tests',out+'agent-tests',{recursive:true});
