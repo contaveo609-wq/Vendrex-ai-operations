@@ -47,7 +47,7 @@ Abra `http://127.0.0.1:8787`, informe o token administrativo e consulte o estado
 
 ## Ativação e prova real
 
-1. O titular vincula o QR usando **Aparelhos conectados** no WhatsApp Business. O QR não é registrado nos logs.
+1. Com o gateway rodando no servidor, o titular abre https://vendrex-operations-v24.netlify.app, entra com a conta Netlify e usa **Conectar WhatsApp > Atualizar conexão**. No celular, vincula o QR usando **Aparelhos conectados** no WhatsApp Business. A imagem temporária é cifrada no Vault, restrita ao processo ativo, apagada ao conectar e ocultada ao expirar. O QR não é registrado nos logs. O painel local por túnel continua disponível como alternativa.
 2. Cadastre somente o contato de teste autorizado e retome em modo TEST. O servidor precisa ter o modelo instalado e a conexão ativa.
 3. O contato envia uma mensagem real. Confira mensagem, contato, histórico, inferência, saída e recibo de entrega no Supabase.
 4. Reinicie `sales`, confirme que a sessão persistida reconectou e faça uma segunda interação real no mesmo contato.

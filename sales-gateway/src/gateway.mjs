@@ -12,7 +12,7 @@ export const safeCode=e=>/^[A-Z_]{5,80}$/.test(e?.code||e?.message||'')?(e.code|
 export class SalesGateway {
  constructor({db,instance='vendrex-sales',hostKind='LOCAL_TEST',ollama='http://ollama:11434',socketFactory=makeWASocket,boot=randomUUID()}){
   if(!/^[a-z0-9-]{3,60}$/.test(instance)||!['LOCAL_TEST','PERMANENT_SERVER'].includes(hostKind))throw Error('INVALID_GATEWAY_CONFIG');
-  Object.assign(this,{db,instance,hostKind,ollama,socketFactory,boot});this.status='CONNECTING';this.connected=false;this.stopped=false;this.attempt=0;this.sequence=Promise.resolve();this.qr=null;
+  Object.assign(this,{db,instance,hostKind,ollama,socketFactory,boot});this.status='CONNECTING';this.connected=false;this.stopped=false;this.attempt=0;this.sequence=Promise.resolve();this.qr=null;this.qrCount=0;
  }
  async start(){
   if(!await this.db.rpc('qr_lease',{instance:this.instance,boot:this.boot,host_kind:this.hostKind}))throw Error('QR_INSTANCE_ALREADY_RUNNING');
@@ -40,6 +40,7 @@ export class SalesGateway {
  }
  async connect(){
   if(this.stopped)return;this.status='CONNECTING';this.connected=false;this.qr=null;
+  this.qrCount=0;await this.db.rpc('pairing_put',{instance:this.instance,boot:this.boot,png:null});
   const socket=this.socketFactory({auth:{creds:this.auth.state.creds,keys:makeCacheableSignalKeyStore(this.auth.state.keys,logger)},logger,
    markOnlineOnConnect:false,syncFullHistory:false,shouldSyncHistoryMessage:()=>false,enableAutoSessionRecreation:false,
    getMessage:async key=>{if(!key.id)return undefined;const rows=await this.db.rows('qr_payloads','provider_id=eq.'+encodeURIComponent(providerId(key.id))+'&limit=1');
@@ -51,13 +52,20 @@ export class SalesGateway {
   if(this.stopped||socket!==this.socket)return;
   if(events['creds.update']){Object.assign(this.auth.state.creds,events['creds.update']);await this.auth.saveCreds();}
   const update=events['connection.update'];
-  if(update?.qr){this.status='WAITING_QR';this.qr={image:await QRCode.toBuffer(update.qr,{width:360,margin:3}),expires:Date.now()+60000};await this.heartbeat();}
+  if(update?.qr){
+   // Baileys rc14 gives the first QR 60s and subsequent QRs 20s. Expire slightly sooner.
+   const ttl=this.qrCount++===0?55000:15000;
+   this.status='WAITING_QR';this.qr={image:await QRCode.toBuffer(update.qr,{width:360,margin:3}),expires:Date.now()+ttl};await this.heartbeat();
+   await this.db.rpc('pairing_put',{instance:this.instance,boot:this.boot,png:'data:image/png;base64,'+this.qr.image.toString('base64'),expires_at:new Date(this.qr.expires).toISOString()});
+  }
   if(update?.connection==='open'){
    this.status='CONNECTED';this.connected=true;this.qr=null;this.attempt=0;await this.auth.saveCreds();await this.heartbeat();
+   await this.db.rpc('pairing_put',{instance:this.instance,boot:this.boot,png:null});
    const [row]=await this.db.rows('instances','id=eq.'+this.instance);this.acceptSince=Date.parse(row.accept_since)-2000;
   }
   if(update?.connection==='close'){
    this.connected=false;this.qr=null;const plan=connectionPlan(update.lastDisconnect?.error?.output?.statusCode,this.attempt++);this.status=plan.state;await this.heartbeat();
+   await this.db.rpc('pairing_put',{instance:this.instance,boot:this.boot,png:null});
    if(plan.retry)this.reconnectTimer=setTimeout(()=>this.connect().catch(e=>this.fail(e)),plan.delay);
    else{await this.db.rpc('control',{action:'pause'});this.log(plan.state);}
   }
@@ -85,6 +93,7 @@ export class SalesGateway {
   // Closing the socket keeps the durable session; logging out would revoke it.
   this.socket?.end(new Error('GATEWAY_STOPPED'));await this.auth?.flush();
   if(this.inference)await new Promise(resolve=>this.inference.close(resolve));
+  await this.db.rpc('pairing_put',{instance:this.instance,boot:this.boot,png:null}).catch(()=>{});
   await this.db.rpc('qr_release',{instance:this.instance,boot:this.boot});this.status='STOPPED';
  }
 }

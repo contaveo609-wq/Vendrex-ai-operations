@@ -1,5 +1,6 @@
 """Isolated real Chromium on Windows; controlled backend, no production WhatsApp send."""
 import argparse
+from datetime import datetime, timedelta, timezone
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -15,6 +16,7 @@ args = parser.parse_args()
 args.out.mkdir(parents=True, exist_ok=True)
 behavior = dict(personality='Consultivo', instructions='Uma pergunta por resposta', opening='Olá! Aqui é a Vendrex.', permission='Você tem um minuto?', proposal='Desenvolvemos sistemas sob medida.')
 state = dict(state='HOST_REQUIRED', paused=True, mode='TEST', inference_daily_limit=500, test_recipients=[], SALES_WHATSAPP_OPERATIONAL=False)
+pairing = {'state': 'HOST_REQUIRED'}
 calls, errors, checks = [], [], []
 
 class Handler(SimpleHTTPRequestHandler):
@@ -35,6 +37,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_json({'user': {'id': 'CONTROLLED_OWNER', 'email': 'controlled-owner@example.invalid'}})
         if path == '/api/sales/status':
             return self.send_json(state)
+        if path == '/api/sales/pairing':
+            return self.send_json(pairing)
         if path == '/api/sales/behavior':
             return self.send_json({'behavior': behavior, 'behavior_revision': 1})
         return super().do_GET()
@@ -61,6 +65,18 @@ try:
         page.get_by_role('heading', name='Vendrex Sales', exact=True).wait_for()
         assert 'controlled-owner@' in page.locator('#identity').inner_text()
         checks.append('private_identity_bootstrap_controlled_backend')
+        page.get_by_role('heading', name='Conectar WhatsApp', exact=True).wait_for()
+        assert page.locator('#pairing-panel img').count() == 0
+        checks.append('absent_server_never_shows_a_simulated_qr')
+        pairing.update(state='QR_READY', qr_data_url='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO5+J0EAAAAASUVORK5CYII=', expires_at=(datetime.now(timezone.utc)+timedelta(seconds=4)).isoformat())
+        page.get_by_role('button', name='Atualizar conexão', exact=True).click()
+        page.locator('#pairing-panel img').wait_for()
+        checks.append('manual_pairing_read_displays_controlled_png_without_phone_login')
+        page.locator('#pairing-panel img').wait_for(state='detached')
+        checks.append('expired_pairing_image_removed_automatically')
+        pairing.clear()
+        pairing.update(state='HOST_REQUIRED')
+        page.get_by_role('button', name='Atualizar conexão', exact=True).click()
         assert page.get_by_role('button', name='Ativar atendimento geral', exact=True).is_disabled()
         assert page.get_by_role('button', name='Atender contato de teste', exact=True).is_disabled()
         checks.append('activation_requires_real_connected_gateway_and_proof')

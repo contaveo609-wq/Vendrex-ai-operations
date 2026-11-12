@@ -1,0 +1,22 @@
+{"component":"sales-qr","code":"REAUTH_REQUIRED","boot":"11111111-1111-4111-8111-111111111111"}
+✔ pairing lifecycle persists real PNG encoding only for the lease, expires and clears on connection (68.9979ms)
+✔ AES-GCM preserves Buffer credentials and rejects tampering, wrong key and wrong instance (3.943ms)
+✔ real Baileys credential generator and database adapter restore a session after worker reconstruction (24.0482ms)
+✔ database write failure rejects keys.set before Baileys can assume durability (13.464ms)
+✔ only direct PN/LID chats are accepted, including alternate identities (0.4988ms)
+✔ unsupported media requests human routing while service metadata is ignored (0.1769ms)
+✔ receipts distinguish acceptance, server send, device delivery and read (0.1702ms)
+✔ QR transport persists the retry payload before sending with a stable outbox ID (0.8848ms)
+✔ QR send ambiguity never retries or fabricates delivery (0.3476ms)
+✔ private inference endpoint rejects unauthenticated calls and arbitrary models before contacting Ollama (54.0173ms)
+✔ production local inference requires the explicit authenticated companion boundary (0.9837ms)
+✔ QR image, status, controls and test contacts require operator authentication (36.3441ms)
+✔ personality editor reads persisted settings and saves through the restricted backend RPC (16.2913ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1093.5935

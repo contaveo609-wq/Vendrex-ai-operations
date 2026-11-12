@@ -5,6 +5,9 @@
   "backend": "CONTROLLED_FIXTURES",
   "checks": [
     "private_identity_bootstrap_controlled_backend",
+    "absent_server_never_shows_a_simulated_qr",
+    "manual_pairing_read_displays_controlled_png_without_phone_login",
+    "expired_pairing_image_removed_automatically",
     "activation_requires_real_connected_gateway_and_proof",
     "personality_persists_as_escaped_text",
     "personality_reload_persistence",

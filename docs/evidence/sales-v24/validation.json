@@ -1,19 +1,19 @@
 {
-  "at": "2026-11-12T18:25:30.675341+00:00",
+  "at": "2026-11-12T18:48:23.798683+00:00",
   "state": "IMPLEMENTED_TESTED_NOT_OPERATIONAL",
   "SALES_WHATSAPP_OPERATIONAL": false,
   "tests": {
     "python": 92,
-    "node_integration_proxy": 59,
-    "node_netlify": 11,
-    "node_gateway": 12,
+    "node_integration_proxy": 72,
+    "node_netlify_included": 13,
+    "node_gateway": 13,
     "render_config": 20,
     "cloud_browser": 10,
     "gateway_browser": 7,
-    "netlify_browser": 8,
+    "netlify_browser": 11,
     "builder_arithmetic": 17,
     "builder_browser": 4,
-    "sql_real_postgres_suites": 2,
+    "sql_real_postgres_suites": 3,
     "live_cli_profiles": 4
   },
   "remote": {
@@ -24,6 +24,9 @@
       "SALES_WHATSAPP_OPERATIONAL": false
     },
     "inbound": 0,
+    "pairing": {
+      "state": "HOST_REQUIRED"
+    },
     "instance": {
       "state": "HOST_REQUIRED",
       "has_session_owner": false,
@@ -35,14 +38,16 @@
       "paused": true,
       "inference_model": "gemma3:1b",
       "transport_policy": "BAILEYS_QR",
-      "behavior_revision": 1,
+      "behavior_revision": 2,
       "inference_verified": false,
       "worker_daily_limit": 1000,
       "inference_daily_limit": 500
     },
     "operators": 0,
     "auth_users": 0,
+    "edge_version": 6,
     "client_grants": 0,
+    "client_pairing_execute": false,
     "client_behavior_execute": false
   },
   "vercel": {
@@ -54,7 +59,9 @@
     "plan": "Free",
     "project": "vendrex-operations-v24",
     "private": true,
-    "deployed": false,
+    "deployed": true,
+    "url": "https://vendrex-operations-v24.netlify.app",
+    "owner_editor_verified": true,
     "always_on_gateway": false
   },
   "paid_resources": false,

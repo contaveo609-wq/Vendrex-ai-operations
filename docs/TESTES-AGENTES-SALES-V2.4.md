@@ -30,11 +30,11 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 59 testes Node de integrações/proxies e 12 do gateway aprovados; mais 11 testes da ponte Netlify, todos aprovados.
+- 72 testes Node de integrações/proxies e 13 do gateway aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
-- Chromium real no Windows: dez verificações Cloud, sete do gateway e oito do painel Netlify, sem erros JavaScript.
+- Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
-- Dois conjuntos de testes no Postgres real, com fixtures revertidas: lease, autenticação persistida, aliases, debounce, duplicação, recibos, personalidade, pausa, opt-out e recuperação após falha.
+- Três conjuntos de testes no Postgres real, com fixtures revertidas: lease, autenticação persistida, aliases, debounce, duplicação, recibos, personalidade, pausa, opt-out, recuperação após falha e QR temporário cifrado no Vault.
 - Quatro perfis com inferência real pelo CLI oficial, com entradas controladas e guard de uso ativo.
 - Inferência real com Ollama atrás de backend autenticado; chamada sem token retornou 401. Gemma 3 1B levou cerca de 21 segundos e Gemma 2 2B cerca de 76 segundos no teste local. As respostas foram genéricas; a qualidade comercial final não foi aprovada. Uma tentativa com o Qwen já instalado falhou e não foi configurada no gateway.
 - Build Cloud aprovado. Build Docker não executado: Docker não está instalado nesta máquina.
@@ -43,7 +43,7 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 5 implantada, health `HOST_REQUIRED`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 6 implantada, health `HOST_REQUIRED`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 
@@ -59,7 +59,9 @@ O gateway e a inferência própria precisam de servidor permanente. Uma opção 
 
 A conta do proprietário foi conectada. O projeto `vendrex-operations-v24`, da equipe `vendrex`, foi criado no plano Free, com acesso privado em produção e previews. A configuração de servidor foi salva na Netlify e no Vault Supabase sem publicar chaves no navegador ou no Git. A seleção granular de escopos exige plano pago; foi mantido o escopo padrão gratuito, com leitura das credenciais apenas no código da Function. Não houve contratação ou upgrade.
 
-O código inclui painel privado, editor do Sales e resultados dos quatro agentes, com calculadora e vídeo real. O estado final da publicação deve ser conferido na entrega da hospedagem. A Netlify permite uso comercial no Free, sujeito aos 300 créditos mensais. Suas Functions de background duram até 15 minutos e não hospedam o gateway contínuo.
+O painel foi publicado em https://vendrex-operations-v24.netlify.app. O login usa a conta Netlify do proprietário. Acesso anônimo ao site e à API retornou HTTP 401. O código inclui editor do Sales, resultados dos quatro agentes, calculadora e vídeo real. A Netlify permite uso comercial no Free, sujeito aos 300 créditos mensais. Suas Functions de background duram até 15 minutos e não hospedam o gateway contínuo.
+
+A seção **Conectar WhatsApp** permite consultar e escanear manualmente o QR no site. A imagem é temporária, cifrada no Vault e limitada à instância e inicialização atuais. Códigos vencidos, conectados, parados ou de outro processo não são expostos. Sem servidor/gateway ativo, o resultado é `HOST_REQUIRED` e nenhum QR é fabricado. Não houve vinculação real de telefone.
 
 ## Lista única do que falta
 
@@ -67,7 +69,7 @@ O código inclui painel privado, editor do Sales e resultados dos quatro agentes
 2. Instalar o gateway/modelo no servidor e validar desempenho e qualidade comercial da IA nesse ambiente.
 3. Com o celular, vincular o WhatsApp Business por QR e indicar um contato autorizado para teste.
 4. Comprovar conversa real, entrega e nova interação após reiniciar o worker. Só então verificar a hospedagem e liberar a condição operacional.
-5. Concluir e verificar a publicação privada do painel Netlify. Os outros agentes também exigem executor remoto e autenticação suportada; Growth ainda precisa de autorização Meta e publicação real.
+5. Os outros agentes também exigem executor remoto e autenticação suportada; Growth ainda precisa de autorização Meta e publicação real. Seus testes locais e artefatos estão disponíveis no painel publicado.
 
 ## Fontes e instalação
 

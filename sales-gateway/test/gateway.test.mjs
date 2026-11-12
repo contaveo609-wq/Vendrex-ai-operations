@@ -7,7 +7,20 @@ import {directJid,inboundEvent,outboundId,providerId,receiptState,connectionPlan
 import {inferenceServer} from '../src/inference.mjs';
 import {adminServer} from '../src/http.mjs';
 import {SalesInferenceEngine} from '../../supabase/functions/sales/core.mjs';
+import {SalesGateway} from '../src/gateway.mjs';
 const boot='11111111-1111-4111-8111-111111111111',id='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+
+test('pairing lifecycle persists real PNG encoding only for the lease, expires and clears on connection',async()=>{
+ const calls=[],db={rpc:async(name,data)=>{calls.push({name,data});},rows:async()=>[{accept_since:new Date().toISOString()}]};
+ const gateway=new SalesGateway({db,instance:'fixture',boot});const socket={user:{id:'5511999999999@s.whatsapp.net'},end:()=>{}};
+ gateway.socket=socket;gateway.auth={state:{creds:{}},saveCreds:async()=>{}};
+ const start=Date.now();await gateway.process({'connection.update':{qr:'CONTROLLED_PAIRING_FIXTURE_NOT_A_WHATSAPP_QR'}},socket);
+ const first=calls.find(c=>c.name==='pairing_put');assert(first.data.png.startsWith('data:image/png;base64,iVBORw0KGgo'));assert.equal(first.data.boot,boot);
+ assert(Date.parse(first.data.expires_at)-start<=56000);assert(gateway.qr.expires>Date.now());
+ calls.length=0;await gateway.process({'connection.update':{qr:'CONTROLLED_NEXT_PAIRING_FIXTURE'}},socket);assert(gateway.qr.expires-Date.now()<=15000);
+ calls.length=0;await gateway.process({'connection.update':{connection:'open'}},socket);assert.equal(gateway.qr,null);assert(calls.some(c=>c.name==='pairing_put'&&c.data.png===null));
+ calls.length=0;await gateway.process({'connection.update':{connection:'close',lastDisconnect:{error:{output:{statusCode:401}}}}},socket);assert.equal(gateway.connected,false);assert(calls.some(c=>c.name==='pairing_put'&&c.data.png===null));
+});
 
 test('AES-GCM preserves Buffer credentials and rejects tampering, wrong key and wrong instance',()=>{
  const cipher=new AuthCipher(randomBytes(32).toString('hex'));const value={key:Buffer.from([0,1,254]),lid:'12345@lid'};

@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createOperatorHandler} from '../netlify-site/lib/operator.mjs';
 import {createHandler} from '../supabase/functions/sales/api.mjs';
+import {renderPairing} from '../netlify-site/public/pairing.mjs';
 const owner='OWNER_FIXTURE',shared='a'.repeat(64),origin='https://private.example.invalid';
 const values={NETLIFY_OWNER_ID:owner,SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_'+'x'.repeat(24),SALES_DASHBOARD_SECRET:shared};
 const context={user:{id:owner,email:'owner@example.invalid',expiresAt:new Date('2100-01-01')}};
@@ -53,4 +54,14 @@ test('Edge bridge authenticates both secret and owner without fabricating a Supa
 });
 test('Edge bridge secret grants no worker access',async()=>{
  const {handler,calls}=edgeFixture();const r=await handler(new Request('https://fixture.supabase.co/functions/v1/sales/worker',{method:'POST',headers:{'x-sales-dashboard-secret':shared,'x-sales-operator-id':owner}}));assert.equal(r.status,401);assert(!calls.includes('claim'));
+});
+test('private pairing proxy is read-only and never invents a QR for an absent server',async()=>{
+ const {handler,calls}=fixture();assert.equal((await handler(request('sales/pairing'),context)).status,200);assert(calls[0].url.endsWith('/sales/pairing'));
+ assert.equal((await handler(request('sales/pairing',{}),context)).status,405);
+ const absent=renderPairing({state:'HOST_REQUIRED'});assert(!absent.includes('<img'));assert(absent.includes('não há QR disponível'));
+});
+test('pairing renderer removes expired images and rejects injected or non-PNG URLs',()=>{
+ const live={state:'QR_READY',qr_data_url:'data:image/png;base64,iVBORw0KGgoCONTROLLED=',expires_at:new Date(Date.now()+10000).toISOString()};
+ assert(renderPairing(live).includes('<img'));assert(!renderPairing(live,Date.now()+20000).includes('<img'));
+ for(const qr_data_url of ['javascript:alert(1)','https://attacker.invalid/qr.png','data:image/svg+xml,<svg onload=alert(1)>'])assert(!renderPairing({...live,qr_data_url}).includes('<img'));
 });

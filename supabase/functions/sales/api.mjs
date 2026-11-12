@@ -42,7 +42,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     const worker=workerFactory?workerFactory(db,secrets):new SalesWorker({store:db,secrets,fetcher,bootId});
     return json(await worker.tick());
    }
-   if(!['status','control','history','behavior','test-contacts'].includes(action))throw new Fault('NOT_FOUND',404);
+   if(!['status','control','history','behavior','test-contacts','pairing'].includes(action))throw new Fault('NOT_FOUND',404);
    // A private Netlify Function verifies context.user before adding these server-only headers.
    // This scoped bridge cannot invoke the worker or expose database credentials.
    const dashboardSecret=req.headers.get('x-sales-dashboard-secret');
@@ -56,6 +56,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     if(!/^[a-f0-9-]{36}$/i.test(user.id||''))throw new Fault('UNAUTHORIZED',401);
     if(!(await db.rows('operators',`user_id=eq.${user.id}`)).length)throw new Fault('OPERATOR_REQUIRED',403);
    }
+   if(action==='pairing'&&req.method==='GET')return json(await db.rpc('pairing_get'));
    if(action==='status'&&req.method==='GET'){
     const [s]=await db.rows('settings','id=eq.true'),proof=await db.rpc('proof');
     let state=s.paused?'PAUSED':'TESTING';
