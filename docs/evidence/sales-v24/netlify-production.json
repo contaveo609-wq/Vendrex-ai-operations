@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-11-12T18:51:00Z",
+  "url": "https://vendrex-operations-v24.netlify.app",
+  "site_id": "5a252f9d-8235-463b-bad8-0cbc8ae7ea9b",
+  "latest_deploy_id": "6af60a43b446e6d5851ea061",
+  "state": "ready",
+  "plan": "Free",
+  "private_all_deploys": true,
+  "code_commit": "25cbf5b0e71ea687ed8e43fb94adfd396a3762d4",
+  "runtime": "nodejs24.x",
+  "checks": {
+    "owner_login_verified": true,
+    "live_personality_saved": true,
+    "live_personality_revision": 2,
+    "reload_persistence_verified": true,
+    "anonymous_site_http": 401,
+    "anonymous_api_http": 401,
+    "anonymous_pairing_http": 401,
+    "qr_update_browser": "CONTROLLED_BACKEND_11_CHECKS",
+    "qr_update_sql": "REAL_POSTGRES_ROLLBACK_FIXTURES",
+    "latest_qr_ui_live_browser_verified": false,
+    "latest_qr_ui_live_browser_limit": "browser control focus command timed out",
+    "qr_real_pairing": false,
+    "always_on_gateway": false
+  },
+  "SALES_WHATSAPP_OPERATIONAL": false,
+  "paid_resources_contracted": false
+}
