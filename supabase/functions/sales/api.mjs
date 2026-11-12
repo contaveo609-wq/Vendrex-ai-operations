@@ -43,12 +43,19 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     return json(await worker.tick());
    }
    if(!['status','control','history','behavior','test-contacts'].includes(action))throw new Fault('NOT_FOUND',404);
-   const authorization=req.headers.get('Authorization')||'';
-   if(!authorization.startsWith('Bearer '))throw new Fault('UNAUTHORIZED',401);
-   const r=await fetcher(url+'/auth/v1/user',{headers:{Authorization:authorization,apikey:key},signal:AbortSignal.timeout(10000)});
-   if(!r.ok)throw new Fault('UNAUTHORIZED',401);const user=await r.json();
-   if(!/^[a-f0-9-]{36}$/i.test(user.id||''))throw new Fault('UNAUTHORIZED',401);
-   if(!(await db.rows('operators',`user_id=eq.${user.id}`)).length)throw new Fault('OPERATOR_REQUIRED',403);
+   // A private Netlify Function verifies context.user before adding these server-only headers.
+   // This scoped bridge cannot invoke the worker or expose database credentials.
+   const dashboardSecret=req.headers.get('x-sales-dashboard-secret');
+   if(dashboardSecret!==null){
+    if(!equal(dashboardSecret,secrets.sales_dashboard_secret)||!equal(req.headers.get('x-sales-operator-id'),secrets.sales_netlify_owner_id))throw new Fault('UNAUTHORIZED',401);
+   }else{
+    const authorization=req.headers.get('Authorization')||'';
+    if(!authorization.startsWith('Bearer '))throw new Fault('UNAUTHORIZED',401);
+    const r=await fetcher(url+'/auth/v1/user',{headers:{Authorization:authorization,apikey:key},signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw new Fault('UNAUTHORIZED',401);const user=await r.json();
+    if(!/^[a-f0-9-]{36}$/i.test(user.id||''))throw new Fault('UNAUTHORIZED',401);
+    if(!(await db.rows('operators',`user_id=eq.${user.id}`)).length)throw new Fault('OPERATOR_REQUIRED',403);
+   }
    if(action==='status'&&req.method==='GET'){
     const [s]=await db.rows('settings','id=eq.true'),proof=await db.rpc('proof');
     let state=s.paused?'PAUSED':'TESTING';

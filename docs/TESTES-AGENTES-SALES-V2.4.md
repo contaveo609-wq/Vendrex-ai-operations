@@ -23,16 +23,16 @@ Os resultados completos estão em `agent-tests`. Não foram pesquisados números
 
 Baileys por QR, autorizado pelo proprietário, com IA própria. Sem WhatsApp Business Platform, BSP, agente de IA nativo da Meta ou API de IA paga. Sessão criptografada no Supabase, lease exclusivo, identidade telefone/LID, histórico, debounce de cinco segundos, fila durável, deduplicação e retentativas limitadas. Aceitação, entrega e leitura são eventos distintos. Envios ambíguos não são repetidos automaticamente.
 
-O painel privado do gateway e a aba **Sales e personalidade** do painel Cloud têm campos para personalidade, instruções, abertura, pedido de permissão e texto-base da proposta. As mudanças persistem no Supabase e invalidam gerações antigas antes do envio. Os endpoints Cloud exigem usuário autenticado e cadastro de operador. Pausa, transferência humana e opt-out foram incluídos.
+O painel privado do gateway, a aba **Sales e personalidade** do painel Cloud e o painel Netlify têm campos para personalidade, instruções, abertura, pedido de permissão e texto-base da proposta. As mudanças persistem no Supabase e invalidam gerações antigas antes do envio. O painel Netlify valida a identidade oficial do proprietário e usa uma ponte administrativa restrita; não exige inventar usuários Supabase. O caminho anterior com Supabase Auth continua exigindo operador cadastrado. Pausa, transferência humana e opt-out foram incluídos.
 
 O teto inicial é de 500 gerações e 1.000 processamentos por dia, configurável no backend. Cinquenta conversas com seis respostas exigem 300 gerações; retentativas e outras conversas também consomem capacidade. Isso não representa uma cota oficial de WhatsApp nem garantia contra bloqueios.
 
 ## Testes
 
 - 92 testes Python aprovados.
-- 59 testes Node de integrações/proxies e 12 do gateway aprovados.
+- 59 testes Node de integrações/proxies e 12 do gateway aprovados; mais 11 testes da ponte Netlify, todos aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
-- Chromium real no Windows: dez verificações Cloud e sete do gateway, sem erros JavaScript.
+- Chromium real no Windows: dez verificações Cloud, sete do gateway e oito do painel Netlify, sem erros JavaScript.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
 - Dois conjuntos de testes no Postgres real, com fixtures revertidas: lease, autenticação persistida, aliases, debounce, duplicação, recibos, personalidade, pausa, opt-out e recuperação após falha.
 - Quatro perfis com inferência real pelo CLI oficial, com entradas controladas e guard de uso ativo.
@@ -43,7 +43,7 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 4 implantada, health `HOST_REQUIRED`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 5 implantada, health `HOST_REQUIRED`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 
@@ -55,19 +55,28 @@ Containers Vercel escalam para zero após cinco minutos sem tráfego em produç�
 
 O gateway e a inferência própria precisam de servidor permanente. Uma opção pesquisada é Oracle Always Free, sujeita a capacidade, cotas e recuperação de instâncias ociosas. O proprietário informou que ainda não tem servidor ou conta nessa plataforma. Nenhum recurso pago foi contratado.
 
+## Netlify Free
+
+A conta do proprietário foi conectada. O projeto `vendrex-operations-v24`, da equipe `vendrex`, foi criado no plano Free, com acesso privado em produção e previews. A configuração de servidor foi salva na Netlify e no Vault Supabase sem publicar chaves no navegador ou no Git. A seleção granular de escopos exige plano pago; foi mantido o escopo padrão gratuito, com leitura das credenciais apenas no código da Function. Não houve contratação ou upgrade.
+
+O código inclui painel privado, editor do Sales e resultados dos quatro agentes, com calculadora e vídeo real. O estado final da publicação deve ser conferido na entrega da hospedagem. A Netlify permite uso comercial no Free, sujeito aos 300 créditos mensais. Suas Functions de background duram até 15 minutos e não hospedam o gateway contínuo.
+
 ## Lista única do que falta
 
 1. Disponibilizar e autenticar hospedagem permanente elegível. O cadastro gratuito e eventuais verificações exigem o titular; a Vercel atual não atende ao uso comercial pretendido. Não enviar senhas ou chaves no chat.
 2. Instalar o gateway/modelo no servidor e validar desempenho e qualidade comercial da IA nesse ambiente.
 3. Com o celular, vincular o WhatsApp Business por QR e indicar um contato autorizado para teste.
 4. Comprovar conversa real, entrega e nova interação após reiniciar o worker. Só então verificar a hospedagem e liberar a condição operacional.
-5. Para usar o painel Cloud, concluir a identidade do dono no Supabase Auth e cadastrá-la como operadora. Os outros agentes também exigem executor remoto e autenticação suportada; Growth ainda precisa de autorização Meta e publicação real.
+5. Concluir e verificar a publicação privada do painel Netlify. Os outros agentes também exigem executor remoto e autenticação suportada; Growth ainda precisa de autorização Meta e publicação real.
 
 ## Fontes e instalação
 
 - [Vercel: uso comercial](https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage)
 - [Vercel: ciclo de vida dos containers](https://vercel.com/docs/functions/runtimes/container#scale-in-behavior)
 - [Oracle: Always Free](https://docs.oracle.com/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+- [Netlify: uso comercial no Free](https://www.netlify.com/guides/netlify-vs-vercel/)
+- [Netlify: preços e créditos](https://www.netlify.com/pricing/)
+- [Netlify: funções de background](https://docs.netlify.com/build/functions/background-functions/)
 - [Baileys: sessão em banco de dados](https://baileys.wiki/authentication/session-management)
 - [WhatsApp: política de mensagens](https://business.whatsapp.com/policy)
 - [Ollama: API de chat](https://docs.ollama.com/api/chat)

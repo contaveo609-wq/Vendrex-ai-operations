@@ -1,0 +1,97 @@
+✔ AES-GCM roundtrip; owner binding, tampering and wrong key fail (72.877ms)
+✔ Recife slots convert 12h/18h to 15h/21h UTC with rollover (98.6241ms)
+✔ media rejects private origins, credential URLs, unsupported MIME and oversized captions (0.5671ms)
+✔ Instagram container is persisted before publish, confirmation precedes proof (5.8885ms)
+✔ Instagram VIDEO uses supported Reels container (1.3667ms)
+✔ Instagram REEL uses supported Reels container (1.2137ms)
+✔ Facebook IMAGE publishes once and waits for platform confirmation (5.0631ms)
+✔ Facebook VIDEO publishes once and waits for platform confirmation (2.007ms)
+✔ Facebook Reels start, upload, finish and confirm use same persisted video ID (2.038ms)
+✔ timeout after publication cannot cause automatic duplicate (1.634ms)
+✔ quota exhaustion does not create media (7.6283ms)
+✔ already-published container never repeats media_publish (24.4304ms)
+✔ stale lease prevents an external publication (38.7839ms)
+✔ revoked token suspends connection and produces reauthorization alert (18.4897ms)
+✔ maintenance derives Page token without claiming perpetual User renewal (11.0263ms)
+✔ metrics preserve unavailable values and use User token for IG insights (4.6798ms)
+✔ Meta paging uses a cursor on the fixed Graph host, never an untrusted next URL (91.8399ms)
+{"component":"growth","code":"UNAUTHORIZED"}
+{"component":"growth","code":"ORIGIN_DENIED"}
+{"component":"growth","code":"METHOD_NOT_ALLOWED"}
+✔ Meta transport redacts provider messages and secrets (1.7806ms)
+✔ worker rejects an anonymous caller and a Supabase user JWT (5.1612ms)
+✔ foreign origin and unsupported method fail closed (1.1477ms)
+{"component":"growth","code":"OAUTH_STATE_INVALID"}
+{"component":"growth","code":"REAL_PUBLICATION_TEST_REQUIRED"}
+{"component":"growth","code":"NOT_FOUND"}
+✔ OAuth start sets secure cookie, stores only hashes, binds owner and uses business config (3.5438ms)
+✔ OAuth callback rejects missing browser binding before token exchange (0.762ms)
+✔ owner cannot activate without real platform proof (7.266ms)
+✔ owner cannot operate another tenant connection (1.0719ms)
+✔ runtime never announces operational without active, proven connection (0.7746ms)
+✔ dashboard escapes untrusted account names and captions, retains real-test gate (0.6152ms)
+✔ complete OAuth callback connects only allowed Pages and linked professional IG, encrypted and paused (14.6147ms)
+{"component":"growth","code":"OAUTH_STATE_INVALID"}
+✔ OAuth callback replay never exchanges code twice (7.9689ms)
+{"component":"growth","code":"NO_AUTHORIZED_VENDREX_ACCOUNTS"}
+✔ declined publishing scopes cannot create a connected account (5.2754ms)
+✔ Vercel proxy forwards callback with cookie, never exposes token data (60.2116ms)
+✔ Vercel proxy rejects worker passthrough and foreign origins (0.7826ms)
+✔ Vercel proxy fails closed without a configured backend (0.2883ms)
+{"component":"sales","code":"VERIFY_TOKEN_INVALID"}
+{"component":"sales","code":"WEBHOOK_SIGNATURE_INVALID"}
+✔ Meta HMAC validates original raw body and rejects modified payload (69.1119ms)
+✔ challenge verification requires exact secret, returns plain challenge (52.9224ms)
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+✔ unsigned or forged webhook never reaches the persistence RPC (3.6896ms)
+✔ cron and operator endpoints reject anonymous access (1.4714ms)
+✔ free-model allowlist never falls back to a paid Gemini model (1.3055ms)
+✔ Gemma uses supported persistent API authentication and includes redacted history (2.4759ms)
+✔ API quota exhaustion is explicit and never silently invokes a paid fallback (0.7818ms)
+✔ production rejects local inference host and missing remote authentication (0.3902ms)
+✔ reply guard transfers fabricated financial commitments and secret-like text to review (0.5526ms)
+✔ official send accepts 5511999999999 but does not claim delivery (1.1825ms)
+✔ official send accepts US.CONTROLLED123 but does not claim delivery (0.7539ms)
+✔ network timeout during Meta send is ambiguous and not retriable (0.407ms)
+✔ pipeline persists reply and dispatch fence before calling Meta (8.626ms)
+✔ new inbound or human takeover fences stale generation before send (0.3901ms)
+✔ a local real model is not accepted as a permanent remote backend (0.3848ms)
+✔ ambiguous dispatch is stored for reconciliation and never blindly requeued (0.3084ms)
+✔ expired free-message budget prevents the external send (0.2886ms)
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+{"component":"sales","code":"OPERATOR_REQUIRED"}
+✔ owner no-API policy stops even correctly signed webhook and verification (37.6856ms)
+✔ owner no-API policy stops a worker with the correct cron secret (1.5086ms)
+✔ owner no-API policy prevents direct worker claim, inference and transport (1.6628ms)
+✔ health clearly reports disabled owner policy without exposing secrets (1.2838ms)
+✔ each generation receives the currently persisted personality and message references (1.1424ms)
+✔ QR configuration never enables the Cloud API worker and reports missing permanent host (0.5347ms)
+✔ Sales personality endpoint requires a verified user registered as operator (1.3649ms)
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+✔ Netlify identity is mandatory; forged identity and bearer headers are ignored (41.3863ms)
+✔ another Netlify user and expired owner session are rejected (7.1839ms)
+✔ owner identity endpoint never exposes configuration secrets (3.1986ms)
+✔ worker, webhook, arbitrary routes and wrong methods cannot be proxied (2.8377ms)
+✔ cross-origin and originless mutations fail before contacting Supabase (0.8077ms)
+✔ owner behavior changes forward only scoped server credentials and allowed fields (2.2104ms)
+✔ oversized bodies, invalid JSON and privileged keys fail closed (11.7734ms)
+✔ history validates the conversation id and forwards no arbitrary query parameters (1.0236ms)
+✔ upstream failures hide tokens and internal error text (0.9448ms)
+✔ Edge bridge authenticates both secret and owner without fabricating a Supabase JWT (3.3436ms)
+✔ Edge bridge secret grants no worker access (0.6662ms)
+✔ Sales proxy rejects internal routes, missing JWT, foreign origins and unexpected methods (6.7167ms)
+✔ Sales proxy forwards only the operator token and approved configuration request (41.2665ms)
+✔ Sales cloud editor escapes content and blocks live activation without real proof (0.6535ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 70
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 860.2895

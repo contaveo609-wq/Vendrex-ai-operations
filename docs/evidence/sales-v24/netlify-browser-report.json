@@ -1,0 +1,18 @@
+{
+  "state": "TESTED",
+  "platform": "win32",
+  "browser": "isolated real Chromium",
+  "backend": "CONTROLLED_FIXTURES",
+  "checks": [
+    "private_identity_bootstrap_controlled_backend",
+    "activation_requires_real_connected_gateway_and_proof",
+    "personality_persists_as_escaped_text",
+    "personality_reload_persistence",
+    "exact_test_contact_saved_without_triggering_send",
+    "four_agent_results_distinguish_local_tests_from_remote_workers",
+    "published_artifact_paths_exist_without_invoking_agents",
+    "mobile_390px_no_overflow"
+  ],
+  "javascript_errors": [],
+  "whatsapp_real_conversation": false
+}

@@ -1,14 +1,16 @@
 {
-  "at": "2026-11-12T17:50:24.176841+00:00",
+  "at": "2026-11-12T18:25:30.675341+00:00",
   "state": "IMPLEMENTED_TESTED_NOT_OPERATIONAL",
   "SALES_WHATSAPP_OPERATIONAL": false,
   "tests": {
     "python": 92,
     "node_integration_proxy": 59,
+    "node_netlify": 11,
     "node_gateway": 12,
     "render_config": 20,
     "cloud_browser": 10,
     "gateway_browser": 7,
+    "netlify_browser": 8,
     "builder_arithmetic": 17,
     "builder_browser": 4,
     "sql_real_postgres_suites": 2,
@@ -46,6 +48,13 @@
   "vercel": {
     "plan": "hobby",
     "commercial_deployment": false,
+    "always_on_gateway": false
+  },
+  "netlify": {
+    "plan": "Free",
+    "project": "vendrex-operations-v24",
+    "private": true,
+    "deployed": false,
     "always_on_gateway": false
   },
   "paid_resources": false,

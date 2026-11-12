@@ -1,5 +1,7 @@
 # VENDREX AI OPERATIONS V2.4
 
+Atualização Sales: gateway Baileys por QR e editor de personalidade implementados; teste real WhatsApp e servidor permanente pendentes. Painel privado preparado para Netlify Free: [instalação](netlify-site/README.md). Resultados dos quatro agentes e bloqueios: [relatório](docs/TESTES-AGENTES-SALES-V2.4.md). `SALES_WHATSAPP_OPERATIONAL = FALSE`.
+
 Evolução da V2.3, base `267a610044e3688054a3baac83d3bc11500ba1ff`, branch `upgrade/v2.4`. Quatro perfis locais e backend Growth remoto no Supabase. OAuth Meta, publicação oficial, fila durável, tokens cifrados e painel de integrações implementados. **Growth ainda não operacional: nenhuma publicação real confirmada.**
 
 Consulte [entrega V2.4](docs/ENTREGA-V2.4.md), [integração Meta](docs/INTEGRACAO-META-V2.4.md) e [testes](docs/TESTES-V2.4.md). Supabase dedicado criado sem custo contratado; Cron e Edge Function verificados. O plano Vercel atual é Hobby e não permite uso comercial: não houve deploy ou contratação. Os quatro bots foram testados com inferência real local e entradas controladas; isso não valida um backend comercial contínuo baseado em assinatura ChatGPT. Os detalhes históricos abaixo da V2.3 não substituem a entrega V2.4.
@@ -22,7 +24,7 @@ Node.js e Git são necessários para as missões Builder. FFmpeg, ffprobe e Pill
 |---|---|---|
 | Quatro perfis, fila, CRM, agendas | TESTED | Persistência SQLite e testes locais; agendas precisam de executor ativo |
 | WhatsApp: controles e histórico local | TESTED | Painel, elegibilidade, cancelamento, recuperação; sem eventos WhatsApp reais |
-| WhatsApp: transporte e autonomia verificável | BLOCKED / NOT_IMPLEMENTED | Proprietário escolheu QR/código sem API; link manual externo não integra o Sales |
+| WhatsApp: transporte e autonomia verificável | IMPLEMENTED / HOST_REQUIRED | Gateway Baileys por QR implementado; servidor permanente, telefone e conversa real pendentes |
 | Codex CLI local | TESTED / CONNECTED | Inferência real dos quatro perfis com entradas controladas; sem API paga ou implantação como backend público |
 | Builder: calculadora e quadro persistente | TESTED | Node, Git e Chromium; geração por scaffold local |
 | Growth: vídeo 32s | TESTED | MP4 V2.2 preservado, verificação de duração/reprodução na V2.3 |
