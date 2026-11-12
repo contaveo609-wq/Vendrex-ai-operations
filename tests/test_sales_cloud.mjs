@@ -43,6 +43,8 @@ test('Groq Free uses a fixed endpoint and model without leaking its key or custo
  assert.equal(request.url,'https://api.groq.com/openai/v1/chat/completions');assert.equal(request.options.headers.Authorization,'Bearer GROQ_KEY_FIXTURE');
  assert(!request.url.includes('GROQ_KEY_FIXTURE'));assert(!request.options.body.includes('lead@example.invalid'));
  assert.equal(JSON.parse(request.options.body).model,'openai/gpt-oss-20b');
+ assert.equal(JSON.parse(request.options.body).reasoning_effort,'low');
+ assert.equal(JSON.parse(request.options.body).max_completion_tokens,1024);
 });
 test('Groq Free rejects an unapproved model and missing key before network use',async()=>{
  let called=false;for(const [model,apiKey,code] of [['paid-fixture','FIXTURE','FREE_MODEL_REQUIRED'],['openai/gpt-oss-20b',null,'INFERENCE_AUTH_REQUIRED']]){
@@ -58,8 +60,8 @@ test('production rejects local inference host and missing remote authentication'
   const engine=new SalesInferenceEngine({provider:'OLLAMA_SELF_HOST',endpoint,model:'gemma3:1b'});await assert.rejects(engine.generate([]));
  }
 });
-test('reply guard transfers fabricated financial commitments and secret-like text to review',()=>{
- for(const text of ['Garanto por R$ 500','Entregaremos em dois dias','Bearer SECRET_FIXTURE_LONG'])assert.throws(()=>guardReply(text));
+test('reply guard transfers fabricated commitments, multiple questions and secret-like text to review',()=>{
+ for(const text of ['Garanto por R$ 500','Entregaremos em dois dias','Como foi? Quantos foram?','Bearer SECRET_FIXTURE_LONG'])assert.throws(()=>guardReply(text));
  assert.equal(guardReply('Como sua equipe organiza os pedidos hoje?'),'Como sua equipe organiza os pedidos hoje?');
 });
 for(const identity of ['5511999999999','US.CONTROLLED123'])test('official send accepts '+identity+' but does not claim delivery',async()=>{
