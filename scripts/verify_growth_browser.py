@@ -23,6 +23,8 @@ connection = {'id': '33333333-3333-4333-8333-333333333333', 'name': 'Vendrex · 
 data = {'state': 'TESTING', 'operational': False, 'meta_configured': True, 'worker_active': False,
         'connections': [connection], 'posts': [], 'metrics': [], 'alerts': []}
 captured = []
+sales_data={'state':'HOST_REQUIRED','paused':True,'mode':'TEST','inference_daily_limit':500,'SALES_WHATSAPP_OPERATIONAL':False,'test_recipients':[]}
+sales_behavior={'personality':'Consultivo e direto','instructions':'Uma pergunta por vez','opening':'Olá! Aqui é a Vendrex.','permission':'Posso apresentar uma proposta?','proposal':'Desenvolvemos sistemas sob medida.'}
 
 class Handler(SimpleHTTPRequestHandler):
     def log_message(self, *_):
@@ -46,6 +48,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_json([])
         if path == '/api/meta/status':
             return self.send_json(data)
+        if path == '/api/sales/status':
+            return self.send_json(sales_data)
+        if path == '/api/sales/behavior':
+            return self.send_json({'behavior':sales_behavior,'behavior_revision':1})
         return super().do_GET()
 
     def do_POST(self):
@@ -55,6 +61,9 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_json({'access_token': 'CONTROLLED_JWT_FIXTURE', 'refresh_token': 'CONTROLLED_REFRESH_FIXTURE', 'expires_at': time.time()+3600})
         if path == '/auth/v1/logout':
             return self.send_json({})
+        if path == '/api/sales/behavior':
+            sales_behavior.update(body['behavior'])
+            return self.send_json({'saved':True,'behavior_revision':2})
         if path == '/api/meta/enqueue':
             captured.append(body)
             data['posts'].append({**body, 'id': '44444444-4444-4444-8444-444444444444', 'state': 'QUEUED', 'scheduled_for': '2026-11-11T15:00:00Z'})
@@ -78,6 +87,20 @@ try:
         checks.append('login_and_dashboard_real_browser_controlled_auth')
         assert page.locator('#agents .card').count() == 4
         checks.append('four_agent_cards_without_fabricated_online')
+        page.get_by_role('button',name='Sales e personalidade',exact=True).click()
+        page.get_by_role('heading',name='Vendrex Sales',exact=True).wait_for()
+        assert page.get_by_role('button',name='Ativar atendimento geral',exact=True).is_disabled()
+        checks.append('sales_requires_real_conversation_before_activation')
+        custom='Formal e acolhedor. <img src=x onerror=alert(1)>'
+        page.get_by_label('Personalidade',exact=True).fill(custom)
+        page.get_by_label('Pedido de permissão',exact=True).fill('Prazer, {nome}. Gostaria de ouvir uma proposta de um minuto?')
+        page.get_by_role('button',name='Salvar personalidade e falas',exact=True).click()
+        page.get_by_text('Configuração do Sales salva no Supabase.',exact=True).wait_for()
+        assert sales_behavior['personality']==custom
+        assert page.get_by_label('Personalidade',exact=True).input_value()==custom
+        assert page.locator('#sales-panel img').count()==0
+        checks.append('sales_personality_saved_and_escaped_controlled_backend')
+        page.screenshot(path=str(args.out/'sales-cloud-desktop-CONTROLLED.png'),full_page=True)
         page.get_by_role('button', name='Integrações e Redes Sociais', exact=True).click()
         page.get_by_role('heading', name='Calendário de publicações').wait_for()
         assert page.get_by_role('button', name='Retomar automação', exact=True).is_disabled()
@@ -103,6 +126,7 @@ try:
         page.get_by_role('button', name='Sair', exact=True).click()
         page.get_by_role('button', name='Entrar', exact=True).wait_for()
         assert page.locator('#social').inner_html() == ''
+        assert page.locator('#sales-panel').inner_html() == ''
         checks.append('logout_clears_private_account_data')
         assert not errors, errors
         browser.close()

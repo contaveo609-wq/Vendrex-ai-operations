@@ -1,0 +1,52 @@
+✔ AES-GCM preserves Buffer credentials and rejects tampering, wrong key and wrong instance (12.5842ms)
+✔ real Baileys credential generator and database adapter restore a session after worker reconstruction (74.7186ms)
+✔ database write failure rejects keys.set before Baileys can assume durability (24.4504ms)
+✔ only direct PN/LID chats are accepted, including alternate identities (6.6492ms)
+✔ unsupported media requests human routing while service metadata is ignored (1.3659ms)
+✔ receipts distinguish acceptance, server send, device delivery and read (0.4981ms)
+✔ QR transport persists the retry payload before sending with a stable outbox ID (1.062ms)
+✔ QR send ambiguity never retries or fabricates delivery (0.9513ms)
+✔ private inference endpoint rejects unauthenticated calls and arbitrary models before contacting Ollama (112.6943ms)
+✔ production local inference requires the explicit authenticated companion boundary (1.9178ms)
+✔ QR image, status, controls and test contacts require operator authentication (45.8208ms)
+✔ personality editor reads persisted settings and saves through the restricted backend RPC (26.7945ms)
+{"component":"sales","code":"VERIFY_TOKEN_INVALID"}
+{"component":"sales","code":"WEBHOOK_SIGNATURE_INVALID"}
+✔ Meta HMAC validates original raw body and rejects modified payload (32.5633ms)
+✔ challenge verification requires exact secret, returns plain challenge (67.488ms)
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+✔ unsigned or forged webhook never reaches the persistence RPC (4.3789ms)
+✔ cron and operator endpoints reject anonymous access (1.8463ms)
+✔ free-model allowlist never falls back to a paid Gemini model (1.7767ms)
+✔ Gemma uses supported persistent API authentication and includes redacted history (14.0705ms)
+✔ API quota exhaustion is explicit and never silently invokes a paid fallback (0.8955ms)
+✔ production rejects local inference host and missing remote authentication (0.4214ms)
+✔ reply guard transfers fabricated financial commitments and secret-like text to review (2.8016ms)
+✔ official send accepts 5511999999999 but does not claim delivery (2.0925ms)
+✔ official send accepts US.CONTROLLED123 but does not claim delivery (0.9223ms)
+✔ network timeout during Meta send is ambiguous and not retriable (0.6172ms)
+✔ pipeline persists reply and dispatch fence before calling Meta (61.5211ms)
+✔ new inbound or human takeover fences stale generation before send (0.3937ms)
+✔ a local real model is not accepted as a permanent remote backend (0.4418ms)
+✔ ambiguous dispatch is stored for reconciliation and never blindly requeued (0.4335ms)
+✔ expired free-message budget prevents the external send (0.3679ms)
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+✔ owner no-API policy stops even correctly signed webhook and verification (13.4348ms)
+✔ owner no-API policy stops a worker with the correct cron secret (1.1006ms)
+✔ owner no-API policy prevents direct worker claim, inference and transport (2.4941ms)
+✔ health clearly reports disabled owner policy without exposing secrets (0.7653ms)
+✔ each generation receives the currently persisted personality and message references (0.9101ms)
+✔ QR configuration never enables the Cloud API worker and reports missing permanent host (0.5067ms)
+✔ Sales proxy rejects internal routes, missing JWT, foreign origins and unexpected methods (13.3376ms)
+✔ Sales proxy forwards only the operator token and approved configuration request (68.9142ms)
+✔ Sales cloud editor escapes content and blocks live activation without real proof (0.6781ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2130.6926

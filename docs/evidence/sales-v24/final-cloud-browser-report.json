@@ -1,0 +1,20 @@
+{
+  "state": "TESTED",
+  "platform": "win32",
+  "browser": "isolated real Chromium",
+  "backend": "CONTROLLED_FIXTURES",
+  "meta_real_publication": false,
+  "checks": [
+    "login_and_dashboard_real_browser_controlled_auth",
+    "four_agent_cards_without_fabricated_online",
+    "sales_requires_real_conversation_before_activation",
+    "sales_personality_saved_and_escaped_controlled_backend",
+    "real_publication_proof_required_before_activation",
+    "untrusted_account_name_is_text",
+    "queue_form_sends_correct_format_without_meta_tokens",
+    "queued_fixture_not_presented_as_published",
+    "mobile_390px_without_page_overflow",
+    "logout_clears_private_account_data"
+  ],
+  "javascript_errors": []
+}

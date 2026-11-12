@@ -1,0 +1,202 @@
+test_adapter_timeout_stops_process_and_preserves_workspace (test_adapter.AdapterTests.test_adapter_timeout_stops_process_and_preserves_workspace) ... ok
+test_command_uses_chatgpt_sandbox_structured_output_and_stdin (test_adapter.AdapterTests.test_command_uses_chatgpt_sandbox_structured_output_and_stdin) ... ok
+test_nonexistent_file_is_not_accepted_as_delivery (test_adapter.AdapterTests.test_nonexistent_file_is_not_accepted_as_delivery) ... ok
+test_paid_credentials_removed_from_subprocess (test_adapter.AdapterTests.test_paid_credentials_removed_from_subprocess) ... ok
+test_backup_consistent (test_core.CoreTests.test_backup_consistent) ... ok
+test_finance_requires_scoped_approval_and_absent_integration_still_blocks (test_core.CoreTests.test_finance_requires_scoped_approval_and_absent_integration_still_blocks) ... ok
+test_future_agent_without_rewriting_core (test_core.CoreTests.test_future_agent_without_rewriting_core) ... ok
+test_invalid_transition (test_core.CoreTests.test_invalid_transition) ... ok
+test_missing_integrator_and_untrusted_content (test_core.CoreTests.test_missing_integrator_and_untrusted_content) ... ok
+test_model_versions_above_ceiling_rejected (test_core.CoreTests.test_model_versions_above_ceiling_rejected) ... ok
+test_no_models_invented (test_core.CoreTests.test_no_models_invented) ... ok
+test_os_lock (test_core.CoreTests.test_os_lock) ... ok
+test_pause_preserves_queue (test_core.CoreTests.test_pause_preserves_queue) ... ok
+test_persistent_queue_and_dedup (test_core.CoreTests.test_persistent_queue_and_dedup) ... ok
+test_recovery_needs_approval (test_core.CoreTests.test_recovery_needs_approval) ... ok
+test_retention_requires_scope_approval_and_preserves_clients (test_core.CoreTests.test_retention_requires_scope_approval_and_preserves_clients) ... ok
+test_rotating_journal_exports_committed_ids (test_core.CoreTests.test_rotating_journal_exports_committed_ids) ... ok
+test_security_config_cannot_be_relaxed (test_core.CoreTests.test_security_config_cannot_be_relaxed) ... ok
+test_single_executor_and_dependency (test_core.CoreTests.test_single_executor_and_dependency) ... ok
+test_usage_stale_and_manual_one_call (test_core.CoreTests.test_usage_stale_and_manual_one_call) ... ok
+test_usage_thresholds_and_unknown (test_core.CoreTests.test_usage_thresholds_and_unknown) ... ok
+test_ai_blocks_at_ten_without_calling_adapter (test_flows.FlowTests.test_ai_blocks_at_ten_without_calling_adapter) ... ok
+test_busy_builder_checkpoint_does_not_get_interrupted (test_flows.FlowTests.test_busy_builder_checkpoint_does_not_get_interrupted) ... ok
+test_missed_schedule_logged_not_backlogged (test_flows.FlowTests.test_missed_schedule_logged_not_backlogged) ... ok
+test_offline_and_codex_timeout_retries_limited (test_flows.FlowTests.test_offline_and_codex_timeout_retries_limited) ... ok
+test_opt_out_zeroes_lead_priority (test_flows.FlowTests.test_opt_out_zeroes_lead_priority) ... ok
+test_sale_builder_evidence_no_duplicates_no_fake_revenue (test_flows.FlowTests.test_sale_builder_evidence_no_duplicates_no_fake_revenue) ... ok
+test_sale_without_evidence_fails (test_flows.FlowTests.test_sale_without_evidence_fails) ... ok
+test_schedules_noon_evening_director_independent_and_dedup (test_flows.FlowTests.test_schedules_noon_evening_director_independent_and_dedup) ... ok
+test_training_test_evaluation_and_human_promotion (test_flows.FlowTests.test_training_test_evaluation_and_human_promotion) ... ok
+test_backup_endpoint_file_download (test_http.HTTPTests.test_backup_endpoint_file_download) ... ok
+test_campaign_http_import_keeps_simulation_label (test_http.HTTPTests.test_campaign_http_import_keeps_simulation_label) ... ok
+test_csrf_origin_and_host_enforced (test_http.HTTPTests.test_csrf_origin_and_host_enforced) ... ok
+test_html_js_css_and_favicon_served (test_http.HTTPTests.test_html_js_css_and_favicon_served) ... ok
+test_lead_create_update_qualify_and_task_details (test_http.HTTPTests.test_lead_create_update_qualify_and_task_details) ... ok
+test_local_fixture_history_and_human_control (test_http.HTTPTests.test_local_fixture_history_and_human_control) ... ok
+test_mission_endpoint_and_real_media_range (test_http.HTTPTests.test_mission_endpoint_and_real_media_range) ... ok
+test_source_download_is_real_zip_with_windows_launcher (test_http.HTTPTests.test_source_download_is_real_zip_with_windows_launcher) ... ok
+test_source_export_omits_nested_secrets_and_build_caches (test_http.HTTPTests.test_source_export_omits_nested_secrets_and_build_caches) ... ok
+test_start_pause_emergency_controls (test_http.HTTPTests.test_start_pause_emergency_controls) ... ok
+test_traversal_and_private_database_not_served (test_http.HTTPTests.test_traversal_and_private_database_not_served) ... ok
+test_usage_safety_and_schema_validation (test_http.HTTPTests.test_usage_safety_and_schema_validation) ... ok
+test_whatsapp_status_and_controls_are_honest (test_http.HTTPTests.test_whatsapp_status_and_controls_are_honest) ... ok
+test_client_rejects_secret_key_and_nonofficial_origin (test_social.GrowthClientTests.test_client_rejects_secret_key_and_nonofficial_origin) ... ok
+test_invalid_media_and_slot_never_enqueue (test_social.GrowthClientTests.test_invalid_media_and_slot_never_enqueue) ... ok
+test_queue_uses_user_auth_and_remote_confirmed_state (test_social.GrowthClientTests.test_queue_uses_user_auth_and_remote_confirmed_state) ... ok
+test_svg_draft_is_never_uploaded (test_social.GrowthClientTests.test_svg_draft_is_never_uploaded) ... ok
+test_disconnected_or_ambiguous_send_never_blindly_retries (test_v22.CommunicationsTests.test_disconnected_or_ambiguous_send_never_blindly_retries) ... ok
+test_duplicates_not_reprocessed (test_v22.CommunicationsTests.test_duplicates_not_reprocessed) ... ok
+test_eligible_inbound_debounce_three_seconds (test_v22.CommunicationsTests.test_eligible_inbound_debounce_three_seconds) ... ok
+test_financial_or_complaint_message_requires_human (test_v22.CommunicationsTests.test_financial_or_complaint_message_requires_human) ... ok
+test_human_takeover_cancels_generation (test_v22.CommunicationsTests.test_human_takeover_cancels_generation) ... ok
+test_new_message_during_generation_cancels_stale_response (test_v22.CommunicationsTests.test_new_message_during_generation_cancels_stale_response) ... ok
+test_no_consent_unknown_personal_group_optout_all_blocked (test_v22.CommunicationsTests.test_no_consent_unknown_personal_group_optout_all_blocked) ... ok
+test_optout_cancels_pending (test_v22.CommunicationsTests.test_optout_cancels_pending) ... ok
+test_sent_once_using_isolated_test_transport_not_production_claim (test_v22.CommunicationsTests.test_sent_once_using_isolated_test_transport_not_production_claim) ... ok
+test_two_messages_grouped_once_after_new_window (test_v22.CommunicationsTests.test_two_messages_grouped_once_after_new_window) ... ok
+test_browser_task_payload_alias_is_accepted (test_v22.V22Tests.test_browser_task_payload_alias_is_accepted) ... ok
+test_cloud_store_requires_session_and_official_url (test_v22.V22Tests.test_cloud_store_requires_session_and_official_url) ... ok
+test_company_context_and_correct_pillars_for_all_agents (test_v22.V22Tests.test_company_context_and_correct_pillars_for_all_agents) ... ok
+test_mission_can_be_queued_without_claiming_cli_connected (test_v22.V22Tests.test_mission_can_be_queued_without_claiming_cli_connected) ... ok
+test_private_research_targets_rejected (test_v22.V22Tests.test_private_research_targets_rejected) ... ok
+test_v1_social_database_migrates_without_losing_instructions (test_v22.V22Tests.test_v1_social_database_migrates_without_losing_instructions) ... ok
+test_builder_board_real_node_and_git (test_v23.BusinessV23Tests.test_builder_board_real_node_and_git) ... ok
+test_conversion_and_sale_dedup_with_controlled_records (test_v23.BusinessV23Tests.test_conversion_and_sale_dedup_with_controlled_records) ... ok
+test_director_fetches_source_versions_and_requires_approval (test_v23.BusinessV23Tests.test_director_fetches_source_versions_and_requires_approval) ... ok
+test_director_rejects_metadata_only (test_v23.BusinessV23Tests.test_director_rejects_metadata_only) ... ok
+test_metrics_reproducible_and_idempotent (test_v23.BusinessV23Tests.test_metrics_reproducible_and_idempotent) ... ok
+test_missing_metrics_never_invented (test_v23.BusinessV23Tests.test_missing_metrics_never_invented) ... ok
+test_no_revenue_for_unidentified_sale (test_v23.BusinessV23Tests.test_no_revenue_for_unidentified_sale) ... ok
+test_nonfinite_and_negative_rejected (test_v23.BusinessV23Tests.test_nonfinite_and_negative_rejected) ... ok
+test_snapshot_replaces_period_spend (test_v23.BusinessV23Tests.test_snapshot_replaces_period_spend) ... ok
+test_upgrade_preserves_data (test_v23.BusinessV23Tests.test_upgrade_preserves_data) ... ok
+test_activation_needs_real_provider (test_v23.ReplyV23Tests.test_activation_needs_real_provider) ... ok
+test_crash_dispatch_requires_reconciliation (test_v23.ReplyV23Tests.test_crash_dispatch_requires_reconciliation) ... ok
+test_crash_generation_lease_recovered (test_v23.ReplyV23Tests.test_crash_generation_lease_recovered) ... ok
+test_delay_all_values (test_v23.ReplyV23Tests.test_delay_all_values) ... ok
+test_disable_invalidates_pending (test_v23.ReplyV23Tests.test_disable_invalidates_pending) ... ok
+test_generated_financial_commitment_requires_human (test_v23.ReplyV23Tests.test_generated_financial_commitment_requires_human) ... ok
+test_generation_failure_retries_once_then_human (test_v23.ReplyV23Tests.test_generation_failure_retries_once_then_human) ... ok
+test_history_preserves_messages (test_v23.ReplyV23Tests.test_history_preserves_messages) ... ok
+test_human_during_generation_cancels (test_v23.ReplyV23Tests.test_human_during_generation_cancels) ... ok
+test_legacy_flags_never_activate_production (test_v23.ReplyV23Tests.test_legacy_flags_never_activate_production) ... ok
+test_naive_consent_time_rejected (test_v23.ReplyV23Tests.test_naive_consent_time_rejected) ... ok
+test_new_inbound_during_simulated_send_remains_pending (test_v23.ReplyV23Tests.test_new_inbound_during_simulated_send_remains_pending) ... ok
+test_opt_out_sentence (test_v23.ReplyV23Tests.test_opt_out_sentence) ... ok
+test_success_after_retry_and_dedup (test_v23.ReplyV23Tests.test_success_after_retry_and_dedup) ... ok
+test_takeover_prevents_following_inbound (test_v23.ReplyV23Tests.test_takeover_prevents_following_inbound) ... ok
+test_unexpired_lease_recovers_after_time_passes (test_v23.ReplyV23Tests.test_unexpired_lease_recovers_after_time_passes) ... ok
+test_unknown_takeover_not_reported_success (test_v23.ReplyV23Tests.test_unknown_takeover_not_reported_success) ... ok
+test_export_not_limited_by_ui_pagination (test_v23.SyncV23Tests.test_export_not_limited_by_ui_pagination) ... ok
+test_secret_keys_and_extra_url_parts_rejected (test_v23.SyncV23Tests.test_secret_keys_and_extra_url_parts_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 92 tests in 92.967s
+
+OK
+16 verificações de renderização e escape passaram. Validação visual no navegador permanece separada.
+4 verificações de publicação segura de configuração passaram; sem conexão Supabase.
+✔ AES-GCM roundtrip; owner binding, tampering and wrong key fail (30.2526ms)
+✔ Recife slots convert 12h/18h to 15h/21h UTC with rollover (46.9753ms)
+✔ media rejects private origins, credential URLs, unsupported MIME and oversized captions (0.6048ms)
+✔ Instagram container is persisted before publish, confirmation precedes proof (7.5688ms)
+✔ Instagram VIDEO uses supported Reels container (1.79ms)
+✔ Instagram REEL uses supported Reels container (2.8906ms)
+✔ Facebook IMAGE publishes once and waits for platform confirmation (5.2532ms)
+✔ Facebook VIDEO publishes once and waits for platform confirmation (5.1347ms)
+✔ Facebook Reels start, upload, finish and confirm use same persisted video ID (10.7295ms)
+✔ timeout after publication cannot cause automatic duplicate (6.4888ms)
+✔ quota exhaustion does not create media (4.1461ms)
+✔ already-published container never repeats media_publish (2.6242ms)
+✔ stale lease prevents an external publication (5.298ms)
+✔ revoked token suspends connection and produces reauthorization alert (2.9094ms)
+✔ maintenance derives Page token without claiming perpetual User renewal (3.7835ms)
+✔ metrics preserve unavailable values and use User token for IG insights (2.0053ms)
+✔ Meta paging uses a cursor on the fixed Graph host, never an untrusted next URL (41.0661ms)
+{"component":"growth","code":"UNAUTHORIZED"}
+{"component":"growth","code":"ORIGIN_DENIED"}
+{"component":"growth","code":"METHOD_NOT_ALLOWED"}
+✔ Meta transport redacts provider messages and secrets (2.867ms)
+✔ worker rejects an anonymous caller and a Supabase user JWT (6.0003ms)
+✔ foreign origin and unsupported method fail closed (1.5115ms)
+{"component":"growth","code":"OAUTH_STATE_INVALID"}
+{"component":"growth","code":"REAL_PUBLICATION_TEST_REQUIRED"}
+{"component":"growth","code":"NOT_FOUND"}
+✔ OAuth start sets secure cookie, stores only hashes, binds owner and uses business config (4.9611ms)
+✔ OAuth callback rejects missing browser binding before token exchange (1.2335ms)
+✔ owner cannot activate without real platform proof (1.4245ms)
+✔ owner cannot operate another tenant connection (1.3411ms)
+✔ runtime never announces operational without active, proven connection (1.0787ms)
+✔ dashboard escapes untrusted account names and captions, retains real-test gate (0.8209ms)
+✔ complete OAuth callback connects only allowed Pages and linked professional IG, encrypted and paused (7.6456ms)
+{"component":"growth","code":"OAUTH_STATE_INVALID"}
+✔ OAuth callback replay never exchanges code twice (3.1314ms)
+{"component":"growth","code":"NO_AUTHORIZED_VENDREX_ACCOUNTS"}
+✔ declined publishing scopes cannot create a connected account (1.471ms)
+✔ Vercel proxy forwards callback with cookie, never exposes token data (50.3881ms)
+✔ Vercel proxy rejects worker passthrough and foreign origins (0.4266ms)
+✔ Vercel proxy fails closed without a configured backend (0.2991ms)
+{"component":"sales","code":"VERIFY_TOKEN_INVALID"}
+{"component":"sales","code":"WEBHOOK_SIGNATURE_INVALID"}
+{"component":"sales","code":"UNAUTHORIZED"}
+{"component":"sales","code":"UNAUTHORIZED"}
+✔ Meta HMAC validates original raw body and rejects modified payload (18.7245ms)
+✔ challenge verification requires exact secret, returns plain challenge (48.4627ms)
+✔ unsigned or forged webhook never reaches the persistence RPC (5.3493ms)
+✔ cron and operator endpoints reject anonymous access (1.7979ms)
+✔ free-model allowlist never falls back to a paid Gemini model (1.959ms)
+✔ Gemma uses supported persistent API authentication and includes redacted history (3.345ms)
+✔ API quota exhaustion is explicit and never silently invokes a paid fallback (0.8956ms)
+✔ production rejects local inference host and missing remote authentication (0.4839ms)
+✔ reply guard transfers fabricated financial commitments and secret-like text to review (0.6133ms)
+✔ official send accepts 5511999999999 but does not claim delivery (1.3174ms)
+✔ official send accepts US.CONTROLLED123 but does not claim delivery (0.6647ms)
+✔ network timeout during Meta send is ambiguous and not retriable (0.4406ms)
+✔ pipeline persists reply and dispatch fence before calling Meta (3.0059ms)
+✔ new inbound or human takeover fences stale generation before send (0.4381ms)
+✔ a local real model is not accepted as a permanent remote backend (0.6047ms)
+✔ ambiguous dispatch is stored for reconciliation and never blindly requeued (0.5101ms)
+✔ expired free-message budget prevents the external send (0.4471ms)
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+{"component":"sales","code":"OWNER_REQUIRES_NO_WHATSAPP_API"}
+{"component":"sales","code":"OPERATOR_REQUIRED"}
+✔ owner no-API policy stops even correctly signed webhook and verification (10.0295ms)
+✔ owner no-API policy stops a worker with the correct cron secret (1.0425ms)
+✔ owner no-API policy prevents direct worker claim, inference and transport (1.3414ms)
+✔ health clearly reports disabled owner policy without exposing secrets (0.9875ms)
+✔ each generation receives the currently persisted personality and message references (1.1467ms)
+✔ QR configuration never enables the Cloud API worker and reports missing permanent host (0.6155ms)
+✔ Sales personality endpoint requires a verified user registered as operator (1.6621ms)
+✔ Sales proxy rejects internal routes, missing JWT, foreign origins and unexpected methods (3.6141ms)
+✔ Sales proxy forwards only the operator token and approved configuration request (42.2051ms)
+✔ Sales cloud editor escapes content and blocks live activation without real proof (0.8995ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 425.1929
+✔ AES-GCM preserves Buffer credentials and rejects tampering, wrong key and wrong instance (10.1787ms)
+✔ real Baileys credential generator and database adapter restore a session after worker reconstruction (78.2349ms)
+✔ database write failure rejects keys.set before Baileys can assume durability (22.5797ms)
+✔ only direct PN/LID chats are accepted, including alternate identities (3.4075ms)
+✔ unsupported media requests human routing while service metadata is ignored (0.6096ms)
+✔ receipts distinguish acceptance, server send, device delivery and read (0.4537ms)
+✔ QR transport persists the retry payload before sending with a stable outbox ID (1.6501ms)
+✔ QR send ambiguity never retries or fabricates delivery (0.6875ms)
+✔ private inference endpoint rejects unauthenticated calls and arbitrary models before contacting Ollama (138.8325ms)
+✔ production local inference requires the explicit authenticated companion boundary (1.2557ms)
+✔ QR image, status, controls and test contacts require operator authentication (35.047ms)
+✔ personality editor reads persisted settings and saves through the restricted backend RPC (24.8115ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1909.17
+Control plane static build complete. API config comes from server runtime environment.

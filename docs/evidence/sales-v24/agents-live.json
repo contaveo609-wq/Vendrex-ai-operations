@@ -1,0 +1,71 @@
+{
+  "tested_at": "2026-11-12T16:42:07+00:00",
+  "kind": "LIVE_CLI_INFERENCE_WITH_CONTROLLED_INPUTS",
+  "external_messages": 0,
+  "external_publications": 0,
+  "agents": {
+    "sales": {
+      "model": "gpt-6-luna",
+      "summary": "Rascunho para teste controlado: “Em que etapa os pedidos costumam se perder hoje?” “Que impacto verificável isso tem na rotina ou nas vendas?”",
+      "next_actions": [
+        "Confirmar consentimento válido antes de qualquer resposta autônoma a lead real."
+      ],
+      "token_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 0,
+        "input_tokens": 21827,
+        "output_tokens": 135,
+        "reasoning_output_tokens": 0
+      },
+      "state": "COMPLETED"
+    },
+    "builder": {
+      "model": "gpt-6-astra",
+      "summary": "Plano curto para calculadora HTML. Nenhuma pendência para entregar o rascunho.",
+      "next_actions": [
+        "Prever dois campos numéricos rotulados, seletor de operação, botão Calcular e área de resultado.",
+        "Converter os valores, validar os campos e calcular o resultado. Se o divisor for zero, exibir mensagem de erro.",
+        "Testes previstos: 2 + 3 = 5, 2 − 3 = −1, 3 × 4 = 12, 8 ÷ 2 = 4, 5 ÷ 0 exibe erro e 0,1 + 0,2 exibe 0,3."
+      ],
+      "token_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 0,
+        "input_tokens": 23560,
+        "output_tokens": 299,
+        "reasoning_output_tokens": 0
+      },
+      "state": "COMPLETED"
+    },
+    "growth": {
+      "model": "gpt-6-astra",
+      "summary": "Legenda — O cliente pediu sem cebola. A cozinha viu o recado? Reúna itens e observações no mesmo pedido. Converse com a Vendrex sobre pedidos digitais.\n\nRoteiro de motion graphics — 16 segundos previstos. Texto na tela e trilha sintetizada, sem narração.\n\n0–4 s · ENCONTRE A DOR DO CLIENTE. Dois balões aparecem separados: «Um hambúrguer, por favor» e «Sem cebola». Gancho na tela: «A cozinha viu o recado?»\n\n4–8 s · FAÇA-O RECONHECER E SENTIR A DOR, DESEJANDO SOLUCIONÁ-LA. Novas mensagens empurram o recado para fora da tela. Texto: «O preparo vai começar. Onde ficou a observação?»\n\n8–12 s · MOSTRE A SOLUÇÃO. Os balões formam uma ficha ilustrativa. Texto: «1 hambúrguer · Sem cebola». Item e observação permanecem visíveis juntos.\n\n12–16 s · MOSTRE QUE A VENDREX É A SOLUÇÃO. Texto final: «Pedidos e cardápios digitais da Vendrex». CTA: «Conte como você recebe pedidos hoje».",
+      "next_actions": [
+        "Publicação real — AUTH_REQUIRED. OAuth oficial, consentimento, teste real de publicação e ativação da conta Vendrex ainda precisam de comprovação."
+      ],
+      "token_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 0,
+        "input_tokens": 18649,
+        "output_tokens": 442,
+        "reasoning_output_tokens": 0
+      },
+      "state": "COMPLETED"
+    },
+    "director": {
+      "model": "gpt-6-luna",
+      "summary": "Rascunho: VENDREX não está pronta para operação de Growth ou Sales. Growth só confirmou resposta HTTP; zero publicações reais. Sales tem implementação e testes reportados, mas falta telefone vinculado e servidor permanente. Builder tem testes locais reportados como aprovados. Promoção exige validação e aprovação. Experimento não prova aumento de conversão. Relatório: comercial — métricas desconhecidas; desenvolvimento — Builder aprovado segundo telemetria; Growth — não operacional; eficiência — custos desconhecidos; problemas — falta conexão telefônica e servidor; recomendações — concluir verificações controladas; plano — executar os dois próximos passos. Fontes: telemetria fornecida pelo usuário. Aprovação pendente.",
+      "next_actions": [
+        "Vincular telefone de teste e validar conexão Sales em ambiente controlado, sem enviar mensagens a clientes.",
+        "Provisionar servidor de teste e executar verificação operacional de Sales e Growth; manter publicação real desativada."
+      ],
+      "token_usage": {
+        "cache_write_input_tokens": 0,
+        "cached_input_tokens": 0,
+        "input_tokens": 16735,
+        "output_tokens": 312,
+        "reasoning_output_tokens": 0
+      },
+      "state": "COMPLETED"
+    }
+  }
+}

@@ -1,8 +1,12 @@
-# Painel V2.4 e backend Growth
+# Painel V2.4, Sales e Growth
 
 O backend Growth está implantado no Supabase dedicado `ryxxpbxbjzijcuxgfgja`, região `sa-east-1`. Edge Function, Cron, fila, Vault, RLS e armazenamento foram configurados. O worker já respondeu HTTP 200 remotamente. Não há conta Meta conectada nem publicação real confirmada.
 
-O painel está implementado em `public/`, com proxy seguro em `api/meta/[action].js`. Build: `npm run build`. O plano da conta Vercel autenticada é Hobby, conforme API oficial; seu uso é restrito a projetos pessoais não comerciais. **Não houve deploy comercial, upgrade, compra ou alteração no projeto CRM existente.**
+O painel está implementado em `public/`, com proxies seguros em `api/meta/[action].js` e `api/sales/[action].js`. A aba **Sales e personalidade** permite editar personalidade, instruções, abertura, permissão e proposta, além dos controles de teste e pausa. A gravação passa pelo JWT do usuário e pelo cadastro de operadores no Supabase. Build: `npm run build`.
+
+O plano da conta Vercel autenticada foi novamente verificado em 12/11/2026 e continua Hobby, restrito a uso pessoal não comercial. A definição considera finalidade financeira, mesmo com um único usuário. **Não houve deploy comercial, upgrade, compra ou alteração no projeto CRM existente.** [Regra oficial](https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage).
+
+Publicar o painel não mantém os executores ativos. Containers Vercel escalam para zero após cinco minutos sem tráfego em produção; não foram configurados loops ou pings para contornar isso. O gateway Baileys e a inferência própria exigem um servidor permanente. [Ciclo de vida oficial](https://vercel.com/docs/functions/runtimes/container#scale-in-behavior).
 
 Quando houver ambiente Vercel comercial já autorizado e elegível, use raiz `cloud/` e configure:
 

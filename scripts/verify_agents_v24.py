@@ -22,7 +22,7 @@ scenarios = {
     'sales': 'Teste controlado, empresa fictícia com pedidos perdidos. Produza duas perguntas sobre dor e impacto. Sem preço, proposta vinculante ou envio. Identifique que consentimento real ainda precisa ser comprovado.',
     'builder': 'Teste controlado. Prepare um plano curto para uma calculadora HTML com quatro operações e testes de divisão por zero e decimais. Não faça deploy nem use rede. Nenhum arquivo é necessário neste teste de interpretação.',
     'growth': 'Teste controlado. Prepare legenda curta e roteiro para Vendrex sobre organização de pedidos. Sem pesquisa de tendências disponível. Não invente pesquisa ou métricas. Informe que OAuth e publicação real ainda precisam de comprovação.',
-    'director': 'Teste controlado com telemetria fornecida: worker Growth HTTP 200, publicações reais 0, WhatsApp sem transporte, Builder com testes locais aprovados. Avalie prontidão. Não declare Growth ou Sales operacional. Sugira dois próximos passos.',
+    'director': 'Teste controlado com telemetria fornecida: worker Growth HTTP 200, publicações reais 0, Sales com gateway Baileys por QR implementado e testes de fila e personalidade aprovados no Supabase, nenhum telefone vinculado e nenhum servidor permanente provisionado; Builder com testes locais aprovados. Avalie prontidão. Não declare Growth ou Sales operacional. Sugira dois próximos passos.',
 }
 report = json.loads(args.out.read_text(encoding='utf-8')) if args.agent and args.out.exists() else {'at': now(), 'kind': 'LIVE_CLI_INFERENCE_WITH_CONTROLLED_INPUTS', 'external_messages': 0, 'external_publications': 0, 'agents': {}}
 args.out.parent.mkdir(parents=True, exist_ok=True)

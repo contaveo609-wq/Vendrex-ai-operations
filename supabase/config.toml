@@ -1,2 +1,5 @@
 [functions.growth]
 verify_jwt = false
+
+[functions.sales]
+verify_jwt = false

@@ -1,0 +1,30 @@
+{
+  "state": "REAL_MODEL_WITH_AUTHENTICATED_BACKEND",
+  "tested_at": "2026-11-12T16:54:59.286Z",
+  "model": "gemma2:2b",
+  "authorization_rejected_without_token": true,
+  "elapsed_ms": 75744,
+  "history": [
+    {
+      "direction": "IN",
+      "body": "Tenho uma hamburgueria e perco pedidos que chegam pelo WhatsApp."
+    },
+    {
+      "direction": "OUT",
+      "body": "Quantos pedidos chegam por dia e como vocês registram os pedidos?"
+    },
+    {
+      "direction": "IN",
+      "body": "São 40 pedidos por dia. Duas pessoas anotam em cadernos separados e às vezes a cozinha não recebe o pedido."
+    }
+  ],
+  "response": "Entendo. Essa perda de pedidos é um desafio, não é mesmo?",
+  "usage": {
+    "output_tokens": 18,
+    "prompt_tokens": 550,
+    "total_duration_ns": 75163555900,
+    "eval_duration_ns": 63498604000
+  },
+  "whatsapp_conversation_proven": false,
+  "permanent_remote_backend": false
+}

@@ -13,8 +13,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Verificacao de renderizacao falhou.' }
         & node tests/test_cloud_config.cjs
         if ($LASTEXITCODE -ne 0) { throw 'Configuracao publica insegura.' }
-        & node --test tests/test_growth.mjs tests/test_meta_proxy.mjs
+        & node --test tests/test_growth.mjs tests/test_meta_proxy.mjs tests/test_sales_cloud.mjs tests/test_sales_proxy.mjs
         if ($LASTEXITCODE -ne 0) { throw 'Integracao Meta falhou nos testes controlados.' }
+        & node --test sales-gateway/test/gateway.test.mjs
+        if ($LASTEXITCODE -ne 0) { throw 'Gateway Sales falhou nos testes controlados. Instale dependencias com npm ci em sales-gateway.' }
         Push-Location cloud
         try {
             & node build.mjs

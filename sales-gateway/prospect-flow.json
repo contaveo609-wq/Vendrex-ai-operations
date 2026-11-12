@@ -1,0 +1,15 @@
+{
+  "version": "2.4.0",
+  "status": "REFERENCE_ONLY_NOT_ACTIVATED",
+  "research_enabled": false,
+  "initial_outreach_enabled": false,
+  "reason": "O proprietário esclareceu que a pesquisa de números era um exemplo e determinou que não fosse executada.",
+  "public_number_is_recipient_permission": false,
+  "steps": [
+    {"stage": "ASK_NAME", "message": "Olá! Aqui é a Vendrex. Com quem eu falo?"},
+    {"stage": "ASK_PROPOSAL_PERMISSION", "message": "Prazer, {nome}. Tenho uma proposta da Vendrex para sua empresa. Gostaria de ouvir? Posso apresentar em um minuto?"},
+    {"stage": "WAIT_FOR_EXPLICIT_YES", "automatic_followups": false},
+    {"stage": "PRESENT_PROPOSAL", "requires": "EXPLICIT_PROPOSAL_PERMISSION", "max_characters": 600, "must_not_invent": ["mensalidade atual do cliente", "economia garantida", "preço", "prazo", "portfólio"]},
+    {"stage": "STOP", "when": ["recusa", "opt-out", "pedido de humano"], "automatic_followups": false}
+  ]
+}

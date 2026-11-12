@@ -1,0 +1,16 @@
+{
+  "state": "PASS",
+  "browser": "real isolated Chromium on Windows",
+  "backend": "CONTROLLED_FIXTURE",
+  "checks": [
+    "authenticated_personality_loaded",
+    "live_activation_requires_real_conversation",
+    "all_five_editable_fields_saved",
+    "settings_restored_after_browser_reload",
+    "untrusted_personality_is_text_not_html",
+    "no_fabricated_operational_status",
+    "mobile_390px_no_horizontal_overflow"
+  ],
+  "javascript_errors": [],
+  "whatsapp_conversation_proven": false
+}

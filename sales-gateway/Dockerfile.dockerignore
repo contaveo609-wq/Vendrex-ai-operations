@@ -1,0 +1,11 @@
+**
+!sales-gateway/
+!sales-gateway/package.json
+!sales-gateway/package-lock.json
+!sales-gateway/src/
+!sales-gateway/src/**
+!supabase/
+!supabase/functions/
+!supabase/functions/sales/
+!supabase/functions/sales/core.mjs
+!supabase/functions/sales/behavior.mjs

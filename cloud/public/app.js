@@ -1,5 +1,6 @@
 import {esc,renderIntegrations} from './integrations.mjs';
-let config=null,session=null,social=null;
+import {renderSales} from './sales.mjs';
+let config=null,session=null,social=null,salesStatus=null;
 const status=document.getElementById('status');
 const explain={META_APP_SETUP_REQUIRED:'Conclua a configuração do app e o consentimento na Meta.',REAL_PUBLICATION_TEST_REQUIRED:'Confirme uma publicação real de teste antes de ativar a automação.',DUPLICATE_OR_SLOT_CONFLICT:'Conteúdo já está na fila ou o horário está ocupado.',AUTOMATION_PAUSED:'Ative a conta após o teste real ou selecione publicação de teste.',PUBLIC_MEDIA_NOT_ACCESSIBLE:'O arquivo precisa estar público e ter o formato JPEG ou MP4 correto.',MEDIA_ORIGIN_NOT_ALLOWED:'Use o armazenamento oficial da Vendrex.',META_AUTH_REQUIRED:'Reconecte a conta pela autorização oficial da Meta.'};
 async function authRequest(path,body,token){
@@ -11,11 +12,27 @@ async function api(action,body){
  await refreshSession();const r=await fetch('/api/meta/'+action,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:body?JSON.stringify(body):undefined});
  const data=await r.json();if(!r.ok)throw new Error(explain[data.error]||data.error||'Integração indisponível');return data;
 }
-function showTab(name){for(const id of ['overview','integrations','records-panel'])document.getElementById(id).hidden=id!==(name==='records'?'records-panel':name);document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===name?'page':'false'));}
+async function salesApi(action,body){
+ await refreshSession();const r=await fetch('/api/sales/'+action,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:body?JSON.stringify(body):undefined});
+ const data=await r.json();if(!r.ok)throw new Error(data.error==='OPERATOR_REQUIRED'?'Sua conta ainda não tem acesso de operadora do Sales.':data.error||'Sales indisponível');return data;
+}
+function showTab(name){for(const id of ['overview','integrations','records-panel','sales-panel'])document.getElementById(id).hidden=id!==(name==='records'?'records-panel':name==='sales'?'sales-panel':name);document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===name?'page':'false'));}
+function renderAgents(){
+ document.getElementById('agents').innerHTML=['Sales','Builder','Growth','Director'].map(name=>{
+  const state=name==='Growth'?social?.state:name==='Sales'?salesStatus?.state:'BLOCKED';
+  const description=name==='Growth'?(social?.operational?'Publicação real e worker confirmados.':'Autorização, teste real ou ativação pendente.'):name==='Sales'?(salesStatus?.SALES_WHATSAPP_OPERATIONAL?'Conversa real e continuidade comprovadas.':'Gateway, telefone ou teste real pendente.'):'Executor remoto e inferência ainda não comprovados.';
+  return `<article class="card"><p class="eyebrow">AGENTE</p><h3>${name}</h3><span class="badge">${esc(state||'BLOCKED')}</span><p>${description}</p></article>`;
+ }).join('');
+}
+async function loadSales(){
+ try{const [data,behavior]=await Promise.all([salesApi('status'),salesApi('behavior')]);salesStatus=data;document.getElementById('sales-panel').innerHTML=renderSales(data,behavior);}
+ catch(e){salesStatus={state:'ACCESS_REQUIRED',error:e.message};document.getElementById('sales-panel').innerHTML=renderSales(salesStatus);}
+ renderAgents();
+}
 async function loadSocial(){
  social=await api('status');document.getElementById('social').innerHTML=renderIntegrations(social);
  document.getElementById('connect-meta').disabled=!social.meta_configured;
- document.getElementById('agents').innerHTML=['Sales','Builder','Growth','Director'].map(name=>`<article class="card"><p class="eyebrow">AGENTE</p><h3>${name}</h3><span class="badge">${name==='Growth'?esc(social.state):'BLOCKED'}</span><p>${name==='Growth'?(social.operational?'Publicação real e worker confirmados.':'Autorização, teste real ou ativação pendente.'):'Executor remoto e inferência ainda não comprovados.'}</p></article>`).join('');
+ renderAgents();
 }
 async function load(){
  const user=await authRequest('/auth/v1/user',null,session.access_token);
@@ -23,19 +40,21 @@ async function load(){
  const records=await r.json();if(!r.ok)throw new Error('Dados indisponíveis. Verifique migrações e RLS.');
  document.getElementById('login').hidden=true;document.getElementById('dashboard').hidden=false;document.getElementById('user').textContent=user.email;
  document.getElementById('records').innerHTML=records.length?records.map(v=>`<article class="card"><h3>${esc(v.entity)} · ${esc(v.id.slice(0,12))}</h3><details><summary>Ver dados</summary><pre>${esc(JSON.stringify(v.payload,null,2))}</pre></details></article>`).join(''):'<p>Nenhum registro sincronizado.</p>';
- await loadSocial();showTab(location.hash.startsWith('#integrations')?'integrations':'overview');
+ showTab(location.hash.startsWith('#integrations')?'integrations':location.hash.startsWith('#sales')?'sales':'overview');await loadSocial();await loadSales();
 }
 document.getElementById('login-form').addEventListener('submit',async event=>{
  event.preventDefault();const b=event.target.querySelector('button');b.disabled=true;
  try{if(!config)throw new Error('Supabase não configurado.');session=await authRequest('/auth/v1/token?grant_type=password',Object.fromEntries(new FormData(event.target)));event.target.reset();await load();status.textContent='Sessão validada. Dados protegidos por propriedade e RLS.';}catch(e){status.textContent=e.message;}finally{b.disabled=false;}
 });
 document.getElementById('logout').addEventListener('click',async()=>{
- const previous=session;session=null;social=null;document.getElementById('dashboard').hidden=true;document.getElementById('login').hidden=false;document.getElementById('records').replaceChildren();document.getElementById('social').replaceChildren();status.textContent='Sessão encerrada.';
+ const previous=session;session=null;social=null;salesStatus=null;document.getElementById('dashboard').hidden=true;document.getElementById('login').hidden=false;document.getElementById('records').replaceChildren();document.getElementById('social').replaceChildren();document.getElementById('sales-panel').replaceChildren();status.textContent='Sessão encerrada.';
  try{if(previous)await authRequest('/auth/v1/logout',{},previous.access_token);}catch{status.textContent='Sessão local encerrada. Revogação remota não confirmada.';}
 });
 document.addEventListener('click',async event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.tab){showTab(b.dataset.tab);return;}
+ if(b.hasAttribute('data-sales-refresh')){await loadSales();return;}
+ if(b.dataset.salesControl){b.disabled=true;try{await salesApi('control',{action:b.dataset.salesControl});await loadSales();status.textContent='Estado do Sales atualizado.';}catch(e){status.textContent=e.message;b.disabled=false;}return;}
  if(b.id==='connect-meta'){
   const popup=window.open('about:blank','vendrex-meta','width=720,height=850');
   try{const data=await api('start',{});if(popup)popup.location.href=data.authorization_url;else location.assign(data.authorization_url);}catch(e){popup?.close();status.textContent=e.message;}return;
@@ -50,6 +69,14 @@ document.addEventListener('click',async event=>{
  }catch(e){status.textContent=e.message;}finally{b.disabled=false;}
 });
 document.addEventListener('submit',async event=>{
+ if(['sales-behavior-form','sales-contacts-form'].includes(event.target.id)){
+  event.preventDefault();const button=event.target.querySelector('button[type=submit]');button.disabled=true;
+  try{const values=Object.fromEntries(new FormData(event.target));
+   if(event.target.id==='sales-behavior-form')await salesApi('behavior',{behavior:values});
+   else await salesApi('test-contacts',{recipients:values.recipients.split(',').map(s=>s.trim()).filter(Boolean)});
+   await loadSales();status.textContent='Configuração do Sales salva no Supabase.';
+  }catch(e){status.textContent=e.message;button.disabled=false;}return;
+ }
  if(event.target.id!=='publication-form')return;event.preventDefault();const b=event.target.querySelector('button[type=submit]');b.disabled=true;
  try{const data=Object.fromEntries(new FormData(event.target));data.test_post=data.test_post==='on';data.mime_type=data.kind==='IMAGE'?'image/jpeg':'video/mp4';await api('enqueue',data);await loadSocial();status.textContent='Publicação enfileirada. Conclusão depende da confirmação da Meta.';}catch(e){status.textContent=e.message;}finally{b.disabled=false;}
 });
