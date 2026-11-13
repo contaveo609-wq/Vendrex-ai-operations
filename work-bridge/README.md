@@ -7,7 +7,7 @@ Este componente mantém uma fila no Supabase e expõe um plugin MCP autenticado.
 - Banco remoto: três migrações aplicadas. Testes de fila, histórico, opt-out, contexto antigo, rascunho idempotente, repasse Sales–Builder, instrução Director–Growth e interrupção de retentativas obsoletas passaram com fixtures revertidas.
 - MCP: testes locais com o SDK oficial passaram, incluindo assinatura, autenticação, validação do callback e retentativas.
 - Endpoint `https://ryxxpbxbjzijcuxgfgja.supabase.co/functions/v1/work/mcp`: exige autenticação; o teste anônimo retornou HTTP 401.
-- Provedor OAuth do projeto: ativado pelo titular em 13/11/2026. A descoberta real retornou HTTP 200 com os endpoints de autorização, token e registro dinâmico. Authorization Path `/work-consent.html` e DCR foram conferidos na tela salva. Nenhum usuário operador real está cadastrado.
+- Provedor OAuth do projeto: ativado pelo titular em 13/11/2026. A descoberta real retornou HTTP 200 com os endpoints de autorização, token e registro dinâmico. Authorization Path `/work-consent.html` e DCR foram conferidos na tela salva. Há uma conta Auth confirmada com o email do proprietário; o login para cadastrar o operador ainda está pendente.
 - O encaminhamento externo permanece desativado. Não houve evento real recebido pelo ChatGPT Work, mensagem real de WhatsApp, envio automático de rascunho nem publicação social.
 
 ## Configuração pelo titular
@@ -19,6 +19,8 @@ Este componente mantém uma fila no Supabase e expõe um plugin MCP autenticado.
 5. Teste primeiro a leitura de uma tarefa controlada e a gravação de um rascunho. Só depois autorize a assinatura `vendrex.task.ready` com filtro `agent=sales` e habilite o encaminhamento. Cada agente pode ter sua própria assinatura.
 
 O servidor OAuth é do Supabase; esta ponte não cria um provedor de autenticação próprio nem reutiliza cookies ou tokens internos do ChatGPT. A disponibilidade de tarefas por evento depende da conta e das permissões do workspace. A documentação não fornece um prazo de resposta garantido para cada evento.
+
+O identificador `authorization_id` é tratado como uma string opaca segura para URL. Um teste real revelou que exigir UUID impedia abrir o consentimento; a validação foi corrigida e a página publicada passou a exibir o login para a solicitação real. Os 13 testes da ponte incluem esse caso e rejeição de parâmetros duplicados, caminhos e redirecionamentos externos. A tentativa de login retornou `invalid_credentials`; nenhuma senha foi lida, criada ou redefinida pelo agente.
 
 ## Instrução para o chat Work
 

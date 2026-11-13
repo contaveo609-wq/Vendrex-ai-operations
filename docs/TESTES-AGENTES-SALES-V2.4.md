@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 82 testes Node de integrações/proxies, 13 do gateway e 11 da ponte Work aprovados.
+- 82 testes Node de integrações/proxies, 13 do gateway e 13 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -44,7 +44,7 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 10 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 10 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 1 confirmado; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
 
 ## Encaminhamento ao ChatGPT Work
 
@@ -52,7 +52,7 @@ A Edge Function `work` versão 3 foi implantada. O endpoint MCP exige autentica�
 
 As verificações de banco usaram fixtures revertidas, inclusive a identidade temporária sem sessão usada para testar autorização e idempotência. Nenhuma identidade ou conversa de teste permaneceu cadastrada. Esses testes não provam execução real pelo ChatGPT Work.
 
-O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O ChatGPT detectou os endpoints e o método DCR no formulário do plugin Vendrex Operations. A criação do plugin, o consentimento e uma conta de operador confirmada ainda dependem do titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
+O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O plugin Vendrex Operations está instalado no ChatGPT e usa DCR. A conta Auth real foi criada e o email confirmado. A validação de `authorization_id` foi corrigida para aceitar o identificador opaco enviado pelo Supabase; o login apareceu na solicitação real após publicar a correção. A tentativa de entrada retornou `invalid_credentials`; o operador e o consentimento ainda aguardam autenticação do titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
 

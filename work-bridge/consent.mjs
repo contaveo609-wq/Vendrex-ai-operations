@@ -1,4 +1,5 @@
 import {createClient} from '@supabase/supabase-js';
+import {authorizationRequest,authorizationRedirect} from './consent-validation.mjs';
 if(/(?:access_token|refresh_token|error_description)=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
 
 const status=document.getElementById('work-status'),login=document.getElementById('work-login');
@@ -7,15 +8,10 @@ const api=async(action,body)=>{
  const response=await fetch('/api/sales/'+action,{method:body?'POST':'GET',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
  const data=await response.json();if(!response.ok)throw new Error(data.error||'Não foi possível confirmar o acesso.');return data;
 };
-const redirect=target=>{
- const url=new URL(target);
- if(url.protocol!=='https:'||url.username||url.password||url.port||url.hash||!['chatgpt.com','chat.openai.com'].includes(url.hostname))throw new Error('Destino de autorização não permitido.');
- location.assign(url.href);
-};
+const redirect=target=>location.assign(authorizationRedirect(target));
 async function start(){
  const config=await api('work-config');
- authorizationId=new URL(location.href).searchParams.get('authorization_id');
- if(authorizationId&&!/^[a-f0-9-]{36}$/i.test(authorizationId))throw new Error('Solicitação inválida. Reabra a conexão do plugin no ChatGPT Work.');
+ authorizationId=authorizationRequest(location.href);
  if(!config.email)throw new Error('Email do proprietário indisponível.');
  client=createClient(config.url,config.publishable_key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
  document.getElementById('work-email').value=config.email;login.hidden=false;
@@ -26,6 +22,8 @@ login.addEventListener('submit',async event=>{
  try{
   const password=document.getElementById('work-password');
   const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('work-email').value,password:password.value});password.value='';
+  if(error?.code==='invalid_credentials')throw new Error('Email ou senha incorretos. Use a senha criada nesta página.');
+  if(error?.code==='email_not_confirmed')throw new Error('Confirme seu email antes de entrar. Depois volte a esta página.');
   if(error||!data.session)throw new Error('Não foi possível entrar. Confirme a conta de operador e o email verificado.');
   await api('work-enroll',{access_token:data.session.access_token});
   if(!authorizationId){
