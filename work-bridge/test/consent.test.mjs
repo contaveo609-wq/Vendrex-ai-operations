@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {authorizationRequest,authorizationRedirect,emailSession,emailReturnDestination,rememberAuthorization,takeAuthorization} from '../consent-validation.mjs';
-import {completeLogin} from '../consent-session.mjs';
+import {authorizationRequest,authorizationRedirect,emailSession,emailReturnDestination,rememberAuthorization,takeAuthorization,emailVerificationLink} from '../consent-validation.mjs';
+import {completeLogin,verifyEmailLink} from '../consent-session.mjs';
 
 test('OAuth consent accepts opaque Supabase authorization IDs and account setup without an ID',()=>{
  const page='https://private.example.invalid/work-consent.html';
@@ -64,4 +64,18 @@ test('an expired OAuth request preserves successful operator login for a new con
  const client={auth:{oauth:{getAuthorizationDetails:async()=>({error:{code:'expired'}})}}};
  const result=await completeLogin({client,api:async()=>{},session:{access_token:'fixture'},authorizationId:'expired-fixture'});
  assert.deepEqual(result,{state:'READY',reauthorization_required:true});
+});
+
+test('pasted verification links must belong to this project and never control the redirect',()=>{
+ const project='https://fixture.supabase.co',link=project+'/auth/v1/verify?token=fixture-hash&type=email&redirect_to=https://evil.invalid';
+ assert.deepEqual(emailVerificationLink(link,project),{token_hash:'fixture-hash',type:'email'});
+ for(const value of [link.replace('fixture.supabase.co','evil.invalid'),link.replace('https:','http:'),link.replace('/verify?','/other?'),link+'&token=duplicate',link.replace('type=email','type=recovery'),link+'#secret',link.replace('//fixture','//credentials@fixture')])assert.throws(()=>emailVerificationLink(value,project));
+});
+
+test('link verification uses supported token_hash authentication and still requires owner enrollment',async()=>{
+ let parameters;const session={access_token:'fixture-session'},client={auth:{verifyOtp:async value=>{parameters=value;return {data:{session}};}}};
+ const verified=await verifyEmailLink({client,projectURL:'https://fixture.supabase.co',link:'https://fixture.supabase.co/auth/v1/verify?token=unused-fixture&type=magiclink'});
+ assert.equal(verified,session);assert.deepEqual(parameters,{token_hash:'unused-fixture',type:'email'});
+ await assert.rejects(completeLogin({client,session:verified,authorizationId:null,api:async()=>{throw Error('WORK_OWNER_MISMATCH');}}),/WORK_OWNER_MISMATCH/);
+ await assert.rejects(verifyEmailLink({client:{auth:{verifyOtp:async()=>({error:{code:'otp_expired'}})}},projectURL:'https://fixture.supabase.co',link:'https://fixture.supabase.co/auth/v1/verify?token=used-fixture&type=email'}),/já foi usado ou expirou/);
 });

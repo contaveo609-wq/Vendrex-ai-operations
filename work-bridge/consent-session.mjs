@@ -1,4 +1,11 @@
-import {authorizationRedirect} from './consent-validation.mjs';
+import {authorizationRedirect,emailVerificationLink} from './consent-validation.mjs';
+
+export async function verifyEmailLink({client,link,projectURL}){
+ const parameters=emailVerificationLink(link,projectURL);
+ const {data,error}=await client.auth.verifyOtp(parameters);
+ if(error||!data?.session)throw new Error('Este link já foi usado ou expirou. Solicite outro e copie seu endereço sem abri-lo.');
+ return data.session;
+}
 
 export async function completeLogin({client,api,session,authorizationId}){
  if(!session?.access_token)throw new Error('Não foi possível confirmar a sessão de acesso.');

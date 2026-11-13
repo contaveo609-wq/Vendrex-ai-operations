@@ -1,12 +1,12 @@
 import {createClient} from '@supabase/supabase-js';
 import {authorizationRequest,authorizationRedirect,emailSession,rememberAuthorization,takeAuthorization} from './consent-validation.mjs';
-import {completeLogin} from './consent-session.mjs';
+import {completeLogin,verifyEmailLink} from './consent-session.mjs';
 let returnedSession=emailSession(location.href);
 const emailLinkFailed=new URLSearchParams(location.hash.slice(1)).has('error_code');
 if(/(?:access_token|refresh_token|error_description)=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
 
 const status=document.getElementById('work-status'),login=document.getElementById('work-login');
-let client,authorizationId,ownerEmail;
+let client,authorizationId,ownerEmail,projectURL;
 const api=async(action,body)=>{
  const response=await fetch('/api/sales/'+action,{method:body?'POST':'GET',redirect:'error',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(25000)});
  let data;try{data=await response.json();}catch{throw new Error('Sua sessão do painel expirou. Recarregue a página para entrar novamente.');}
@@ -31,7 +31,8 @@ async function start(){
  else if(returnedSession)authorizationId=takeAuthorization(localStorage);
  if(!config.email)throw new Error('Email do proprietário indisponível.');
  ownerEmail=config.email;
- client=createClient(config.url,config.publishable_key,{auth:{persistSession:true,storage:sessionStorage,autoRefreshToken:true,detectSessionInUrl:false,flowType:'implicit'},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)})}});
+ projectURL=config.url;
+ client=createClient(config.url,config.publishable_key,{auth:{persistSession:true,storage:localStorage,autoRefreshToken:true,detectSessionInUrl:false,flowType:'implicit'},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)})}});
  document.getElementById('work-email').value=config.email;login.hidden=false;
  if(returnedSession){
   status.textContent='Confirmando o link recebido por email…';
@@ -43,18 +44,14 @@ async function start(){
  const existing=await client.auth.getSession();
  if(existing.data.session){await finish(existing.data.session);return;}
  if(emailLinkFailed){status.textContent='O link de entrada expirou ou já foi usado. Solicite outro pelo botão Entrar por email.';return;}
- status.textContent=authorizationId?'Confira a solicitação antes de autorizar. Sua sessão fica nesta aba e pode ser encerrada abaixo.':'Prepare seu acesso. Depois volte ao plugin Vendrex Operations no ChatGPT e escolha Conectar.';
+ status.textContent='Sua conta já existe. Para entrar, use um link novo neste computador. O mesmo link só funciona uma vez.';
 }
-login.addEventListener('submit',async event=>{
- event.preventDefault();const button=login.querySelector('button[type="submit"]');button.disabled=true;
- status.textContent='Conferindo seu acesso…';
+document.getElementById('work-link-form').addEventListener('submit',async event=>{
+ event.preventDefault();const button=event.target.querySelector('button[type="submit"]');button.disabled=true;
+ status.textContent='Validando o link de entrada…';
  try{
-  const password=document.getElementById('work-password');
-  const {data,error}=await client.auth.signInWithPassword({email:ownerEmail,password:password.value});password.value='';
-  if(error?.code==='invalid_credentials')throw new Error('Email ou senha incorretos. Use a senha criada nesta página.');
-  if(error?.code==='email_not_confirmed')throw new Error('Confirme seu email antes de entrar. Depois volte a esta página.');
-  if(error||!data.session)throw new Error('Não foi possível entrar. Confirme a conta de operador e o email verificado.');
-  await finish(data.session);
+  const input=document.getElementById('work-email-url'),link=input.value;input.value='';
+  await finish(await verifyEmailLink({client,link,projectURL}));
  }catch(error){status.textContent=error.message;status.scrollIntoView({block:'center'});}finally{button.disabled=false;}
 });
 
@@ -63,21 +60,11 @@ document.getElementById('work-email-link').addEventListener('click',async()=>{
  status.textContent='Solicitando link de entrada…';
  try{
   const {error}=await client.auth.signInWithOtp({email:ownerEmail,options:{shouldCreateUser:false,emailRedirectTo:location.origin}});
-  if(error?.status===429)throw new Error('O Supabase limitou o envio de emails. Aguarde antes de solicitar outro link; a entrada por senha continua disponível.');
+  if(error?.status===429)throw new Error('O Supabase limitou novos emails. Aguarde antes de solicitar outro. Use o email mais recente apenas se o link ainda não foi aberto.');
   if(error)throw new Error('Não foi possível enviar o link de entrada. A conta precisa estar cadastrada e o email confirmado.');
-  status.textContent='Link solicitado. Abra seu email neste Edge e clique no link de entrada da Vendrex. Depois revise a autorização que aparecer. Não envie o link pelo chat.';
+  status.textContent='Link solicitado. No Lenovo, abra o email mais recente e clique no link uma única vez. Se preferir, copie o endereço do link sem abri-lo e valide no campo abaixo. Não use o link no celular primeiro.';
   setTimeout(()=>{button.disabled=false;},60000);
  }catch(error){status.textContent=error.message;button.disabled=false;}
-});
-document.getElementById('work-register').addEventListener('click',async()=>{
- const input=document.getElementById('work-password'),button=document.getElementById('work-register');
- if(input.value.length<12){status.textContent='Para criar seu acesso, escolha uma senha com pelo menos 12 caracteres.';return;}
- button.disabled=true;
- try{
-  const {error}=await client.auth.signUp({email:ownerEmail,password:input.value});input.value='';
-  if(error)throw new Error('Não foi possível criar o acesso. Se já possui essa conta, use Entrar.');
-  status.textContent='Confira seu email e confirme o acesso. Depois retorne à conexão do ChatGPT e entre com a senha escolhida.';
- }catch(error){status.textContent=error.message;}finally{button.disabled=false;}
 });
 for(const decision of ['approve','deny'])document.getElementById('work-'+decision).addEventListener('click',async()=>{
  document.querySelectorAll('button').forEach(button=>button.disabled=true);
@@ -89,6 +76,6 @@ for(const decision of ['approve','deny'])document.getElementById('work-'+decisio
 document.getElementById('work-sign-out').addEventListener('click',async()=>{
  if(client)await client.auth.signOut({scope:'local'});
  document.getElementById('work-ready').hidden=true;document.getElementById('work-permissions').hidden=true;login.hidden=false;
- status.textContent='Acesso encerrado nesta aba. Você pode entrar novamente por email ou senha.';
+ status.textContent='Acesso encerrado neste navegador. Use um novo link de email para entrar.';
 });
 start().catch(error=>{status.textContent=error.message;});

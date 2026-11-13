@@ -11,8 +11,8 @@ export function authorizationRedirect(target){
  return url.href;
 }
 
-// Auth sessions stay in the current tab's sessionStorage. Only the pending
-// OAuth request ID is carried between tabs; it grants no access by itself.
+// The short-lived request ID grants no access by itself. Supabase verifies the
+// browser's authenticated session separately on every protected operation.
 const pendingKey='vendrex.pending-oauth';
 export function rememberAuthorization(storage,id,now=Date.now()){
  if(!id)return;
@@ -45,4 +45,13 @@ export function emailReturnDestination(href){
  if(params.has('error_code'))return url.origin+'/work-consent.html#error_code=EMAIL_LINK_REJECTED';
  if(!emailSession(href))return params.has('access_token')||params.has('refresh_token')?url.origin+'/work-consent.html#error_code=EMAIL_LINK_REJECTED':null;
  return url.origin+'/work-consent.html'+url.hash;
+}
+
+export function emailVerificationLink(value,projectURL){
+ let url,project;try{url=new URL(String(value).trim());project=new URL(projectURL);}catch{throw new Error('Copie o endereço do link de entrada recebido por email e cole aqui.');}
+ const tokens=[...url.searchParams.getAll('token'),...url.searchParams.getAll('token_hash')];
+ if(url.origin!==project.origin||url.username||url.password||url.hash||url.pathname!==project.pathname.replace(/\/$/,'')+'/auth/v1/verify'||tokens.length!==1||!/^[A-Za-z0-9_-]{1,1024}$/.test(tokens[0])||url.searchParams.getAll('type').length!==1||!['email','magiclink','signup'].includes(url.searchParams.get('type')))throw new Error('Use somente o link de entrada deste projeto Supabase.');
+ // ConfirmationURL carries TokenHash. The SDK verifies it directly by POST;
+ // redirect_to is deliberately ignored, and no supplied URL is followed.
+ return {token_hash:tokens[0],type:'email'};
 }

@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 85 testes Node de integrações/proxies, 13 do gateway e 18 da ponte Work aprovados.
+- 85 testes Node de integrações/proxies, 13 do gateway e 20 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -56,7 +56,7 @@ O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consen
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
 
-Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão em sessionStorage da aba, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. O servidor registrou login real por email, mas a validação local descartou o refresh token opaco de 12 caracteres. A validação foi corrigida; operador e consentimento continuam sem prova real. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
+Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão Auth do navegador compartilhada entre abas, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. O servidor registrou login real por email, mas a validação local descartou o refresh token opaco de 12 caracteres. A validação foi corrigida; operador e consentimento continuam sem prova real. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 
@@ -101,3 +101,5 @@ Instalação e arquitetura: `sales-gateway/README.md` no pacote de código. Os s
 Vídeo de teste local: [MP4 de 32 segundos](agent-tests/growth/vendrex-32s.mp4). Não foi publicado na Meta.
 
 A aba Director consulta a fila real e mostra resultados salvos com escape de conteúdo. O teste interno ef5dd125-0c6d-49d1-91ed-cf9036676d04 está PENDING e rotulado como teste; nenhum agente o executou ainda. A consulta de status é somente leitura, exige o proprietário e não retorna destinos de callback nem segredos. O download local do código foi corrigido para excluir árvores de dependências antes de percorrê-las; os 92 testes Python passaram após a correção.
+
+Login simplificado: removidos recadastro e senha; cada email fornece um link de uso único. Há validação direta do link por token_hash, com o SDK oficial, sem seguir redirect_to. O navegador foi testado com três fluxos controlados: retorno do email, nova aba autenticada e colagem do link. Esses testes locais usam respostas simuladas de Auth e não comprovam login remoto. Não houve alteração do plano nem dos modelos de email.
