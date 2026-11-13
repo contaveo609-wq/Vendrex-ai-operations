@@ -11,8 +11,8 @@ export function authorizationRedirect(target){
  return url.href;
 }
 
-// Email sessions stay in memory. Only the pending OAuth request ID is carried
-// between tabs; it grants no access without an authenticated user and consent.
+// Auth sessions stay in the current tab's sessionStorage. Only the pending
+// OAuth request ID is carried between tabs; it grants no access by itself.
 const pendingKey='vendrex.pending-oauth';
 export function rememberAuthorization(storage,id,now=Date.now()){
  if(!id)return;
