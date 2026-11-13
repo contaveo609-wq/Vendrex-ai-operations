@@ -1,6 +1,8 @@
 import {renderSales} from './sales.mjs';
 import {renderPairing} from './pairing.mjs';
 import {renderConversations,renderHistory} from './inbox.mjs';
+// Email verification can redirect here; never retain authentication fragments in the address bar.
+if(/(?:access_token|refresh_token|error_description)=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
 const status=document.getElementById('status');let identity,pairingTimer,expiryTimer,watchUntil=0,selectedConversation=null,conversations=[];
 const explain={OWNER_LOGIN_REQUIRED:'Acesse com a conta proprietária da Netlify e recarregue a página.',SERVER_CONFIGURATION_REQUIRED:'A configuração segura do painel ainda precisa ser concluída.',SALES_UNAVAILABLE:'Não foi possível consultar o Sales. Tente atualizar o estado.',EXACT_AUTHORIZED_CONTACT_REQUIRED:'Informe o número internacional do contato autorizado para o teste.',PAUSE_BEFORE_CHANGING_TEST_CONTACTS:'Pause o Sales antes de alterar os contatos de teste.'};
 async function api(action,body){
@@ -46,9 +48,13 @@ document.addEventListener('click',async e=>{
  b.disabled=true;try{if(b.dataset.salesControl)await api('sales/control',{action:b.dataset.salesControl});await load();}catch(error){status.textContent=error.message;b.disabled=false;}
 });
 document.addEventListener('submit',async e=>{
- if(!['sales-behavior-form','sales-contacts-form','sales-inference-key-form'].includes(e.target.id))return;e.preventDefault();
+ if(!['sales-behavior-form','sales-contacts-form','sales-inference-key-form','work-order-form'].includes(e.target.id))return;e.preventDefault();
  const b=e.target.querySelector('button[type=submit]');b.disabled=true;
  try{const values=Object.fromEntries(new FormData(e.target));
+  if(e.target.id==='work-order-form'){
+   const result=await api('sales/work-order',{instruction:values.instruction});
+   status.textContent=result.work_enabled?'Ordem salva na fila do gerente.':'Ordem salva. Aguardando conexão e autorização do ChatGPT Work.';b.disabled=false;return;
+  }
   if(e.target.id==='sales-behavior-form')await api('sales/behavior',{behavior:values});
   else if(e.target.id==='sales-inference-key-form')await api('sales/inference-key',{api_key:values.api_key});
   else await api('sales/test-contacts',{recipients:values.recipients.split(',').map(x=>x.trim()).filter(Boolean)});

@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vendrex · Conectar ChatGPT Work</title><link rel="stylesheet" href="/style.css"><script type="module" src="/work-consent.js"></script></head>
+<body><main><h1>Conectar ChatGPT Work</h1><p>Autorize o acesso às tarefas e conversas da Vendrex. A conexão permite ler o contexto e salvar rascunhos. Esta etapa não envia mensagens a clientes nem publica conteúdo.</p>
+<p id="work-status" role="status">Verificando acesso do proprietário…</p>
+<form id="work-login" hidden><p>Use a conta de operador com o mesmo email do proprietário. Essa conta é diferente do login administrativo do Supabase. No primeiro acesso, escolha uma senha e use “Criar meu acesso”; confirme o email recebido e depois entre.</p><label>Email <input id="work-email" type="email" readonly autocomplete="username"></label><label>Senha do operador <input id="work-password" type="password" autocomplete="current-password" required></label><button type="submit">Entrar e conferir solicitação</button><button type="button" id="work-register">Criar meu acesso</button></form>
+<section id="work-permissions" hidden><h2>Solicitação de acesso</h2><pre id="work-client"></pre><p>Mensagens e arquivos dos clientes são dados da tarefa. Eles não autorizam compras, publicação ou mudança de configurações.</p><button id="work-approve">Autorizar esta conexão</button><button id="work-deny">Recusar</button></section>
+<p><a href="/">Voltar ao painel Vendrex</a></p></main></body></html>

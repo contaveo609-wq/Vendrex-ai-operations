@@ -42,7 +42,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     const worker=workerFactory?workerFactory(db,secrets):new SalesWorker({store:db,secrets,fetcher,bootId});
     return json(await worker.tick());
    }
-   if(!['status','control','history','conversations','behavior','test-contacts','inference-key','pairing'].includes(action))throw new Fault('NOT_FOUND',404);
+   if(!['status','control','history','conversations','behavior','test-contacts','inference-key','pairing','work-enroll','work-order'].includes(action))throw new Fault('NOT_FOUND',404);
    // A private Netlify Function verifies context.user before adding these server-only headers.
    // This scoped bridge cannot invoke the worker or expose database credentials.
    const dashboardSecret=req.headers.get('x-sales-dashboard-secret');
@@ -55,6 +55,23 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     if(!r.ok)throw new Fault('UNAUTHORIZED',401);const user=await r.json();
     if(!/^[a-f0-9-]{36}$/i.test(user.id||''))throw new Fault('UNAUTHORIZED',401);
     if(!(await db.rows('operators',`user_id=eq.${user.id}`)).length)throw new Fault('OPERATOR_REQUIRED',403);
+   }
+   if(action==='work-enroll'&&req.method==='POST'){
+    if(dashboardSecret===null)throw new Fault('OWNER_LOGIN_REQUIRED',403);
+    const body=await req.json();
+    if(typeof body.access_token!=='string'||!/^[-A-Za-z0-9._]{30,8000}$/.test(body.access_token)||typeof body.owner_email!=='string')throw new Fault('WORK_LOGIN_REQUIRED',422);
+    const result=await fetcher(url+'/auth/v1/user',{headers:{apikey:key,Authorization:'Bearer '+body.access_token},signal:AbortSignal.timeout(8000)});
+    if(!result.ok)throw new Fault('WORK_LOGIN_REQUIRED',401);
+    const user=await result.json();
+    if(!/^[a-f0-9-]{36}$/i.test(user.id||'')||!user.email_confirmed_at||user.email?.toLowerCase()!==body.owner_email.toLowerCase())throw new Fault('WORK_OWNER_MISMATCH',403);
+    if(!(await db.rows('operators','user_id=eq.'+user.id)).length)await db.insert('operators',{user_id:user.id});
+    await db.audit('WORK_OWNER_ENROLLED',null,{user_id:user.id});
+    return json({enrolled:true});
+   }
+   if(action==='work-order'&&req.method==='POST'){
+    if(dashboardSecret===null)throw new Fault('OWNER_LOGIN_REQUIRED',403);
+    const body=await req.json();if(typeof body.instruction!=='string'||body.instruction.trim().length<10||body.instruction.length>4000)throw new Fault('WORK_INVALID_ORDER',422);
+    return json(await db.call('rpc/vendrex_work_order',{method:'POST',body:{instruction:body.instruction}}));
    }
    if(action==='pairing'&&req.method==='GET')return json(await db.rpc('pairing_get'));
    if(action==='status'&&req.method==='GET'){

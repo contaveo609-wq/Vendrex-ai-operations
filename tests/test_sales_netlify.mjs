@@ -46,6 +46,33 @@ test('history validates the conversation id and forwards no arbitrary query para
 test('upstream failures hide tokens and internal error text',async()=>{
  const {handler}=fixture({fetcher:async()=>Response.json({error:'internal '+shared},{status:500,headers:{'Set-Cookie':'fixture=secret'}})});const r=await handler(request('sales/status'),context);assert.equal(r.status,500);assert.deepEqual(await r.json(),{error:'SALES_UNAVAILABLE'});assert.equal(r.headers.get('Set-Cookie'),null);
 });
+
+test('Work connection exposes only public configuration to the verified owner',async()=>{
+ const {handler,calls}=fixture();const response=await handler(request('sales/work-config'),context);
+ const data=await response.json();assert.equal(response.status,200);assert.equal(data.email,context.user.email);assert.equal(data.publishable_key,values.SUPABASE_PUBLISHABLE_KEY);assert.equal(calls.length,0);assert(!JSON.stringify(data).includes(shared));
+});
+
+test('Work enrollment takes owner email from platform identity and never trusts a submitted email',async()=>{
+ const {handler,calls}=fixture();const token='VERIFIED_TOKEN_FIXTURE_'+'x'.repeat(30);
+ const response=await handler(request('sales/work-enroll',{access_token:token,owner_email:'attacker@example.invalid'}),context);
+ assert.equal(response.status,200);assert.deepEqual(JSON.parse(calls[0].options.body),{access_token:token,owner_email:context.user.email});assert(!JSON.stringify(await response.json()).includes(token));
+});
+
+test('manager orders accept only a bounded owner instruction and do not forward agent or deployment permissions',async()=>{
+ const {handler,calls}=fixture();
+ assert.equal((await handler(request('sales/work-order',{instruction:'short'}),context)).status,422);
+ const response=await handler(request('sales/work-order',{instruction:'Revise as legendas e informe evidências.',agent:'growth',publish:true}),context);
+ assert.equal(response.status,200);assert.deepEqual(JSON.parse(calls[0].options.body),{instruction:'Revise as legendas e informe evidências.'});
+});
+
+test('Edge enrollment requires both the Netlify owner and a verified Supabase account with matching email',async()=>{
+ const writes=[];let email='attacker@example.invalid';const user_id='00000000-0000-4000-8000-000000000099';
+ const db={rpc:async()=>({sales_dashboard_secret:shared,sales_netlify_owner_id:owner}),rows:async()=>[],insert:async(table,body)=>writes.push({table,body}),audit:async()=>{}};
+ const handler=createHandler({url:'https://fixture.supabase.co',key:'BACKEND_FIXTURE',store:db,fetcher:async()=>Response.json({id:user_id,email,email_confirmed_at:'2026-11-13T00:00:00Z'})});
+ const req=()=>new Request('https://fixture.supabase.co/functions/v1/sales/work-enroll',{method:'POST',headers:{'Content-Type':'application/json','x-sales-dashboard-secret':shared,'x-sales-operator-id':owner},body:JSON.stringify({access_token:'x'.repeat(50),owner_email:context.user.email})});
+ assert.equal((await handler(req())).status,403);assert.equal(writes.length,0);
+ email=context.user.email;assert.equal((await handler(req())).status,200);assert.deepEqual(writes,[{table:'operators',body:{user_id}}]);
+});
 function edgeFixture(){
  const calls=[];const handler=createHandler({url:'https://fixture.supabase.co',key:'SERVICE_FIXTURE',store:{rpc:async(name)=>{calls.push(name);return name==='secrets'?{sales_dashboard_secret:shared,sales_netlify_owner_id:owner}:{};},rows:async()=>[{bot_behavior:{personality:'Objetivo'},behavior_revision:1}]},fetcher:async()=>{throw Error('NO_FAKE_SUPABASE_LOGIN');}});return {handler,calls};
 }

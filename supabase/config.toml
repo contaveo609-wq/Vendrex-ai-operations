@@ -3,3 +3,7 @@ verify_jwt = false
 
 [functions.sales]
 verify_jwt = false
+
+# Supabase Auth and operator authorization are checked inside the MCP resource server.
+[functions.work]
+verify_jwt = false

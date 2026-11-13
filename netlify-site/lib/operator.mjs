@@ -1,5 +1,5 @@
 const reply=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
-const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST','inference-key':'POST',history:'GET',conversations:'GET',pairing:'GET'};
+const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST','inference-key':'POST',history:'GET',conversations:'GET',pairing:'GET','work-config':'GET','work-enroll':'POST','work-order':'POST'};
 export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
  return async(request,context)=>{
   try{
@@ -15,6 +15,7 @@ export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
    if(![routes[action]].flat().includes(request.method))return reply({error:'METHOD_NOT_ALLOWED'},405);
    const url=env('SUPABASE_URL'),key=env('SUPABASE_PUBLISHABLE_KEY'),secret=env('SALES_DASHBOARD_SECRET');
    if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url||'')||!/^sb_publishable_[A-Za-z0-9_-]{16,}$/.test(key||'')||! /^[a-f0-9]{64}$/.test(secret||''))return reply({error:'SERVER_CONFIGURATION_REQUIRED'},503);
+   if(action==='work-config')return reply({url,publishable_key:key,email:user.email||null});
    let body;
    if(request.method==='POST'){
     if(!request.headers.get('Content-Type')?.startsWith('application/json'))return reply({error:'JSON_REQUIRED'},415);
@@ -27,6 +28,14 @@ export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
     if(action==='inference-key'){
      if(typeof data.api_key!=='string'||!/^gsk_[A-Za-z0-9_-]{32,200}$/.test(data.api_key))return reply({error:'GROQ_KEY_INVALID'},422);
      body={api_key:data.api_key};
+    }
+    if(action==='work-enroll'){
+     if(typeof data.access_token!=='string'||!/^[-A-Za-z0-9._]{30,8000}$/.test(data.access_token)||!user.email)return reply({error:'WORK_LOGIN_REQUIRED'},422);
+     body={access_token:data.access_token,owner_email:user.email};
+    }
+    if(action==='work-order'){
+     if(typeof data.instruction!=='string'||data.instruction.trim().length<10||data.instruction.length>4000)return reply({error:'WORK_INVALID_ORDER'},422);
+     body={instruction:data.instruction};
     }
    }
    const target=new URL(url+'/functions/v1/sales/'+action);

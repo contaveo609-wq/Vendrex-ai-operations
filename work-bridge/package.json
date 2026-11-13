@@ -1,0 +1,9 @@
+{
+  "name": "vendrex-work-bridge",
+  "version": "2.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"test":"node --test test/*.test.mjs"},
+  "dependencies": {"@modelcontextprotocol/sdk":"1.32.2","zod":"4.6.7","@supabase/supabase-js":"2.119.0"},
+  "devDependencies": {"esbuild":"0.28.2"}
+}

@@ -1,6 +1,6 @@
 # Vendrex V2.4: resultado dos quatro agentes
 
-Atualizado em 12/11/2026. Branch: `upgrade/v2.4`.
+Atualizado em 13/11/2026. Branch: `upgrade/v2.4`.
 
 **Sales ainda não está operacional no WhatsApp.** Não houve telefone vinculado nem conversa real completa. `SALES_WHATSAPP_OPERATIONAL = FALSE`. A entrega inclui implementação, testes e pendências comprovadas.
 
@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 72 testes Node de integrações/proxies e 13 do gateway aprovados.
+- 82 testes Node de integrações/proxies, 13 do gateway e 11 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -44,7 +44,17 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 9 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 10 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 0; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
+
+## Encaminhamento ao ChatGPT Work
+
+A Edge Function `work` versão 2 foi implantada. O endpoint MCP exige autenticação: o teste real anônimo retornou HTTP 401 com descoberta OAuth. A fila é privada, as assinaturas persistem no Supabase e as chaves de assinatura ficam no Vault. Os eventos contêm somente o identificador da tarefa; a ferramenta autorizada consulta a conversa. O proprietário pode salvar ordens na aba Director. Há ferramentas de rascunho, repasse Sales–Builder e delegação do Director.
+
+As verificações de banco usaram fixtures revertidas, inclusive a identidade temporária sem sessão usada para testar autorização e idempotência. Nenhuma identidade ou conversa de teste permaneceu cadastrada. Esses testes não provam execução real pelo ChatGPT Work.
+
+A descoberta do provedor retornou HTTP 404, `OAuth server is disabled`. A conexão OAuth e uma conta de operador confirmada ainda precisam ser configuradas pelo titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
+
+Configuração e limites: [ponte Work](../work-bridge/README.md).
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 
