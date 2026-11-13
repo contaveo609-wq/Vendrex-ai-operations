@@ -54,7 +54,7 @@ A equipe Vercel foi verificada novamente em 12/11/2026 e está no plano Hobby. E
 
 Containers Vercel escalam para zero após cinco minutos sem tráfego em produção. Não foram criados pings ou loops para contornar essa condição. Publicar o painel não mantém os quatro executores ativos 24 horas.
 
-O gateway precisa de servidor permanente. A inferência foi configurada no Groq Free e não depende da sessão Codex nem do notebook. O proprietário criou uma conta Northflank Sandbox Free; o serviço combinado está preparado em `deploy/northflank-sales.json`, mas não foi criado. O formulário da Northflank exigiu um cartão para liberar o primeiro serviço, embora a página pública anuncie Sandbox sem cartão e o formulário diga que esse serviço não será cobrado. O titular foi informado. Nenhum recurso pago foi contratado.
+O gateway precisa de servidor permanente. A inferência foi configurada no Groq Free e não depende da sessão Codex nem do notebook. O proprietário criou uma conta Northflank Sandbox Free; o serviço combinado está preparado em `deploy/northflank-sales.json`, mas não foi criado. O formulário da Northflank exigiu um cartão para liberar o primeiro serviço, embora a página pública anuncie Sandbox sem cartão e o formulário diga que esse serviço não será cobrado. A documentação de cobrança indica que o Sandbox serve para testes e desaconselha produção. O titular foi informado do risco de cobrança adicional caso o uso exceda a franquia. Nenhum recurso pago foi contratado.
 
 ## Netlify Free
 
