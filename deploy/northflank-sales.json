@@ -1,0 +1,32 @@
+{
+  "name": "Vendrex Sales Gateway",
+  "description": "Gateway privado do Vendrex Sales para WhatsApp por QR",
+  "billing": {
+    "deploymentPlan": "nf-compute-50"
+  },
+  "deployment": {
+    "instances": 0,
+    "docker": {
+      "configType": "default"
+    }
+  },
+  "ports": [],
+  "buildSource": "git",
+  "vcsData": {
+    "projectUrl": "https://github.com/contaveo609-wq/Vendrex-ai-operations",
+    "projectType": "github",
+    "accountLogin": "contaveo609-wq",
+    "projectBranch": "upgrade/v2.4"
+  },
+  "buildSettings": {
+    "dockerfile": {
+      "buildEngine": "buildkit",
+      "dockerFilePath": "/sales-gateway/Dockerfile",
+      "dockerWorkDir": "/"
+    }
+  },
+  "runtimeEnvironment": {
+    "SUPABASE_URL": "https://ryxxpbxbjzijcuxgfgja.supabase.co",
+    "SALES_HOST_KIND": "PERMANENT_SERVER"
+  }
+}
