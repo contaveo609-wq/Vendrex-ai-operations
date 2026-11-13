@@ -72,6 +72,6 @@ test('MCP advertises event subscriptions and scoped tools using official transpo
  const b=bridge();const req=body=>new Request(b.resource(),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json, text/event-stream','MCP-Protocol-Version':'2025-03-26'},body:JSON.stringify(body)});
  let response=await handleMCP(req({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'test',version:'1'}}}),b,owner);
  assert.equal(response.status,200);let data=await response.json();assert.deepEqual(data.result.capabilities.events,{});
- response=await handleMCP(req({jsonrpc:'2.0',id:2,method:'tools/list',params:{}}),b,owner);data=await response.json();assert.ok(data.result.tools.some(t=>t.name==='save_sales_reply'));assert.ok(data.result.tools.every(t=>t.securitySchemes[0].type==='oauth2'));
+ response=await handleMCP(req({jsonrpc:'2.0',id:2,method:'tools/list',params:{}}),b,owner);data=await response.json();assert.ok(data.result.tools.some(t=>t.name==='save_sales_reply'));assert.ok(data.result.tools.every(t=>t.securitySchemes[0].type==='oauth2'));assert.ok(data.result.tools.every(t=>t.securitySchemes[0].scopes.includes('offline_access')&&t._meta.securitySchemes[0].scopes.includes('offline_access')));
  response=await handleMCP(req({jsonrpc:'2.0',id:3,method:'events/list',params:{}}),b,owner);data=await response.json();assert.equal(data.result.events[0].name,EVENT);
 });

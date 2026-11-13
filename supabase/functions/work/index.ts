@@ -11,7 +11,7 @@ Deno.serve(async request=>{
  const route=new URL(request.url).pathname.split('/').pop();
  try{
   if(route==='resource'&&request.method==='GET')return json({resource:bridge.resource(),authorization_servers:[url+'/auth/v1'],bearer_methods_supported:['header']});
-  if(route==='health'&&request.method==='GET')return json({component:'VENDREX_WORK_BRIDGE',customer_sending_enabled:false,media_ingestion_enabled:false,oauth_provider_setup_required:true});
+  if(route==='health'&&request.method==='GET')return json({component:'VENDREX_WORK_BRIDGE',customer_sending_enabled:false,media_ingestion_enabled:false,oauth_issuer:url+'/auth/v1'});
   if(route==='dispatch'&&request.method==='POST')return json(await bridge.dispatch(request));
   if(route!=='mcp')return json({error:'NOT_FOUND'},404);
   const user=await bridge.operator(request);

@@ -17,7 +17,7 @@ const asResult=data=>({content:[{type:'text',text:JSON.stringify(data)}],structu
 export async function handleMCP(request,bridge,user){
  if(request.method!=='POST')return new Response(null,{status:405,headers:{Allow:'POST'}});
  const server=new Server({name:'vendrex-work',version:'2.4.0'},{capabilities:{tools:{},events:{}}});
- server.setRequestHandler(ListToolsRequestSchema,async()=>({tools:tools.map(tool=>({...tool,securitySchemes:[{type:'oauth2',scopes:[]}],_meta:{securitySchemes:[{type:'oauth2',scopes:[]}]}}))}));
+ server.setRequestHandler(ListToolsRequestSchema,async()=>({tools:tools.map(tool=>({...tool,securitySchemes:[{type:'oauth2',scopes:['offline_access']}],_meta:{securitySchemes:[{type:'oauth2',scopes:['offline_access']}]}}))}));
  server.setRequestHandler(CallToolRequestSchema,async req=>{
   try{
    const args=req.params.arguments||{};

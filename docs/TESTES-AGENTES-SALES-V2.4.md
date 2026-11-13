@@ -48,11 +48,11 @@ Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 10 implantada, heal
 
 ## Encaminhamento ao ChatGPT Work
 
-A Edge Function `work` versão 2 foi implantada. O endpoint MCP exige autenticação: o teste real anônimo retornou HTTP 401 com descoberta OAuth. A fila é privada, as assinaturas persistem no Supabase e as chaves de assinatura ficam no Vault. Os eventos contêm somente o identificador da tarefa; a ferramenta autorizada consulta a conversa. O proprietário pode salvar ordens na aba Director. Há ferramentas de rascunho, repasse Sales–Builder e delegação do Director.
+A Edge Function `work` versão 3 foi implantada. O endpoint MCP exige autenticação: o teste real anônimo retornou HTTP 401 com descoberta OAuth. A fila é privada, as assinaturas persistem no Supabase e as chaves de assinatura ficam no Vault. Os eventos contêm somente o identificador da tarefa; a ferramenta autorizada consulta a conversa. O proprietário pode salvar ordens na aba Director. Há ferramentas de rascunho, repasse Sales–Builder e delegação do Director. O ChatGPT registrou um cliente OAuth real; a solicitação está pendente, sem operador, consentimento ou assinatura de eventos.
 
 As verificações de banco usaram fixtures revertidas, inclusive a identidade temporária sem sessão usada para testar autorização e idempotência. Nenhuma identidade ou conversa de teste permaneceu cadastrada. Esses testes não provam execução real pelo ChatGPT Work.
 
-A descoberta do provedor retornou HTTP 404, `OAuth server is disabled`. A conexão OAuth e uma conta de operador confirmada ainda precisam ser configuradas pelo titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
+O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O ChatGPT detectou os endpoints e o método DCR no formulário do plugin Vendrex Operations. A criação do plugin, o consentimento e uma conta de operador confirmada ainda dependem do titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
 

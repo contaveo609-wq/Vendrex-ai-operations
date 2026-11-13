@@ -9,17 +9,17 @@ const api=async(action,body)=>{
 };
 const redirect=target=>{
  const url=new URL(target);
- if(url.protocol!=='https:'||url.username||url.password||!['chatgpt.com','chat.openai.com'].includes(url.hostname))throw new Error('Destino de autorização não permitido.');
+ if(url.protocol!=='https:'||url.username||url.password||url.port||url.hash||!['chatgpt.com','chat.openai.com'].includes(url.hostname))throw new Error('Destino de autorização não permitido.');
  location.assign(url.href);
 };
 async function start(){
  const config=await api('work-config');
  authorizationId=new URL(location.href).searchParams.get('authorization_id');
- if(!/^[a-f0-9-]{36}$/i.test(authorizationId||''))throw new Error('Abra esta página a partir da conexão do plugin no ChatGPT Work.');
+ if(authorizationId&&!/^[a-f0-9-]{36}$/i.test(authorizationId))throw new Error('Solicitação inválida. Reabra a conexão do plugin no ChatGPT Work.');
  if(!config.email)throw new Error('Email do proprietário indisponível.');
  client=createClient(config.url,config.publishable_key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
  document.getElementById('work-email').value=config.email;login.hidden=false;
- status.textContent='Confira a solicitação antes de autorizar. A senha não é salva neste navegador.';
+ status.textContent=authorizationId?'Confira a solicitação antes de autorizar. A senha não é salva neste navegador.':'Prepare seu acesso. Depois volte ao plugin Vendrex Operations no ChatGPT e escolha Conectar.';
 }
 login.addEventListener('submit',async event=>{
  event.preventDefault();const button=login.querySelector('button');button.disabled=true;
@@ -28,6 +28,10 @@ login.addEventListener('submit',async event=>{
   const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('work-email').value,password:password.value});password.value='';
   if(error||!data.session)throw new Error('Não foi possível entrar. Confirme a conta de operador e o email verificado.');
   await api('work-enroll',{access_token:data.session.access_token});
+  if(!authorizationId){
+   login.hidden=true;document.getElementById('work-ready').hidden=false;
+   status.textContent='Acesso de operador confirmado. Falta conectar o plugin no ChatGPT e revisar o consentimento. Isso ainda não ativa o WhatsApp.';return;
+  }
   const result=await client.auth.oauth.getAuthorizationDetails(authorizationId);
   if(result.error)throw new Error('A solicitação de autorização expirou ou o provedor OAuth ainda não foi configurado.');
   if(result.data.redirect_url){redirect(result.data.redirect_url);return;}
