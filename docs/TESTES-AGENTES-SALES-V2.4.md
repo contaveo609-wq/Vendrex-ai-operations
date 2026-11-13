@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 82 testes Node de integrações/proxies, 13 do gateway e 13 da ponte Work aprovados.
+- 82 testes Node de integrações/proxies, 13 do gateway e 17 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -55,6 +55,8 @@ As verificações de banco usaram fixtures revertidas, inclusive a identidade te
 O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O plugin Vendrex Operations está instalado no ChatGPT e usa DCR. A conta Auth real foi criada e o email confirmado. A validação de `authorization_id` foi corrigida para aceitar o identificador opaco enviado pelo Supabase; o login apareceu na solicitação real após publicar a correção. A tentativa de entrada retornou `invalid_credentials`; o operador e o consentimento ainda aguardam autenticação do titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
+
+Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão somente em memória, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. A entrega do novo email, o login e o consentimento reais ainda estão pendentes. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 

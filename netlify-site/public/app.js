@@ -1,7 +1,10 @@
 import {renderSales} from './sales.mjs';
 import {renderPairing} from './pairing.mjs';
 import {renderConversations,renderHistory} from './inbox.mjs';
+import {emailReturnDestination} from './consent-validation.mjs';
 // Email verification can redirect here; never retain authentication fragments in the address bar.
+const emailDestination=emailReturnDestination(location.href);
+if(emailDestination)location.replace(emailDestination);
 if(/(?:access_token|refresh_token|error_description)=/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
 const status=document.getElementById('status');let identity,pairingTimer,expiryTimer,watchUntil=0,selectedConversation=null,conversations=[];
 const explain={OWNER_LOGIN_REQUIRED:'Acesse com a conta proprietária da Netlify e recarregue a página.',SERVER_CONFIGURATION_REQUIRED:'A configuração segura do painel ainda precisa ser concluída.',SALES_UNAVAILABLE:'Não foi possível consultar o Sales. Tente atualizar o estado.',EXACT_AUTHORIZED_CONTACT_REQUIRED:'Informe o número internacional do contato autorizado para o teste.',PAUSE_BEFORE_CHANGING_TEST_CONTACTS:'Pause o Sales antes de alterar os contatos de teste.'};

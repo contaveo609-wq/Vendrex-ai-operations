@@ -4,6 +4,7 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const out=root+'netlify-site/dist/';
 await mkdir(out,{recursive:true});
 for(const f of ['index.html','app.js','pairing.mjs','inbox.mjs','work-consent.html'])await copyFile(root+'netlify-site/public/'+f,out+f);
+await copyFile(root+'work-bridge/consent-validation.mjs',out+'consent-validation.mjs');
 const {build}=await import('../work-bridge/node_modules/esbuild/lib/main.js');
 await build({entryPoints:[root+'work-bridge/consent.mjs'],bundle:true,format:'esm',platform:'browser',outfile:out+'work-consent.js',minify:true});
 for(const f of ['style.css','integrations.mjs','sales.mjs'])await copyFile(root+'cloud/public/'+f,out+f);
