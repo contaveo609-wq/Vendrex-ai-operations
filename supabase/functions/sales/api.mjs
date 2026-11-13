@@ -42,7 +42,7 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     const worker=workerFactory?workerFactory(db,secrets):new SalesWorker({store:db,secrets,fetcher,bootId});
     return json(await worker.tick());
    }
-   if(!['status','control','history','conversations','behavior','test-contacts','inference-key','pairing','work-enroll','work-order'].includes(action))throw new Fault('NOT_FOUND',404);
+   if(!['status','control','history','conversations','behavior','test-contacts','inference-key','pairing','work-enroll','work-order','work-status'].includes(action))throw new Fault('NOT_FOUND',404);
    // A private Netlify Function verifies context.user before adding these server-only headers.
    // This scoped bridge cannot invoke the worker or expose database credentials.
    const dashboardSecret=req.headers.get('x-sales-dashboard-secret');
@@ -55,6 +55,15 @@ export function createHandler({url,key,fetcher=fetch,store,workerFactory}){
     if(!r.ok)throw new Fault('UNAUTHORIZED',401);const user=await r.json();
     if(!/^[a-f0-9-]{36}$/i.test(user.id||''))throw new Fault('UNAUTHORIZED',401);
     if(!(await db.rows('operators',`user_id=eq.${user.id}`)).length)throw new Fault('OPERATOR_REQUIRED',403);
+   }
+   if(action==='work-status'&&req.method==='GET'){
+    const [[settings],operators,jobs,subscriptions]=await Promise.all([
+     db.call('vendrex_work_settings?select=enabled&id=eq.true'),db.rows('operators','select=user_id&limit=1'),
+     db.call('vendrex_work_jobs?select=id,agent,state,created_at,completed_at,result&order=created_at.desc&limit=20'),
+     db.call('vendrex_work_subscriptions?select=agent,active,expires_at&active=eq.true')]);
+    return json({enabled:settings?.enabled===true,operator_enrolled:operators.length>0,
+     active_subscriptions:[...new Set(subscriptions.filter(s=>s.active&&Date.parse(s.expires_at)>Date.now()).map(s=>s.agent))],
+     jobs:jobs.map(({id,agent,state,created_at,completed_at,result})=>({id,agent,state,created_at,completed_at,result})),customer_sending_enabled:false});
    }
    if(action==='work-enroll'&&req.method==='POST'){
     if(dashboardSecret===null)throw new Fault('OWNER_LOGIN_REQUIRED',403);

@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 82 testes Node de integrações/proxies, 13 do gateway e 17 da ponte Work aprovados.
+- 85 testes Node de integrações/proxies, 13 do gateway e 18 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -44,7 +44,7 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 10 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 1 confirmado; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 11 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 1 confirmado; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
 
 ## Encaminhamento ao ChatGPT Work
 
@@ -56,7 +56,7 @@ O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consen
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
 
-Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão somente em memória, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. A entrega do novo email, o login e o consentimento reais ainda estão pendentes. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
+Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão em sessionStorage da aba, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. O servidor registrou login real por email, mas a validação local descartou o refresh token opaco de 12 caracteres. A validação foi corrigida; operador e consentimento continuam sem prova real. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 
@@ -99,3 +99,5 @@ A seção **Conectar WhatsApp** permite consultar e escanear manualmente o QR no
 Instalação e arquitetura: `sales-gateway/README.md` no pacote de código. Os segredos estão fora dos entregáveis.
 
 Vídeo de teste local: [MP4 de 32 segundos](agent-tests/growth/vendrex-32s.mp4). Não foi publicado na Meta.
+
+A aba Director consulta a fila real e mostra resultados salvos com escape de conteúdo. O teste interno ef5dd125-0c6d-49d1-91ed-cf9036676d04 está PENDING e rotulado como teste; nenhum agente o executou ainda. A consulta de status é somente leitura, exige o proprietário e não retorna destinos de callback nem segredos. O download local do código foi corrigido para excluir árvores de dependências antes de percorrê-las; os 92 testes Python passaram após a correção.

@@ -123,13 +123,22 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(campaign['dataset_kind'],'SIMULATION_ONLY');self.assertEqual(campaign['calculated_metrics']['CPC'],5)
 
     def test_source_export_omits_nested_secrets_and_build_caches(self):
+        import os
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);(root/'cloud/node_modules').mkdir(parents=True)
             (root/'cloud/.env').write_text('SECRET=fake-test-value')
             (root/'cloud/node_modules/cache.js').write_text('fixture')
             (root/'cloud/package.json').write_text('{}')
-            with patch('vendrex.service.ROOT',root):data=source_zip()
+            (root/'unlisted').mkdir()
+            (root/'unlisted/private.txt').write_text('not exported')
+            original_scandir = os.scandir
+            def guarded_scandir(path):
+                # Even traversing excluded trees is a regression, regardless
+                # of whether their files eventually appear in the archive.
+                self.assertNotIn(Path(path).name,{'node_modules','unlisted'})
+                return original_scandir(path)
+            with patch('vendrex.service.ROOT',root),patch('vendrex.service.os.scandir',side_effect=guarded_scandir):data=source_zip()
             with zipfile.ZipFile(io.BytesIO(data)) as archive:
                 self.assertEqual(archive.namelist(),['VENDREX-AI/cloud/package.json'])
 

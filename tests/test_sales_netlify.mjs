@@ -5,6 +5,7 @@ import {createOperatorHandler} from '../netlify-site/lib/operator.mjs';
 import {createHandler} from '../supabase/functions/sales/api.mjs';
 import {renderPairing} from '../netlify-site/public/pairing.mjs';
 import {renderConversations,renderHistory} from '../netlify-site/public/inbox.mjs';
+import {renderWorkStatus} from '../netlify-site/public/work-status.mjs';
 const owner='OWNER_FIXTURE',shared='a'.repeat(64),origin='https://private.example.invalid';
 const values={NETLIFY_OWNER_ID:owner,SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_'+'x'.repeat(24),SALES_DASHBOARD_SECRET:shared};
 const context={user:{id:owner,email:'owner@example.invalid',expiresAt:new Date('2100-01-01')}};
@@ -63,6 +64,29 @@ test('manager orders accept only a bounded owner instruction and do not forward 
  assert.equal((await handler(request('sales/work-order',{instruction:'short'}),context)).status,422);
  const response=await handler(request('sales/work-order',{instruction:'Revise as legendas e informe evidências.',agent:'growth',publish:true}),context);
  assert.equal(response.status,200);assert.deepEqual(JSON.parse(calls[0].options.body),{instruction:'Revise as legendas e informe evidências.'});
+});
+
+test('Work status is owner-only and read-only in the Netlify proxy',async()=>{
+ const {handler,calls}=fixture();
+ assert.equal((await handler(request('sales/work-status'),{})).status,401);
+ assert.equal((await handler(request('sales/work-status',{}),context)).status,405);
+ assert.equal((await handler(request('sales/work-status'),context)).status,200);
+ assert.equal(calls.length,1);assert(calls[0].url.endsWith('/sales/work-status'));
+});
+
+test('Work status selects no callback secrets and distinguishes a saved task from an external send',async()=>{
+ const paths=[];const handler=createHandler({url:'https://fixture.supabase.co',key:'BACKEND_FIXTURE',store:{
+  rpc:async()=>({sales_dashboard_secret:shared,sales_netlify_owner_id:owner}),rows:async()=>[{user_id:'fixture'}],
+  call:async path=>{paths.push(path);return path.startsWith('vendrex_work_settings')?[{enabled:false}]:path.startsWith('vendrex_work_jobs')?[{id:'fixture',agent:'director',state:'COMPLETE',result:{summary:'Fixture only'},secret_id:'DO_NOT_EXPOSE'}]:[{agent:'director',active:true,expires_at:'2100-01-01'},{agent:'sales',active:true,expires_at:'2000-01-01'}];}
+ }});
+ const response=await handler(new Request('https://fixture.supabase.co/functions/v1/sales/work-status',{headers:{'x-sales-dashboard-secret':shared,'x-sales-operator-id':owner}}));
+ const data=await response.json();assert.equal(response.status,200);assert.equal(data.enabled,false);assert.equal(data.customer_sending_enabled,false);assert.deepEqual(data.active_subscriptions,['director']);
+ assert(!JSON.stringify(data).includes('DO_NOT_EXPOSE'));assert(paths.every(path=>!path.includes('callback_url')&&!path.includes('secret_id')));
+});
+
+test('Work activity renders untrusted results as text and preserves pending state',()=>{
+ const html=renderWorkStatus({enabled:false,operator_enrolled:false,jobs:[{agent:'director',id:'fixture',state:'PENDING',result:{summary:'<script>alert(1)</script>'}}]});
+ assert(!html.includes('<script>'));assert(html.includes('&lt;script&gt;'));assert(html.includes('Aguardando'));assert(html.includes('aguardando acesso'));assert(html.includes('desativado'));
 });
 
 test('Edge enrollment requires both the Netlify owner and a verified Supabase account with matching email',async()=>{

@@ -31,7 +31,7 @@ async function start(){
  else if(returnedSession)authorizationId=takeAuthorization(localStorage);
  if(!config.email)throw new Error('Email do proprietário indisponível.');
  ownerEmail=config.email;
- client=createClient(config.url,config.publishable_key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,flowType:'implicit'},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)})}});
+ client=createClient(config.url,config.publishable_key,{auth:{persistSession:true,storage:sessionStorage,autoRefreshToken:true,detectSessionInUrl:false,flowType:'implicit'},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)})}});
  document.getElementById('work-email').value=config.email;login.hidden=false;
  if(returnedSession){
   status.textContent='Confirmando o link recebido por email…';
@@ -40,8 +40,10 @@ async function start(){
   if(error||!data.session)throw new Error('O link de entrada expirou ou já foi usado. Solicite outro pelo botão Entrar por email.');
   await finish(data.session);return;
  }
+ const existing=await client.auth.getSession();
+ if(existing.data.session){await finish(existing.data.session);return;}
  if(emailLinkFailed){status.textContent='O link de entrada expirou ou já foi usado. Solicite outro pelo botão Entrar por email.';return;}
- status.textContent=authorizationId?'Confira a solicitação antes de autorizar. A senha não é salva neste navegador.':'Prepare seu acesso. Depois volte ao plugin Vendrex Operations no ChatGPT e escolha Conectar.';
+ status.textContent=authorizationId?'Confira a solicitação antes de autorizar. Sua sessão fica nesta aba e pode ser encerrada abaixo.':'Prepare seu acesso. Depois volte ao plugin Vendrex Operations no ChatGPT e escolha Conectar.';
 }
 login.addEventListener('submit',async event=>{
  event.preventDefault();const button=login.querySelector('button[type="submit"]');button.disabled=true;
@@ -83,5 +85,10 @@ for(const decision of ['approve','deny'])document.getElementById('work-'+decisio
   const result=decision==='approve'?await client.auth.oauth.approveAuthorization(authorizationId,{skipBrowserRedirect:true}):await client.auth.oauth.denyAuthorization(authorizationId,{skipBrowserRedirect:true});
   if(result.error)throw new Error('Não foi possível registrar a decisão.');redirect(result.data.redirect_url);
  }catch(error){status.textContent=error.message;document.querySelectorAll('button').forEach(button=>button.disabled=false);}
+});
+document.getElementById('work-sign-out').addEventListener('click',async()=>{
+ if(client)await client.auth.signOut({scope:'local'});
+ document.getElementById('work-ready').hidden=true;document.getElementById('work-permissions').hidden=true;login.hidden=false;
+ status.textContent='Acesso encerrado nesta aba. Você pode entrar novamente por email ou senha.';
 });
 start().catch(error=>{status.textContent=error.message;});

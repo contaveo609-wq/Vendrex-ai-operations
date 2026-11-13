@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from html import escape
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import threading
@@ -614,9 +615,23 @@ def source_zip():
     buffer = io.BytesIO()
     directories = {'vendrex','agents','config','dashboard','docs','scripts','skills','tests','memory','templates','supabase','cloud','examples','deploy'}
     top_files = {'README.md','AGENTS.md','.gitignore','.env.example','pyproject.toml','requirements-media.txt','run.py','Iniciar.cmd','Testar.cmd','Demonstracao.cmd','Missoes.cmd','Autenticar-Codex.cmd'}
+    source_root = ROOT
+    excluded = {'__pycache__','node_modules','.venv','.temp','.vercel','dist','.git'}
+    def candidates():
+        for name in sorted(top_files):
+            yield source_root/name
+        for name in sorted(directories):
+            directory = source_root/name
+            if directory.is_symlink() or not directory.is_dir(): continue
+            for parent, children, files in os.walk(directory,followlinks=False):
+                # Prune before walking: filtering files after rglob still scans
+                # entire dependency trees and can time out the HTTP download.
+                children[:] = sorted(child for child in children if child not in excluded and not (Path(parent)/child).is_symlink())
+                for filename in sorted(files):
+                    yield Path(parent)/filename
     with zipfile.ZipFile(buffer,'w',zipfile.ZIP_DEFLATED) as archive:
-        for file in sorted(ROOT.rglob('*')):
-            relative = file.relative_to(ROOT)
+        for file in candidates():
+            relative = file.relative_to(source_root)
             if file.is_symlink() or not file.is_file() or '__pycache__' in relative.parts or file.suffix=='.pyc': continue
             if any(part in {'node_modules','.venv','.temp','.vercel','dist','.git'} for part in relative.parts):continue
             if file.name.startswith('.env') and file.name!='.env.example':continue

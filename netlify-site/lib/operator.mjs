@@ -1,5 +1,5 @@
 const reply=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
-const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST','inference-key':'POST',history:'GET',conversations:'GET',pairing:'GET','work-config':'GET','work-enroll':'POST','work-order':'POST'};
+const routes={status:'GET',behavior:['GET','POST'],control:'POST','test-contacts':'POST','inference-key':'POST',history:'GET',conversations:'GET',pairing:'GET','work-config':'GET','work-enroll':'POST','work-order':'POST','work-status':'GET'};
 export function createOperatorHandler({env,fetcher=fetch,now=()=>Date.now()}){
  return async(request,context)=>{
   try{

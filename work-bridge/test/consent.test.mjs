@@ -22,11 +22,16 @@ test('OAuth consent can return a code only to an exact HTTPS ChatGPT callback',(
 });
 
 test('email callback transfers tokens only to the same origin and rejects malformed sessions',()=>{
- const base='https://private.example.invalid/',session={access_token:'a'.repeat(50),refresh_token:'r'.repeat(30)};
+ const base='https://private.example.invalid/',session={access_token:'a'.repeat(50),refresh_token:'r'.repeat(12)};
  const fragment='#'+new URLSearchParams({...session,type:'magiclink'});
  assert.deepEqual(emailSession(base+fragment),session);
+ assert.deepEqual(emailSession(base+fragment.replace('type=magiclink','type=email')),session);
+ assert.deepEqual(emailSession(base+fragment.replace('type=magiclink','type=recovery')),session);
  assert.equal(emailReturnDestination(base+fragment),'https://private.example.invalid/work-consent.html'+fragment);
- for(const suffix of [fragment+'&access_token=duplicate',fragment.replace('type=magiclink','type=recovery'),fragment.replace('r'.repeat(30),'short')])assert.equal(emailSession(base+suffix),null);
+ for(const suffix of [fragment+'&access_token=duplicate',fragment+'&type=duplicate',fragment.replace('r'.repeat(12),'')]){
+  assert.equal(emailSession(base+suffix),null);
+  assert.equal(emailReturnDestination(base+suffix),'https://private.example.invalid/work-consent.html#error_code=EMAIL_LINK_REJECTED');
+ }
  assert.equal(emailReturnDestination(base+'#error_code=otp_expired&error_description=private-text'),'https://private.example.invalid/work-consent.html#error_code=EMAIL_LINK_REJECTED');
  assert.equal(emailReturnDestination(base+'#unrelated'),null);
 });
@@ -53,4 +58,10 @@ test('email login verifies operator enrollment before reading OAuth details and 
 test('email login without an OAuth request prepares the operator and grants nothing to ChatGPT',async()=>{
  assert.deepEqual(await completeLogin({client:{},api:async()=>{},session:{access_token:'fixture'},authorizationId:null}),{state:'READY'});
  await assert.rejects(completeLogin({client:{},api:()=>assert.fail('missing session was enrolled'),session:null,authorizationId:null}),/sessão/);
+});
+
+test('an expired OAuth request preserves successful operator login for a new consent request',async()=>{
+ const client={auth:{oauth:{getAuthorizationDetails:async()=>({error:{code:'expired'}})}}};
+ const result=await completeLogin({client,api:async()=>{},session:{access_token:'fixture'},authorizationId:'expired-fixture'});
+ assert.deepEqual(result,{state:'READY',reauthorization_required:true});
 });

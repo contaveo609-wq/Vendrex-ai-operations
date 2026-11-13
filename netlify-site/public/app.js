@@ -2,6 +2,7 @@ import {renderSales} from './sales.mjs';
 import {renderPairing} from './pairing.mjs';
 import {renderConversations,renderHistory} from './inbox.mjs';
 import {emailReturnDestination} from './consent-validation.mjs';
+import {renderWorkStatus} from './work-status.mjs';
 // Email verification can redirect here; never retain authentication fragments in the address bar.
 const emailDestination=emailReturnDestination(location.href);
 if(emailDestination)location.replace(emailDestination);
@@ -33,6 +34,9 @@ async function loadInbox(){
  document.getElementById('inbox').innerHTML=renderConversations(data,selectedConversation);
  if(selectedConversation)await loadHistory();
 }
+async function loadWorkStatus(){
+ document.getElementById('work-activity').innerHTML=renderWorkStatus(await api('sales/work-status'));
+}
 async function loadHistory(){
  const current=conversations.find(c=>c.id===selectedConversation);
  if(!current)return;
@@ -42,7 +46,8 @@ async function loadHistory(){
 }
 document.addEventListener('click',async e=>{
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.tab){for(const id of ['sales','inbox','builder','growth','director','tests'])document.getElementById(id).hidden=id!==b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(v=>v.setAttribute('aria-current',v===b?'page':'false'));if(b.dataset.tab!=='sales'){watchUntil=0;clearTimeout(pairingTimer);}if(b.dataset.tab==='inbox')try{await loadInbox();}catch(error){status.textContent=error.message;}return;}
+ if(b.dataset.tab){for(const id of ['sales','inbox','builder','growth','director','tests'])document.getElementById(id).hidden=id!==b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(v=>v.setAttribute('aria-current',v===b?'page':'false'));if(b.dataset.tab!=='sales'){watchUntil=0;clearTimeout(pairingTimer);}try{if(b.dataset.tab==='inbox')await loadInbox();if(b.dataset.tab==='director')await loadWorkStatus();}catch(error){status.textContent=error.message;}return;}
+ if(b.hasAttribute('data-work-refresh')){b.disabled=true;try{await loadWorkStatus();}catch(error){status.textContent=error.message;b.disabled=false;}return;}
  if(b.hasAttribute('data-inbox-refresh')){b.disabled=true;try{await loadInbox();status.textContent='Conversas atualizadas.';}catch(error){status.textContent=error.message;}finally{b.disabled=false;}return;}
  if(b.dataset.conversation){selectedConversation=b.dataset.conversation;try{await loadHistory();}catch(error){status.textContent=error.message;}return;}
  if(b.dataset.humanControl){b.disabled=true;try{await api('sales/control',{action:b.dataset.humanControl,conversation_id:b.dataset.conversationId});await loadInbox();status.textContent='Controle da conversa salvo no Supabase.';}catch(error){status.textContent=error.message;b.disabled=false;}return;}
@@ -56,6 +61,7 @@ document.addEventListener('submit',async e=>{
  try{const values=Object.fromEntries(new FormData(e.target));
   if(e.target.id==='work-order-form'){
    const result=await api('sales/work-order',{instruction:values.instruction});
+   await loadWorkStatus();
    status.textContent=result.work_enabled?'Ordem salva na fila do gerente.':'Ordem salva. Aguardando conexão e autorização do ChatGPT Work.';b.disabled=false;return;
   }
   if(e.target.id==='sales-behavior-form')await api('sales/behavior',{behavior:values});

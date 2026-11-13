@@ -7,7 +7,7 @@ export async function completeLogin({client,api,session,authorizationId}){
  await api('work-enroll',{access_token:session.access_token});
  if(!authorizationId)return {state:'READY'};
  const result=await client.auth.oauth.getAuthorizationDetails(authorizationId);
- if(result.error)throw new Error('A solicitação expirou. Volte ao plugin Vendrex Operations no ChatGPT e escolha Conectar novamente.');
+ if(result.error)return {state:'READY',reauthorization_required:true};
  if(result.data.redirect_url)return {state:'REDIRECT',url:authorizationRedirect(result.data.redirect_url)};
  // Approval is a separate, explicit user action in the consent page.
  return {state:'CONSENT',details:{aplicativo:result.data.client,permissoes:result.data.scope,destino:result.data.redirect_uri}};
