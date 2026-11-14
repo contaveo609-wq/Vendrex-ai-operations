@@ -57,6 +57,14 @@ export class WorkBridge {
   return {};
  }
  async context(id){if(!/^[a-f0-9-]{36}$/i.test(id))throw new WorkError('WORK_JOB_NOT_FOUND',404);return this.db.rpc('context',{job:id});}
+ async result(id){
+  if(typeof id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id))throw new WorkError('WORK_JOB_NOT_FOUND',404);
+  const [row]=await this.db.call('vendrex_work_jobs?select=id,agent,state,created_at,completed_at,result&id=eq.'+id+'&limit=1');
+  if(!row)throw new WorkError('WORK_JOB_NOT_FOUND',404);
+  const {id:jobId,agent,state,created_at,completed_at,result}=row;
+  // Reading a saved result must not reopen stale customer context or permit another write.
+  return {job:{id:jobId,agent,state,created_at,completed_at},result:result??null};
+ }
  async complete(user,{job_id,result}){
   if(typeof job_id!=='string'||!/^[a-f0-9-]{36}$/i.test(job_id)||!result||typeof result!=='object'||Array.isArray(result))throw new WorkError('WORK_INVALID_RESULT');
   const [job]=await this.db.call('vendrex_work_jobs?select=agent,conversation_id&id=eq.'+job_id+'&limit=1');

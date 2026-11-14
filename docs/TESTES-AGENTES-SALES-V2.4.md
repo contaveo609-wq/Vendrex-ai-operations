@@ -1,6 +1,6 @@
 # Vendrex V2.4: resultado dos quatro agentes
 
-Atualizado em 13/11/2026. Branch: `upgrade/v2.4`.
+Atualizado em 14/11/2026 UTC. Branch: `upgrade/v2.4`.
 
 **Sales ainda não está operacional no WhatsApp.** Não houve telefone vinculado nem conversa real completa. `SALES_WHATSAPP_OPERATIONAL = FALSE`. A entrega inclui implementação, testes e pendências comprovadas.
 
@@ -30,7 +30,7 @@ O teto inicial é de 500 gerações e 1.000 processamentos por dia, configuráve
 ## Testes
 
 - 92 testes Python aprovados.
-- 85 testes Node de integrações/proxies, 13 do gateway e 20 da ponte Work aprovados.
+- 85 testes Node de integrações/proxies, 13 do gateway e 22 da ponte Work aprovados.
 - 16 verificações de renderização e quatro de configuração pública aprovadas.
 - Chromium real no Windows: dez verificações Cloud, sete do gateway e 11 do painel Netlify, sem erros JavaScript. O painel publicado também teve login, consulta, gravação e recarregamento conferidos na conta real do proprietário.
 - Builder: 17 testes aritméticos e quatro verificações adicionais no navegador.
@@ -44,19 +44,27 @@ Testes com transportes controlados e fixtures SQL não comprovam conversa real. 
 
 ## Estado remoto
 
-Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 11 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 1 confirmado; operadores: 0. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
+Supabase `ryxxpbxbjzijcuxgfgja`: Edge Function Sales versão 11 implantada, health `HOST_REQUIRED`, `inference_configured=true`, `inference_verified=false`, transporte `BAILEYS_QR`, modo TEST pausado. Entradas: 0; saídas: 0; usuários Auth: 1 confirmado; operadores: 1 real. Prova operacional falsa. Nenhuma credencial de WhatsApp Business Platform foi configurada. O webhook oficial permanece desativado e o worker Cloud não executa o gateway Baileys. Consulta real da personalidade pela ponte autenticada retornou HTTP 200; acesso anônimo e worker sem credencial retornaram 401. A gravação pelo painel publicado foi confirmada na versão 2 da personalidade, sem alterar seu texto.
 
 ## Encaminhamento ao ChatGPT Work
 
-A Edge Function `work` versão 3 foi implantada. O endpoint MCP exige autenticação: o teste real anônimo retornou HTTP 401 com descoberta OAuth. A fila é privada, as assinaturas persistem no Supabase e as chaves de assinatura ficam no Vault. Os eventos contêm somente o identificador da tarefa; a ferramenta autorizada consulta a conversa. O proprietário pode salvar ordens na aba Director. Há ferramentas de rascunho, repasse Sales–Builder e delegação do Director. O ChatGPT registrou um cliente OAuth real; a solicitação está pendente, sem operador, consentimento ou assinatura de eventos.
+O primeiro teste real da ponte foi concluído no chat **Missões Vendrex Hoje**, com autorização explícita do proprietário. O Director leu a tarefa `ef5dd125-0c6d-49d1-91ed-cf9036676d04`, criou os três repasses e gravou seu diagnóstico por último. Sales revisou a abertura comercial; Builder criou um mini projeto de lista de serviços com busca; Growth escreveu roteiro de 30 segundos e legenda. Os quatro estados `COMPLETE` e os resultados foram relidos diretamente no banco. O executor ChatGPT relatou seis testes Node aprovados para o Builder e entregou um ZIP no chat; esse ZIP não foi retestado neste Windows. Nenhum contato de cliente foi usado. Evidência: [registro do teste](evidence/sales-v24/work-live-integration.json).
+
+A versão 4 da Edge Function Work acrescenta `get_agent_result` para ler status e resultados concluídos sem reabrir o contexto de execução. A leitura anterior por `get_sales_request` recusou corretamente tarefas já concluídas com `WORK_CONTEXT_CHANGED`. A ferramenta nova passou em testes locais de leitura MCP, ausência de campos internos, ID inválido, tarefa ausente e estado pendente. O catálogo do plugin precisa ser atualizado para expor ferramentas novas. Os estados gravados no banco não dependem dessa atualização.
+
+Após atualizar o catálogo do plugin, o ChatGPT usou `get_agent_result` e confirmou novamente os quatro estados `COMPLETE`, com `summary` e `evidence` preservados. O teste seguinte tentou assinar `vendrex.task.ready` somente para Director, por até dez minutos e uma única tarefa. A conversa atual não expôs `events/subscribe` ou `events/unsubscribe`, e o modo Work na nuvem não foi confirmado. O Supabase continuou sem assinaturas; nenhuma tarefa adicional foi criada. A documentação oficial exige um chat Work compatível para MCP Events.
+
+Não há assinatura de eventos, monitoramento recorrente nem execução autônoma contínua comprovada. O encaminhamento permanece desativado. Este teste comprova uma ordem manual processada pelo ChatGPT e resultados internos persistidos; não comprova atendimento no WhatsApp, entrega de mini projeto a cliente ou publicação social.
+
+A Edge Function `work` versão 4 foi implantada. O endpoint MCP exige autenticação: o teste real anônimo retornou HTTP 401 com descoberta OAuth. A fila é privada, as assinaturas persistem no Supabase e as chaves de assinatura ficam no Vault. Os eventos contêm somente o identificador da tarefa; a ferramenta autorizada consulta a conversa. O proprietário pode salvar ordens na aba Director. Há ferramentas de rascunho, repasse Sales–Builder e delegação do Director. O ChatGPT registrou um cliente OAuth real; o operador e o consentimento `offline_access` foram confirmados no banco. Ainda não há assinatura de eventos.
 
 As verificações de banco usaram fixtures revertidas, inclusive a identidade temporária sem sessão usada para testar autorização e idempotência. Nenhuma identidade ou conversa de teste permaneceu cadastrada. Esses testes não provam execução real pelo ChatGPT Work.
 
-O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O plugin Vendrex Operations está instalado no ChatGPT e usa DCR. A conta Auth real foi criada e o email confirmado. A validação de `authorization_id` foi corrigida para aceitar o identificador opaco enviado pelo Supabase; o login apareceu na solicitação real após publicar a correção. A tentativa de entrada retornou `invalid_credentials`; o operador e o consentimento ainda aguardam autenticação do titular. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
+O titular ativou e salvou o provedor OAuth, com Authorization Path `/work-consent.html` e registro dinâmico. A descoberta real passou a retornar HTTP 200. O plugin Vendrex Operations está instalado no ChatGPT e usa DCR. A conta Auth real foi criada e o email confirmado. As validações de `authorization_id` e do refresh token opaco foram corrigidas; a entrada real cadastrou o operador. O consentimento foi concedido em `2026-11-13T21:44:38Z` e há uma sessão OAuth do ChatGPT. O encaminhamento externo permanece desativado. Os rascunhos não são enviados ao WhatsApp pela nova ponte. Captura Android, áudio, documentos, imagens e vídeos completos não foram implementados nem testados nessa ponte. O realme C75x foi informado pelo titular; ainda não houve instalação nele.
 
 Configuração e limites: [ponte Work](../work-bridge/README.md).
 
-Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão Auth do navegador compartilhada entre abas, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. O servidor registrou login real por email, mas a validação local descartou o refresh token opaco de 12 caracteres. A validação foi corrigida; operador e consentimento continuam sem prova real. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
+Foi adicionada entrada por Magic Link oficial para a conta já confirmada. Os testes cobrem retorno apenas à mesma origem, sessão Auth do navegador compartilhada entre abas, contexto OAuth entre abas com expiração e recusa de acesso antes da confirmação do proprietário. O login do proprietário e o consentimento foram comprovados depois dessas correções. A interface mostra progresso e limita o tempo das chamadas, para evitar um botão sem resposta visível.
 
 As tabelas Sales não concedem acesso a `anon`, `authenticated` ou `PUBLIC`; a função de personalidade é restrita ao backend. Não foram criadas sessões ou identidades administrativas fictícias.
 

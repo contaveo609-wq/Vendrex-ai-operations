@@ -1,0 +1,105 @@
+{
+  "jobs": [
+    {
+      "id": "ef5dd125-0c6d-49d1-91ed-cf9036676d04",
+      "agent": "director",
+      "state": "COMPLETE",
+      "result": {
+        "summary": "TESTE INTERNO AUTORIZADO DA PONTE WORK — DIRECTOR. Ordem ef5dd125-0c6d-49d1-91ed-cf9036676d04. Nenhum cliente real, sem ações externas.\nContexto lido inicialmente por get_sales_request: OWNER_ORDER; external_actions_authorized=false; histórico ausente; comportamento Sales consultivo e direto.\nRepasses internos criados via handoff_agent_task e lidos individualmente via get_sales_request:\n- Sales 5d77c3e4-300a-402c-91cf-0c54a9f70948: revisão da abertura, versão consultiva com contexto e pedido de permissão, uma pergunta por vez. save_agent_result retornou saved=true, customer_sent=false, social_published=false.\n- Builder 226ae5ff-507c-4bbe-a03e-836fc127192c: mini projeto LOCAL executável de lista de 3 serviços, busca e contador; index.html, app.js, test.js, README.md; ZIP em /mnt/data/vendrex-builder-servicos-teste-interno.zip. Node 22.16.0, 6 testes reais passaram, 0 falhas; sintaxe JS verificada; ZIP íntegro. save_agent_result retornou saved=true, customer_sent=false, social_published=false.\n- Growth e04b43c9-6a42-4b5e-a6a7-223f45126c7e: roteiro textual de vídeo 30 s (4 cenas) e legenda de rascunho, sem publicar. save_agent_result retornou saved=true, customer_sent=false, social_published=false.\nOrientação: skills/caveman/SKILL.md lida em contaveo609-wq/Vendrex-ai-operations, ref upgrade/v2.4; aplicada concisão sem perda de detalhes, português natural.\nEvidência de limite: tentativa posterior de reler resultados salvos via get_sales_request falhou com 'WORK_CONTEXT_CHANGED' (INVALID_ARGUMENT). Portanto, a confirmação de persistência baseia-se nas respostas saved=true das três gravações; a releitura posterior não foi comprovada.\nDiagnóstico: ponte permite leitura de tarefa, repasses e gravação de resultados internos. Sales: exercício de texto apenas; WhatsApp e atendimento real NÃO testados. Builder: código local realmente criado e testes Node executados; execução autônoma contínua e deploy NÃO testados. Growth: roteiro e legenda, sem mídia produzida nem publicação. Director: coordenação e registro internos; monitoramento recorrente NÃO habilitado.\nNão executado: contato/prospecção/WhatsApp, publicações, deploy, anúncios, contratação, acesso a credenciais, autenticação externa, conexão de contas, monitoramento ou alegação de operação dos agentes.\nNenhum agente declarado operacional.",
+        "evidence": [
+          "get_sales_request Director retornou job ef5dd125-0c6d-49d1-91ed-cf9036676d04, state=PENDING, payload OWNER_ORDER, external_actions_authorized=false.",
+          "handoff_agent_task criou Sales 5d77c3e4-300a-402c-91cf-0c54a9f70948, Builder 226ae5ff-507c-4bbe-a03e-836fc127192c, Growth e04b43c9-6a42-4b5e-a6a7-223f45126c7e; três tarefas lidas.",
+          "save_agent_result Sales, Builder, Growth: saved=true, customer_sent=false, social_published=false.",
+          "Builder: node --test test.js: 6/6 PASS; node --check app.js e test.js PASS; unzip -t PASS.",
+          "Builder: ZIP local /mnt/data/vendrex-builder-servicos-teste-interno.zip; nenhum deploy.",
+          "skills/caveman/SKILL.md lida via GitHub fetch_file na branch upgrade/v2.4.",
+          "Releitura posterior dos resultados falhou: WORK_CONTEXT_CHANGED (INVALID_ARGUMENT).",
+          "Nenhum contato externo, publicação, prospecção, WhatsApp ou monitoramento recorrente."
+        ]
+      },
+      "created_at": "2026-11-13T17:57:22.068273+00:00",
+      "completed_at": "2026-11-14T00:52:30.783199+00:00",
+      "source_job_id": null
+    },
+    {
+      "id": "5d77c3e4-300a-402c-91cf-0c54a9f70948",
+      "agent": "sales",
+      "state": "COMPLETE",
+      "result": {
+        "summary": "TESTE INTERNO — SALES. Exercício de revisão da abertura comercial, sem destinatário e sem envio.\nTexto original do contexto: \"Olá! Aqui é a Vendrex. Como posso te chamar?\"\nDiagnóstico: educado e curto, mas não informa a finalidade do contato; perguntar nome antes de explicar o motivo pode reduzir confiança. O roteiro de proposta apresenta sistemas sob medida, mas deve evitar repetir perguntas ou presumir problemas.\nAbertura revisada (rascunho): \"Olá! Sou da Vendrex. Desenvolvemos sistemas para ajudar empresas a organizar pedidos e atendimento. Posso fazer uma pergunta rápida sobre sua operação?\"\nPergunta seguinte, somente após consentimento: \"Hoje, o que mais dificulta a organização dos pedidos ou do atendimento?\"\nCritérios: uma pergunta por mensagem; tom consultivo; português natural; não prometer resultado; respeitar recusa e não repetir informação conhecida.\nExecutado: leitura do contexto real da tarefa Director e da tarefa Sales; análise textual e revisão interna.\nNão executado: prospecção, envio de WhatsApp, contato, consulta a cliente real, inferência de produção ou teste de conversão. Não comprova Sales operacional.",
+        "evidence": [
+          "Director ef5dd125-0c6d-49d1-91ed-cf9036676d04 lido via get_sales_request; behavior.opening/proposal/permission consultados.",
+          "Handoff Sales 5d77c3e4-300a-402c-91cf-0c54a9f70948 criado e relido via get_sales_request; external_actions_authorized=false.",
+          "Texto revisado é rascunho interno sem destinatário."
+        ]
+      },
+      "created_at": "2026-11-14T00:50:21.401102+00:00",
+      "completed_at": "2026-11-14T00:51:58.345139+00:00",
+      "source_job_id": "ef5dd125-0c6d-49d1-91ed-cf9036676d04"
+    },
+    {
+      "id": "226ae5ff-507c-4bbe-a03e-836fc127192c",
+      "agent": "builder",
+      "state": "COMPLETE",
+      "result": {
+        "summary": "TESTE INTERNO — BUILDER. MINI PROJETO FUNCIONAL CRIADO E TESTADO LOCALMENTE.\nNome: Lista de serviços Vendrex. Arquivos locais: /mnt/data/vendrex-builder-servicos-teste-interno/{index.html,app.js,test.js,README.md,test-results.txt}; ZIP: /mnt/data/vendrex-builder-servicos-teste-interno.zip.\nFuncionalidade implementada: página HTML responsiva, três serviços (Cardápio digital; Sistema de agendamentos; Automação de atendimento), campo de busca por nome/descrição com comparação sem acentos, contador acessível e renderização segura com textContent. HTML carrega app.js localmente, sem dependências externas, API, backend, contas ou credenciais. Para usar: abrir index.html no navegador. Para testar: entrar no diretório e executar 'node --test test.js'.\nTrecho central do código real (app.js):\nconst SERVICES = Object.freeze([\n  Object.freeze({ id: 'cardapio', name: 'Cardápio digital', description: 'Organize produtos e informações para consulta.' }),\n  Object.freeze({ id: 'agenda', name: 'Sistema de agendamentos', description: 'Visualize serviços e horários em uma interface.' }),\n  Object.freeze({ id: 'atendimento', name: 'Automação de atendimento', description: 'Estruture fluxos de respostas para perguntas frequentes.' })\n]);\nfunction normalize(text) {\n  return String(text ?? '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();\n}\nfunction filterServices(services, query) {\n  const needle = normalize(query);\n  return services.filter(service => normalize(`${service.name} ${service.description}`).includes(needle));\n}\nfunction renderServices(documentRef, services) {\n  const list = documentRef.getElementById('servicos');\n  const count = documentRef.getElementById('contador');\n  list.replaceChildren();\n  for (const service of services) {\n    const item = documentRef.createElement('li');\n    const title = documentRef.createElement('h2');\n    const description = documentRef.createElement('p');\n    title.textContent = service.name;\n    description.textContent = service.description;\n    item.append(title, description);\n    list.appendChild(item);\n  }\n  count.textContent = services.length === 1 ? '1 serviço encontrado.' : `${services.length} serviços encontrados.`;\n}\nfunction init(documentRef) {\n  const search = documentRef.getElementById('busca');\n  const update = () => renderServices(documentRef, filterServices(SERVICES, search.value));\n  search.addEventListener('input', update);\n  update();\n}\nif (typeof document !== 'undefined') init(document);\nif (typeof module !== 'undefined') module.exports = { SERVICES, normalize, filterServices, renderServices, init };\nHTML, CSS, testes completos e README estão no ZIP local.\nVERIFICAÇÕES REAIS: Node v22.16.0; 'node --check app.js' passou; 'node --check test.js' passou; 'node --test test.js' executou 6 testes, 6 passaram, 0 falharam (TAP); 'unzip -t' verificou o ZIP sem erros.\nCobertura: 3 serviços/IDs distintos, busca insensível a acentos e caixa, busca por descrição, busca sem resultados, renderização inicial e atualização por evento input usando DOM simulado, presença dos IDs e script no HTML.\nLIMITES: teste de renderização usa DOM simulado; não foi feito teste visual em navegador real. Projeto não foi implantado, publicado, enviado a cliente ou integrado ao Supabase. A criação local não comprova agente Builder autônomo em produção.",
+        "evidence": [
+          "get_sales_request leu Builder 226ae5ff-507c-4bbe-a03e-836fc127192c; external_actions_authorized=false.",
+          "Arquivo local /mnt/data/vendrex-builder-servicos-teste-interno/test-results.txt contém TAP: tests 6; pass 6; fail 0.",
+          "Node v22.16.0; node --check app.js e test.js: saída 0.",
+          "ZIP /mnt/data/vendrex-builder-servicos-teste-interno.zip validado com unzip -t: No errors detected in compressed data.",
+          "SHA-256 app.js: 8f344af848151b2f9986fab3fab59550a67a1ac24c3dff0a239278dc74bf65ca.",
+          "SHA-256 test.js: dd3c3a433e40e9b40b63d9c141b258439f2cd245a6a243b9ac0975b8da6fad57.",
+          "SHA-256 index.html: 1bd3d1c0f6e5d7ca35d53e6192a1cc42ba8fe8405bf27ea2dabb8a5b67a56752.",
+          "Não houve deploy nem teste de navegador real."
+        ]
+      },
+      "created_at": "2026-11-14T00:50:22.759192+00:00",
+      "completed_at": "2026-11-14T00:52:16.713704+00:00",
+      "source_job_id": "ef5dd125-0c6d-49d1-91ed-cf9036676d04"
+    },
+    {
+      "id": "e04b43c9-6a42-4b5e-a6a7-223f45126c7e",
+      "agent": "growth",
+      "state": "COMPLETE",
+      "result": {
+        "summary": "TESTE INTERNO — GROWTH. Roteiro e legenda, apenas rascunhos. Formato: vídeo vertical de 30 segundos; sem produção ou publicação.\n0–6 s: cena de balcão com anotações e pedidos dispersos (representação ilustrativa). Narração: \"Quando as informações ficam espalhadas, organizar o atendimento dá mais trabalho.\" Texto na tela: \"Pedidos e atendimento em vários lugares?\"\n6–14 s: tela ilustrativa com lista de serviços e pedidos centralizados. Narração: \"Um sistema pensado para sua rotina pode reunir informações em um só lugar.\" Texto: \"Organização em um só fluxo.\"\n14–22 s: interface ilustrativa mostrando serviços e status. Narração: \"A Vendrex desenvolve soluções digitais conforme as necessidades de cada empresa.\" Texto: \"Sistemas sob medida.\"\n22–30 s: tela com marca Vendrex e convite. Narração: \"Quer avaliar o que faz sentido para o seu negócio? Converse com a Vendrex.\" Texto: \"Vamos entender sua operação?\"\nLEGENDA (rascunho): \"Cada operação tem sua rotina. A Vendrex desenvolve sistemas e automações sob medida para organizar informações, pedidos e atendimento. Quer entender quais funções fariam sentido para sua empresa? Conte qual etapa mais toma seu tempo. #Vendrex #GestãoDePedidos #SistemasSobMedida\"\nCritérios: sem promessa de aumento de vendas ou economia comprovada; imagens de interface devem ser identificadas como ilustrativas; não afirmar que houve implantação.\nExecutado: leitura do pedido Director e da tarefa Growth; criação textual de roteiro e legenda.\nNão executado: pesquisa externa, geração de vídeo/imagens, agendamento, publicação, anúncios, acesso a Instagram/Facebook ou teste de desempenho. Não comprova Growth operacional.",
+        "evidence": [
+          "Handoff Growth e04b43c9-6a42-4b5e-a6a7-223f45126c7e criado e relido via get_sales_request.",
+          "Roteiro com quatro cenas, total 30 segundos, e legenda presentes no summary.",
+          "Sem chamada de publicação; tarefa external_actions_authorized=false."
+        ]
+      },
+      "created_at": "2026-11-14T00:50:24.135033+00:00",
+      "completed_at": "2026-11-14T00:52:05.283536+00:00",
+      "source_job_id": "ef5dd125-0c6d-49d1-91ed-cf9036676d04"
+    }
+  ],
+  "test_kind": "LIVE_CHATGPT_MCP_INTERNAL_TASKS",
+  "project_id": "ryxxpbxbjzijcuxgfgja",
+  "operator_count": 1,
+  "verified_at_utc": "2026-11-14T01:01:56.312707+00:00",
+  "active_oauth_consents": 1,
+  "whatsapp_inbound_count": 0,
+  "whatsapp_outbound_count": 0,
+  "active_event_subscriptions": 0,
+  "external_forwarding_enabled": false,
+  "source": "ChatGPT, chat de teste autorizado pelo proprietário",
+  "chatgpt_result_readback": {
+    "work_function_version": 4,
+    "tool": "get_agent_result",
+    "completed_tasks_read": 4,
+    "results_preserved": true
+  },
+  "event_test": {
+    "state": "BLOCKED_IN_CURRENT_CHAT",
+    "reported_reason": "A conversa atual não expôs events/subscribe ou events/unsubscribe; Work na nuvem não foi confirmado.",
+    "database_verification": "Nenhuma assinatura foi criada.",
+    "extra_jobs_created": 0
+  },
+  "limits": [
+    "Os estados COMPLETE e resultados foram relidos diretamente no banco.",
+    "Os seis testes Builder são relatados pelo executor ChatGPT; o ZIP não foi retestado neste Windows.",
+    "Nenhum envio WhatsApp, publicação Meta ou assinatura de eventos foi comprovado."
+  ]
+}

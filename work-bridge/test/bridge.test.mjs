@@ -75,3 +75,20 @@ test('MCP advertises event subscriptions and scoped tools using official transpo
  response=await handleMCP(req({jsonrpc:'2.0',id:2,method:'tools/list',params:{}}),b,owner);data=await response.json();assert.ok(data.result.tools.some(t=>t.name==='save_sales_reply'));assert.ok(data.result.tools.every(t=>t.securitySchemes[0].type==='oauth2'));assert.ok(data.result.tools.every(t=>t.securitySchemes[0].scopes.includes('offline_access')&&t._meta.securitySchemes[0].scopes.includes('offline_access')));
  response=await handleMCP(req({jsonrpc:'2.0',id:3,method:'events/list',params:{}}),b,owner);data=await response.json();assert.equal(data.result.events[0].name,EVENT);
 });
+
+test('completed results can be read through MCP without reopening context or exposing internal fields',async()=>{
+ const paths=[];const result={summary:'An internal task was completed.',evidence:['Fixture only.']};
+ const b=bridge({db:{call:async path=>{paths.push(path);return [{id:job,agent:'builder',state:'COMPLETE',created_at:'2026-11-13',completed_at:'2026-11-14',result,payload:{private:'DO_NOT_EXPOSE'},conversation_id:'DO_NOT_EXPOSE'}];},rpc:()=>assert.fail('result lookup must not reopen context or write')}});
+ const response=await handleMCP(new Request(b.resource(),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json, text/event-stream'},body:JSON.stringify({jsonrpc:'2.0',id:4,method:'tools/call',params:{name:'get_agent_result',arguments:{job_id:job}}})}),b,owner);
+ assert.equal(response.status,200);const data=await response.json();assert.equal(data.result.isError,undefined);
+ assert.deepEqual(data.result.structuredContent,{job:{id:job,agent:'builder',state:'COMPLETE',created_at:'2026-11-13',completed_at:'2026-11-14'},result});
+ assert(!JSON.stringify(data).includes('DO_NOT_EXPOSE'));assert.equal(paths.length,1);assert(!paths[0].includes('payload'));
+});
+
+test('result lookup rejects unknown or malformed IDs and does not invent a pending result',async()=>{
+ let calls=0;const b=bridge({db:{call:async()=>{calls++;return [];}}});
+ for(const id of [null,undefined,'x'.repeat(36),job+'&select=payload'])await assert.rejects(b.result(id),/WORK_JOB_NOT_FOUND/);
+ assert.equal(calls,0);await assert.rejects(b.result(job),/WORK_JOB_NOT_FOUND/);assert.equal(calls,1);
+ const pending=bridge({db:{call:async()=>[{id:job,agent:'director',state:'PENDING',created_at:'2026-11-13',completed_at:null,result:null}]}});
+ assert.equal((await pending.result(job)).result,null);assert.equal((await pending.result(job)).job.state,'PENDING');
+});

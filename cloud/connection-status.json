@@ -2,9 +2,10 @@
   "version": "2.4.0",
   "supabase": "CONNECTED / TESTED: dedicated project ryxxpbxbjzijcuxgfgja; real RLS and queue tests passed",
   "vercel": "BLOCKED: authenticated account plan is Hobby; commercial use not allowed; no paid upgrade",
-  "remote_executor": "Growth Edge Function and Supabase Cron CONNECTED / TESTED; other bot workers not provisioned",
-  "whatsapp": "BLOCKED: owner selected manual linked-device login, no API/transport",
+  "remote_executor": "ChatGPT OAuth CONNECTED; four internal jobs completed through Work MCP and verified in Supabase; no event subscriptions or continuous execution verified",
+  "whatsapp": "BLOCKED: Baileys QR transport implemented and tested with controlled events; no permanent gateway or linked number",
   "model_inference": "TESTED locally with official CLI and controlled inputs for all four profiles; production backend not validated",
   "meta": "AUTH_REQUIRED: app configuration and account OAuth not completed",
-  "growth": "TESTED with controlled Meta responses; NOT OPERATIONAL; zero confirmed real publications"
+  "growth": "TESTED with controlled Meta responses and real ChatGPT draft generation; NOT OPERATIONAL; zero confirmed real publications",
+  "work_bridge": "CONNECTED / INTERNAL TEST PASSED: Director delegated Sales, Builder and Growth; four COMPLETE results persisted; external forwarding disabled"
 }
