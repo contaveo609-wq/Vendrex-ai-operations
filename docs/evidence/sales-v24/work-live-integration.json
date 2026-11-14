@@ -85,6 +85,15 @@
   "active_event_subscriptions": 0,
   "external_forwarding_enabled": false,
   "source": "ChatGPT, chat de teste autorizado pelo proprietário",
+  "private_dashboard_verification": {
+    "deploy_id": "6af7b54bb8016d4bcb7f8f27",
+    "owner_session_verified": true,
+    "tab": "Director",
+    "operator_label": "confirmado",
+    "completed_agents_visible": ["growth", "builder", "sales", "director"],
+    "forwarding_enabled": false,
+    "event_subscriptions_visible": 0
+  },
   "chatgpt_result_readback": {
     "work_function_version": 4,
     "tool": "get_agent_result",
